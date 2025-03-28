@@ -96,8 +96,13 @@ def evaluate_classifier(y_actual: pd.Series, y_pred: pd.Series, display_results:
     plt.show()
   return val_acc, class_report, conf_matrix
 
-def eliminate_variables_from_set(listOfSets: list[pd.DataFrame], listOfVariables: list[str]) -> list[pd.DataFrame]:
+def eliminate_variables_from_set(listOfSets: list[pd.DataFrame], listOfVariables: list[str]):
   """Eliminates variables from a list of sets"""
+  lengthOfListOfSets = [len(set) for set in listOfSets]
   for set in listOfSets:
-    set.drop(columns=listOfVariables, inplace=True)
-  return listOfSets
+    set.drop(columns=listOfVariables, 
+             inplace=True,
+             errors='ignore') # ignore errors if the variable is not in the set
+  for i in range(len(listOfSets)):
+    if len(listOfSets[i]) == lengthOfListOfSets[i]:
+      print(f"No modifications were made to the set {i}")
