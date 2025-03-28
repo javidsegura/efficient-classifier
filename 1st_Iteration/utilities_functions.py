@@ -80,18 +80,24 @@ def get_y_sets_encoded(y_train: pd.Series, y_val: pd.Series, y_test: pd.Series) 
 
   return y_train_encoded, y_val_encoded, y_test_encoded
 
-# def evaluate_classifier(y_actual: pd.Series, y_pred: pd.Series, display_results: bool = False, plot_confusion_matrix: bool = False) -> tuple[float, str, np.ndarray]:
-#   """ Returns commonc classification metrics, plots confusion matrix if requested, writes to stdout if requested"""
-#   val_acc = accuracy_score(y_actual, y_pred)
-#   class_report = classification_report(y_actual, y_pred) # F1 score, precision, recall for each class
-#   conf_matrix = confusion_matrix(y_actual, y_pred)
-#   if display_results:
-#     print(f"Validation Accuracy: {val_acc}")
-#     print(f"Validation Classification Report: {class_report}")
-#   if plot_confusion_matrix:
-#     sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues')
-#     plt.xlabel("Predicted Label")
-#     plt.ylabel("True Label")
-#     plt.title("Confusion Matrix")
-#     plt.show()
-#   return val_acc, class_report, conf_matrix
+def evaluate_classifier(y_actual: pd.Series, y_pred: pd.Series, display_results: bool = False, plot_confusion_matrix: bool = False) -> tuple[float, str, np.ndarray]:
+  """ Returns commonc classification metrics, plots confusion matrix if requested, writes to stdout if requested"""
+  val_acc = accuracy_score(y_actual, y_pred)
+  class_report = classification_report(y_actual, y_pred) # F1 score, precision, recall for each class
+  conf_matrix = confusion_matrix(y_actual, y_pred)
+  if display_results:
+    print(f"Validation Accuracy: {val_acc}")
+    print(f"Validation Classification Report: {class_report}")
+  if plot_confusion_matrix:
+    sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues')
+    plt.xlabel("Predicted Label")
+    plt.ylabel("True Label")
+    plt.title("Confusion Matrix")
+    plt.show()
+  return val_acc, class_report, conf_matrix
+
+def eliminate_variables_from_set(listOfSets: list[pd.DataFrame], listOfVariables: list[str]) -> list[pd.DataFrame]:
+  """Eliminates variables from a list of sets"""
+  for set in listOfSets:
+    set.drop(columns=listOfVariables, inplace=True)
+  return listOfSets
