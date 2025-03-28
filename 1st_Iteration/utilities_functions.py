@@ -3,22 +3,23 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import pandas as pd
+
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 
 
-def compute_correlation_matrix(figsize, dataframe):
-  # Compute the correlation matrix
+def compute_correlation_matrix(figsize: tuple[int, int], dataframe: pd.DataFrame):
+  """Computes and plots (efficiently) the correlation heatmap"""
   corr = dataframe.corr()
-  mask = np.triu(np.ones_like(corr, dtype=bool))
+  mask = np.triu(np.ones_like(corr, dtype=bool)) # avoid redundancy
   f, ax = plt.subplots(figsize=figsize)
   cmap = sns.diverging_palette(230, 20, as_cmap=True)
   vmin, vmax = corr.min().min(), corr.max().max()
   sns.heatmap(corr, mask=mask, cmap=cmap, center=0,
             square=True, linewidths=.5, cbar_kws={"shrink": .8}, vmin=vmin, vmax=vmax)
-  return [vmin, vmax]
 
-def basic_distribution_plot(x_axis,title, xlabel, ylabel, bins=30, size="small"):
+def basic_distribution_plot(x_axis: pd.Series, title: str, xlabel: str, ylabel: str, bins: int = 30, size: str = "small"):
+  """Plots a distribution in a more straight-forward way. Very general subroutine"""
   if size == "s":
     plt.figure(figsize=(5, 3))
   elif size == "m":
@@ -33,21 +34,21 @@ def basic_distribution_plot(x_axis,title, xlabel, ylabel, bins=30, size="small")
   plt.ylabel(ylabel)
   plt.show()
 
-def get_X_y(df, y_column, otherColumnsToDrop=[]):
+def get_X_y(df: pd.DataFrame, y_column: str, otherColumnsToDrop: list[str] = []) -> tuple[pd.DataFrame, pd.Series]:
+  """Splits the dataframe into features and target variable"""
   X = df.drop(columns=[y_column] + otherColumnsToDrop)
   y = df[y_column]
   return X, y
 
-def get_split_data(X, y, train_size=0.8, validation_size=0.1, test_size=0.1, random_state=99):
+def get_split_data(X: pd.DataFrame, y: pd.Series, train_size: float = 0.8, validation_size: float = 0.1, test_size: float = 0.1, random_state: int = 99) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
+  """Splits the dataframe into training, validation and test sets"""
   assert train_size + validation_size + test_size == 1, "The sum of the sizes must be 1"
   X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=validation_size + test_size, random_state=random_state) 
   X_validation, X_test, y_validation, y_test = train_test_split(X_temp, y_temp, test_size=test_size/(validation_size + test_size), random_state=random_state) 
   return X_train, X_validation, X_test, y_train, y_validation, y_test
 
-def get_X_sets_encoded(
-                       X_train,
-                       X_val,
-                       X_test):
+def get_X_sets_encoded(X_train: pd.DataFrame, X_val: pd.DataFrame, X_test: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+  """Encodes the categorical features for the training, validation and test sets"""
   encoder = OneHotEncoder(handle_unknown="ignore", 
                         sparse_output=False,
                         dtype=int,
@@ -69,11 +70,11 @@ def get_X_sets_encoded(
   X_test_encoded = X_test.drop(cat_cols, axis=1).join(test_encoded)
   return X_train_encoded, X_val_encoded, X_test_encoded
 
-def get_y_sets_encoded(y_train, y_val, y_test):
+def get_y_sets_encoded(y_train: pd.Series, y_val: pd.Series, y_test: pd.Series) -> tuple[pd.Series, pd.Series, pd.Series]:
   labeller = LabelEncoder()
   labeller.fit(y_train)
   y_train_encoded = pd.Series(labeller.transform(y_train), index=y_train.index)
   y_val_encoded = pd.Series(labeller.transform(y_val), index=y_val.index)
   y_test_encoded = pd.Series(labeller.transform(y_test), index=y_test.index)
-  
+
   return y_train_encoded, y_val_encoded, y_test_encoded
