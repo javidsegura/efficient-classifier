@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+
 
 def compute_correlation_matrix(figsize, dataframe):
   # Compute the correlation matrix
@@ -10,9 +13,11 @@ def compute_correlation_matrix(figsize, dataframe):
   mask = np.triu(np.ones_like(corr, dtype=bool))
   f, ax = plt.subplots(figsize=figsize)
   cmap = sns.diverging_palette(230, 20, as_cmap=True)
-  sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
-            square=True, linewidths=.5, cbar_kws={"shrink": .5})
-  
+  vmin, vmax = corr.min().min(), corr.max().max()
+  sns.heatmap(corr, mask=mask, cmap=cmap, center=0,
+            square=True, linewidths=.5, cbar_kws={"shrink": .8}, vmin=vmin, vmax=vmax)
+  return [vmin, vmax]
+
 def basic_distribution_plot(x_axis,title, xlabel, ylabel, bins=30, size="small"):
   if size == "s":
     plt.figure(figsize=(5, 3))
@@ -27,3 +32,39 @@ def basic_distribution_plot(x_axis,title, xlabel, ylabel, bins=30, size="small")
   plt.xlabel(xlabel)
   plt.ylabel(ylabel)
   plt.show()
+
+def get_X_y(df, y_column, otherColumnsToDrop=[]):
+  X = df.drop(columns=[y_column] + otherColumnsToDrop)
+  y = df[y_column]
+  return X, y
+
+def get_split_data(X, y, train_size=0.8, validation_size=0.1, test_size=0.1, random_state=99):
+  assert train_size + validation_size + test_size == 1, "The sum of the sizes must be 1"
+  X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=validation_size + test_size, random_state=random_state) 
+  X_validation, X_test, y_validation, y_test = train_test_split(X_temp, y_temp, test_size=test_size/(validation_size + test_size), random_state=random_state) 
+  return X_train, X_validation, X_test, y_train, y_validation, y_test
+
+def get_X_sets_encoded(
+                       X_train,
+                       X_val,
+                       X_test):
+  encoder = OneHotEncoder(handle_unknown="ignore", 
+                        sparse_output=False,
+                        dtype=int,
+                        drop="first"
+                        )
+  cat_cols = X_train.select_dtypes(include=["object"]).columns
+  # Training set
+  encoded_array = encoder.fit_transform(X_train[cat_cols])
+  encoded_cols = encoder.get_feature_names_out(cat_cols)
+  train_encoded = pd.DataFrame(encoded_array, columns=encoded_cols, index=X_train.index)
+  X_train_encoded = X_train.drop(cat_cols, axis=1).join(train_encoded)
+  # Validation set
+  encoded_array_val = encoder.transform(X_val[cat_cols])
+  val_encoded = pd.DataFrame(encoded_array_val, columns=encoded_cols, index=X_val.index)
+  X_val_encoded = X_val.drop(cat_cols, axis=1).join(val_encoded)
+  # Test set
+  encoded_array_test = encoder.transform(X_test[cat_cols])
+  test_encoded = pd.DataFrame(encoded_array_test, columns=encoded_cols, index=X_test.index)
+  X_test_encoded = X_test.drop(cat_cols, axis=1).join(test_encoded)
+  return X_train_encoded, X_val_encoded, X_test_encoded
