@@ -4,7 +4,7 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 
 
 def compute_correlation_matrix(figsize, dataframe):
@@ -68,3 +68,12 @@ def get_X_sets_encoded(
   test_encoded = pd.DataFrame(encoded_array_test, columns=encoded_cols, index=X_test.index)
   X_test_encoded = X_test.drop(cat_cols, axis=1).join(test_encoded)
   return X_train_encoded, X_val_encoded, X_test_encoded
+
+def get_y_sets_encoded(y_train, y_val, y_test):
+  labeller = LabelEncoder()
+  labeller.fit(y_train)
+  y_train_encoded = pd.Series(labeller.transform(y_train), index=y_train.index)
+  y_val_encoded = pd.Series(labeller.transform(y_val), index=y_val.index)
+  y_test_encoded = pd.Series(labeller.transform(y_test), index=y_test.index)
+  
+  return y_train_encoded, y_val_encoded, y_test_encoded
