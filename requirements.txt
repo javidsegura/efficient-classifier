@@ -52,4 +52,5 @@ traitlets==5.14.3
 typing_extensions==4.13.0
 tzdata==2025.2
 wcwidth==0.2.13
+xgboost==2.1.4
 zipp==3.21.0
