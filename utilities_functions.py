@@ -1,8 +1,11 @@
+import time
 
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import pandas as pd
+import concurrent.futures
+
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
@@ -106,3 +109,36 @@ def eliminate_variables_from_set(listOfSets: list[pd.DataFrame], listOfVariables
   for i in range(len(listOfSets)):
     if len(listOfSets[i]) == lengthOfListOfSets[i]:
       print(f"No modifications were made to the set {i}")
+
+def __fit_and_predict__(model_item, X_category_train_encoded: pd.DataFrame, y_category_train_encoded: pd.Series, X_category_val_encoded: pd.DataFrame, X_category_test_encoded: pd.DataFrame):
+    classifierName, classifier = model_item
+    start_time = time.time()
+    print(f"!> Started fitting {classifierName}")
+    classifier["model"].fit(X_category_train_encoded, y_category_train_encoded)
+    end_time = time.time()
+    time_to_fit = end_time - start_time
+    classifier["timeToFit"] = time_to_fit
+    print(f"\t\t => Fitted {classifierName}. Took {time_to_fit} seconds")
+    
+    classifierName, classifier = model_item
+    print(f"!> Started predicting for {classifierName}")
+    start_time = time.time()
+    classifier["val_predictions"] = classifier["model"].predict(X_category_val_encoded)
+    classifier["test_predictions"] = classifier["model"].predict(X_category_test_encoded)
+    end_time = time.time()
+    classifier["timeToMakePredictions"] = end_time - start_time
+    print(f"\t\t => Predicted {classifierName}. Took {classifier['timeToMakePredictions']} seconds")
+    return classifierName, classifier
+  
+def fit_models(models: list[dict], X_category_train_encoded: pd.DataFrame, y_category_train_encoded: pd.Series, X_category_val_encoded: pd.DataFrame, X_category_test_encoded: pd.DataFrame):
+  with concurrent.futures.ProcessPoolExecutor() as executor:
+      # Submit all model fitting tasks to the executor
+      future_to_model = {executor.submit(__fit_and_predict__, item, X_category_train_encoded, y_category_train_encoded, X_category_val_encoded, X_category_test_encoded): item for item in models.items()}
+      
+      for future in concurrent.futures.as_completed(future_to_model):
+          classifierName, classifier = future.result()
+          models[classifierName] = classifier # this is not doing nothing new. Its just to way for the process pool to return the results
+      
+  print("All models have been fitted and made predictions in parallel.")
+  return models
+  
