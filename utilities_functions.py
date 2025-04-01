@@ -130,7 +130,8 @@ def __fit_and_predict__(model_item, X_category_train_encoded: pd.DataFrame, y_ca
     print(f"\t\t => Predicted {classifierName}. Took {classifier['timeToMakePredictions']} seconds")
     return classifierName, classifier
   
-def fit_models(models: list[dict], X_category_train_encoded: pd.DataFrame, y_category_train_encoded: pd.Series, X_category_val_encoded: pd.DataFrame, X_category_test_encoded: pd.DataFrame):
+def fit_models(models: list[dict], X_category_train_encoded: pd.DataFrame, y_category_train_encoded: pd.Series, X_category_val_encoded: pd.DataFrame, X_category_test_encoded: pd.DataFrame) -> dict:
+  """Fits and predicts the models in parallel"""
   with concurrent.futures.ProcessPoolExecutor() as executor:
       # Submit all model fitting tasks to the executor
       future_to_model = {executor.submit(__fit_and_predict__, item, X_category_train_encoded, y_category_train_encoded, X_category_val_encoded, X_category_test_encoded): item for item in models.items()}
