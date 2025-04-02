@@ -49,6 +49,7 @@ def asses_split(df, p, step):
       df_split_assesment = pd.DataFrame()
       hold_out_size = step
       p = .85
+      priorSE = 0
       while hold_out_size <= .50: # very generous upper-bound split
             assert hold_out_size < 1 
             train_size_percentage  = 1 - hold_out_size
@@ -62,6 +63,9 @@ def asses_split(df, p, step):
 
 
             currentSE = computeSE(p, test_size_count)
+            differenceToPriorSE = currentSE - priorSE
+            differenceToPriorSE_percentage = (currentSE - priorSE) /  priorSE
+            priorSE = currentSE
 
             new_row = pd.DataFrame([{
             "train_size (%)": train_size_percentage, 
@@ -70,7 +74,9 @@ def asses_split(df, p, step):
             "validation_size_count": val_size_count,
             "test_size (%)": test_size_percentage, 
             "test_size_coount": test_size_count,
-            "currentSE": currentSE 
+            "currentSE": currentSE ,
+            "differenceToPriorSE": differenceToPriorSE,
+            "differenceToPriorSE (%)": differenceToPriorSE_percentage,
             }])
 
             # Concatenate the new row with your existing DataFrame
