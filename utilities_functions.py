@@ -44,6 +44,40 @@ def get_X_y(df: pd.DataFrame, y_column: str, otherColumnsToDrop: list[str] = [])
   y = df[y_column]
   return X, y
 
+def asses_split(df, p, step):
+      computeSE = lambda p, n : np.sqrt((p*(1-p))/n)
+      df_split_assesment = pd.DataFrame()
+      hold_out_size = step
+      p = .85
+      while hold_out_size <= .50: # very generous upper-bound split
+            assert hold_out_size < 1 
+            train_size_percentage  = 1 - hold_out_size
+            train_size_count = round(df.shape[0] * train_size_percentage, 0)
+
+            val_size_percentage = hold_out_size / 2
+            val_size_count = round(df.shape[0] * (hold_out_size / 2),0)
+
+            test_size_percentage = hold_out_size / 2
+            test_size_count = round(df.shape[0] * (hold_out_size / 2),0)
+
+
+            currentSE = computeSE(p, test_size_count)
+
+            new_row = pd.DataFrame([{
+            "train_size (%)": train_size_percentage, 
+            "train_size_count": train_size_count,
+            "validation_size (%)": val_size_percentage ,
+            "validation_size_count": val_size_count,
+            "test_size (%)": test_size_percentage, 
+            "test_size_coount": test_size_count,
+            "currentSE": currentSE 
+            }])
+
+            # Concatenate the new row with your existing DataFrame
+            df_split_assesment = pd.concat([df_split_assesment, new_row], ignore_index=True)
+            hold_out_size += step
+      return df_split_assesment
+
 def get_split_data(X: pd.DataFrame, y: pd.Series, train_size: float = 0.8, validation_size: float = 0.1, test_size: float = 0.1, random_state: int = 99) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
   """Splits the dataframe into training, validation and test sets"""
   assert train_size + validation_size + test_size == 1, "The sum of the sizes must be 1"
