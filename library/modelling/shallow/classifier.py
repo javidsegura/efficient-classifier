@@ -5,15 +5,15 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix
 
 
-from utils.dataset import Dataset
-from utils.modelling.shallow.base import ModelAssesment
+from library.dataset import Dataset
+from library.modelling.shallow.base import ModelAssesment
 
 class ClassifierAssesment(ModelAssesment):
   """
   This class is used to assess the performance of a classifier.
   """
-  def __init__(self, dataset: Dataset) -> None:
-    super().__init__(dataset)
+  def __init__(self, dataset: Dataset, results_path: str, results_columns: list, columns_to_check_duplicates: list) -> None:
+    super().__init__(dataset, results_path, results_columns, columns_to_check_duplicates)
   
   def __set_assesment__(self, y_actual: pd.Series, y_pred: pd.Series, plot: bool = True):
     """

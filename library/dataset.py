@@ -55,7 +55,7 @@ class Dataset:
          print(info)
       return info
   
-    def asses_split(self, p: float, step: float, plot: bool = True, upper_bound: float = .50) -> pd.DataFrame:
+    def asses_split_classifier(self, p: float, step: float, plot: bool = True, upper_bound: float = .50) -> pd.DataFrame:
       """
       Assesses the split of the dataframe
 
@@ -154,7 +154,7 @@ class Dataset:
         y_column : str
             The column name of the target variable
         otherColumnsToDrop : list[str]
-            The columns to drop from the dataframe
+            The columns to drop from the dataframe (e.g: record identifiers)
         train_size : float
             The size of the training set
         validation_size : float
@@ -184,14 +184,17 @@ class Dataset:
 
       return X_train, X_validation, X_test, y_train, y_validation, y_test
     
-    def get_dataset_encoded(self, 
-                            encode_y: bool = True
-                            ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series, dict] | tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
+    def get_categorical_features_encoded(self, 
+                                          features: list[str],
+                                          encode_y: bool = True
+                                          ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series, dict] | tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
       """
       Encodes the categorical features for the training, validation and test sets
 
       Parameters
       ----------
+        features : list[str]
+            The features to encode
         encode_y : bool
             Whether to encode the target variable
       Returns
@@ -216,20 +219,19 @@ class Dataset:
                         dtype=int,
                         drop="first"
                         )
-      cat_cols = self.X_train.select_dtypes(include=["object"]).columns
       # Training set
-      encoded_array = encoder.fit_transform(self.X_train[cat_cols])
-      encoded_cols = encoder.get_feature_names_out(cat_cols)
+      encoded_array = encoder.fit_transform(self.X_train[features])
+      encoded_cols = encoder.get_feature_names_out(features)
       train_encoded = pd.DataFrame(encoded_array, columns=encoded_cols, index=self.X_train.index)
-      X_train_encoded = self.X_train.drop(cat_cols, axis=1).join(train_encoded)
+      X_train_encoded = self.X_train.drop(features, axis=1).join(train_encoded)
       # Validation set
-      encoded_array_val = encoder.transform(self.X_validation[cat_cols])
+      encoded_array_val = encoder.transform(self.X_validation[features])
       val_encoded = pd.DataFrame(encoded_array_val, columns=encoded_cols, index=self.X_validation.index)
-      X_val_encoded = self.X_validation.drop(cat_cols, axis=1).join(val_encoded)
+      X_val_encoded = self.X_validation.drop(features, axis=1).join(val_encoded)
       # Test set
-      encoded_array_test = encoder.transform(self.X_test[cat_cols])
+      encoded_array_test = encoder.transform(self.X_test[features])
       test_encoded = pd.DataFrame(encoded_array_test, columns=encoded_cols, index=self.X_test.index)
-      X_test_encoded = self.X_test.drop(cat_cols, axis=1).join(test_encoded)
+      X_test_encoded = self.X_test.drop(features, axis=1).join(test_encoded)
       self.X_train_encoded, self.X_val_encoded, self.X_test_encoded = X_train_encoded, X_val_encoded, X_test_encoded
       del self.X_train, self.X_validation, self.X_test
 
@@ -247,6 +249,20 @@ class Dataset:
       else:
         return X_train_encoded, X_val_encoded, X_test_encoded
   
+    def get_cylical_features_encoded(self, features: list[str], typeOfEncoding: str = "sin") -> pd.DataFrame:
+      """Encodes the cyclical features (done before encoding the categorical features)"""
+      for feature in features:
+        if typeOfEncoding == "sin":
+          self.X_train[feature] = np.sin((2 * np.pi * self.X_train[feature]) / 24)
+          self.X_validation[feature] = np.sin((2 * np.pi * self.X_validation[feature]) / 24)
+          self.X_test[feature] = np.sin((2 * np.pi * self.X_test[feature]) / 24)
+        elif typeOfEncoding == "cos":
+          self.X_train[feature] = np.cos((2 * np.pi * self.X_train[feature]) / 24)
+          self.X_validation[feature] = np.cos((2 * np.pi * self.X_validation[feature]) / 24)
+          self.X_test[feature] = np.cos((2 * np.pi * self.X_test[feature]) / 24)
+        else:
+          raise ValueError(f"Invalid type of encoding: {typeOfEncoding}")
+
     def eliminate_features_from_all_sets(self, featuresToEliminate: list[str]):
       """Eliminates variables from the dataframe"""
       listOfSets = [self.X_train_encoded, self.X_val_encoded, self.X_test_encoded]
@@ -259,38 +275,5 @@ class Dataset:
         if len(listOfSets[i]) == lengthOfSets[i]:
           print(f"No modifications were made to the set {i}")
     
-      
-class Plots:
-  """ 
-  We will be using 'composition' desing pattern to create plots from the dataframe object that is an instance of the Dataset class
-  This design pattern allows for two classes to be able to share data (e.g: dataset object)
-  """
-  def __init__(self, dataset: Dataset) -> None:
-    self.dataset = dataset
-
-  def plot_correlation_matrix(self, size: str = "small"):
-    """
-    Plots the correlation matrix of the dataframe
-
-    Parameters
-    ----------
-      size : str
-        The size of the plot. Taken on ["s", "m", "l", "auto"]
-    """
-    only_numerical_df = self.dataset.df.select_dtypes(include=["number"])
-    corr = only_numerical_df.corr()
-    mask = np.triu(np.ones_like(corr, dtype=bool)) # avoid redundancy
-    if size == "s":
-      f, ax = plt.subplots(figsize=(5, 3))
-    elif size == "m":
-      f, ax = plt.subplots(figsize=(10, 6))
-    elif size == "l":
-      f, ax = plt.subplots(figsize=(20, 15))
-    elif size == "auto":
-      f, ax = plt.subplots()
-    cmap = sns.diverging_palette(230, 20, as_cmap=True)
-    vmin, vmax = corr.min().min(), corr.max().max()
-    sns.heatmap(corr, mask=mask, cmap=cmap, center=0,
-              square=True, linewidths=.5, cbar_kws={"shrink": .8}, vmin=vmin, vmax=vmax)
 
 

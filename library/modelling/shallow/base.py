@@ -1,4 +1,6 @@
 import time
+import csv
+import os
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
@@ -17,7 +19,7 @@ from boruta import BorutaPy
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.ensemble import RandomForestClassifier
 
-from utils.dataset import Dataset
+from library.dataset import Dataset
 
 # Global variables
 RANDOM_STATE = 99
@@ -27,7 +29,7 @@ class ModelAssesment:
   """
   Base class for all shallow models. Provides a general overview of all the models.
   """
-  def __init__(self, dataset: Dataset) -> None:
+  def __init__(self, dataset: Dataset, results_path: str, results_columns: list, columns_to_check_duplicates: list) -> None:
     """
     Initializes the ModelAssesment class
 
@@ -38,6 +40,18 @@ class ModelAssesment:
     """
     self.models = dict()
     self.dataset = dataset
+    self.results_path = results_path
+    self.results_columns = sorted(results_columns)
+    self.columns_to_check_duplicates = columns_to_check_duplicates
+    self.__create_results_file__()
+
+  def __create_results_file__(self):
+    if os.path.exists(self.results_path):
+      pass
+    else: 
+      with open(self.results_path, "w", newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(self.results_columns)
   def get_models_names(self) -> list:
     """
     Returns the names of the models
@@ -48,6 +62,32 @@ class ModelAssesment:
       The names of the models
     """
     return list(self.models.keys())
+  def get_model_results_saved(self, dataToWrite: dict, featuresUsed: list):
+    """
+    Returns the model by name
+    """
+    results = pd.read_csv(self.results_path)
+    if (sorted(list(dataToWrite.keys())) != sorted(self.results_columns)):
+      print(sorted(list(dataToWrite.keys())))
+      print(sorted(self.results_columns))
+      raise ValueError("The data to write does not match the columns of the results")
+    dataToWrite["features_used"] = featuresUsed
+    # Define the columns to check for an existing match
+    isUnique = True
+    for column in self.columns_to_check_duplicates:
+      if results[column].isin([dataToWrite[column]]).any():
+        isUnique = False
+        break
+    if isUnique:
+      with open(self.results_path, "a", newline='') as f: 
+          writer = csv.writer(f)
+          writer.writerow([dataToWrite[col] for col in self.results_columns])
+      print(f"!> Model results stored succesfully")
+    else:
+      raise Warning("A model with the same values already exists in the results")
+    
+
+  
   def automatic_feature_selection_l1(self, logistic_model: dict, print_results: bool = True):
     """
     Automatically selects the features that are most predictive of the target variable using the L1 regularization method
@@ -123,7 +163,7 @@ class ModelAssesment:
     }
     print(f"Added {modelName} to the models dictionary successfully")
 
-  def __fit_and_predict__(self, model_item, print_results: bool = True):
+  def __fit_and_predict__(self, model_item, print_results: bool = True, y_encoded: bool = True):
     """
     Fits and predicts a model
 
@@ -133,7 +173,8 @@ class ModelAssesment:
         The model item
       print_results : bool
         Whether to print the results
-
+      y_encoded : bool
+        Whether the target variable is encoded
     Returns
     -------
       tuple
@@ -143,7 +184,10 @@ class ModelAssesment:
     start_time = time.time()
     if print_results:
       print(f"!> Started fitting {classifierName}")
-    classifier["model"].fit(self.dataset.X_train_encoded, self.dataset.y_train_encoded)
+    if y_encoded:
+      classifier["model"].fit(self.dataset.X_train_encoded, self.dataset.y_train_encoded)
+    else:
+      classifier["model"].fit(self.dataset.X_train_encoded, self.dataset.y_train)
     end_time = time.time()
     time_to_fit = end_time - start_time
     classifier["timeToFit"] = time_to_fit
@@ -162,11 +206,11 @@ class ModelAssesment:
       print(f"\t\t => Predicted {classifierName}. Took {classifier['timeToMakePredictions']} seconds")
     return classifierName, classifier
   
-  def fit_models(self, print_results: bool = True, modelsToExclude: list = []) -> dict:
+  def fit_models(self, print_results: bool = True, modelsToExclude: list = [], y_encoded: bool = True) -> dict:
     """Fits and predicts the models in parallel"""
     with concurrent.futures.ProcessPoolExecutor() as executor:
       # Submit all model fitting tasks to the executor
-      future_to_model = {executor.submit(self.__fit_and_predict__, item, print_results): item for item in self.models.items() if item[0] not in modelsToExclude}
+      future_to_model = {executor.submit(self.__fit_and_predict__, item, print_results, y_encoded): item for item in self.models.items() if item[0] not in modelsToExclude}
       
       for future in concurrent.futures.as_completed(future_to_model):
           classifierName, classifier = future.result() 
@@ -204,6 +248,7 @@ class ModelAssesment:
 
     plt.tight_layout()
     plt.show()
+
 
   
 
