@@ -3,13 +3,17 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
+from sklearn.preprocessing import MinMaxScaler, RobustScaler
 
 class Preprocessing:
-    def __init__(self):
+    def __init__(self, X_train):
+        self.X_train = X_train
+        self.scaler_robust = RobustScaler()
+        self.scaler_minmax = MinMaxScaler()
         pass
     
     # Function to determine if a feature needs standardization or normalization
-    def determine_scaling_method(feature_series) -> str:
+    def determine_scaling_method(self, feature_series) -> str:
         """
         Determine whether a feature should be standardized or normalized based on its characteristics.
         
@@ -44,7 +48,7 @@ class Preprocessing:
             return 'robust'  # Default to standardization for most ML algorithms
         
     # Visualize the effect of scaling on a few features
-    def plot_before_after_scaling(original_df, scaled_df, features, n_features=4) -> None:
+    def plot_before_after_scaling(self, original_df, scaled_df, features, n_features=4) -> None:
         """
         Plot histograms before and after scaling for selected features.
         
@@ -73,3 +77,52 @@ class Preprocessing:
         
         plt.tight_layout()
         plt.show()
+        
+    def prepare_scaling(self) -> None:
+        """
+        Prepare the data for scaling by determining the scaling method for each feature.
+        
+        Returns:
+            None
+        """
+        # Get numerical columns (excluding Reboot_before)
+        numerical_cols = [col for col in self.X_train.columns]
+        
+        # Determine scaling method for each feature
+        scaling_methods = {}
+        for col in numerical_cols:
+            scaling_methods[col] = self.determine_scaling_method(self.X_train[col])
+            
+        # Create lists for each scaling method
+        self.robust_cols = [col for col, method in scaling_methods.items() if method == 'robust']
+        self.normalize_cols = [col for col, method in scaling_methods.items() if method == 'normalize']
+        self.no_scaling_cols = [col for col, method in scaling_methods.items() if method == 'none']
+        
+    def apply_scaling(self):
+        """
+        Apply scaling to the training data based on the determined scaling methods.
+        
+        Returns:
+            DataFrame: The scaled training data
+        """
+        # Create a copy of the training data to avoid warnings
+        self.X_train_scaled = self.X_train.copy()
+        
+        # Apply standardization
+        if self.robust_cols:
+            self.X_train_scaled[self.robust_cols] = self.scaler_robust.fit_transform(self.X_train[self.robust_cols])
+
+        # Apply normalization
+        if self.normalize_cols:
+            self.X_train_scaled[self.normalize_cols] = self.scaler_minmax.fit_transform(self.X_train[self.normalize_cols])
+
+        # Visualize scaling effects using utility function
+        if self.robust_cols:
+            print("\nExamples of standardized features:")
+            self.plot_before_after_scaling(self.X_train, self.X_train_scaled, self.robust_cols)
+
+        if self.normalize_cols:
+            print("\nExamples of normalized features:")
+            self.plot_before_after_scaling(self.X_train, self.X_train_scaled, self.normalize_cols)
+            
+        return self.X_train_scaled
