@@ -24,7 +24,7 @@ class RegressorAssesment(ModelAssesment):
       print(f"\t\t => R2: {r2}")
     return mae, mse, r2
 
-  def evaluate_regressor(self, modelsToExclude: list = [], y_encoded: bool = True, saveModelResults: bool = False, dataToWrite: dict = {}):
+  def evaluate_regressor(self, modelsToExclude: list = [], saveModelResults: bool = False, dataToWrite: dict = {}):
     if saveModelResults:
       assert dataToWrite is not None, "dataToWrite must be provided if saveModelResults is True"
 
@@ -33,11 +33,11 @@ class RegressorAssesment(ModelAssesment):
         continue
       print(f"Evaluating {modelName}")
       print(f"\t => VALIDATION ASSESMENT:")
-      y_actual_val = self.dataset.y_val_encoded if y_encoded else self.dataset.y_validation
+      y_actual_val = self.dataset.y_val_encoded if hasattr(self.dataset, 'y_train_encoded') else self.dataset.y_validation
       y_pred_val = model["val_predictions"]
       mae_val, mse_val, r2_val = self.__set_assesment__(y_actual_val, y_pred_val)
       print(f"\t => TEST ASSESMENT:")
-      y_actual_test = self.dataset.y_test_encoded if y_encoded else self.dataset.y_test
+      y_actual_test = self.dataset.y_test_encoded if hasattr(self.dataset, 'y_train_encoded') else self.dataset.y_test
       y_pred_test = model["test_predictions"]
       mae_test, mse_test, r2_test = self.__set_assesment__(y_actual_test, y_pred_test)
       self.models[modelName]["metrics"] = {

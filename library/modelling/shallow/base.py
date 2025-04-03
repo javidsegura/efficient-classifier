@@ -54,6 +54,7 @@ class ModelAssesment:
       with open(self.results_path, "w", newline='') as f:
         writer = csv.writer(f)
         writer.writerow(self.results_columns)
+
   def get_models_names(self) -> list:
     """
     Returns the names of the models
@@ -64,35 +65,28 @@ class ModelAssesment:
       The names of the models
     """
     return list(self.models.keys())
+  
   def get_model_results_saved(self, dataToWrite: dict, featuresUsed: list):
     """
     Returns the model by name
     """
     results = pd.read_csv(self.results_path)
     dataToWrite["features_used"] = featuresUsed
-    print(f"Data to write is: {dataToWrite}")
     if (sorted(list(dataToWrite.keys())) != self.results_columns):
       raise ValueError(f"The data to write does not match the columns of the results. \n Data to write: {sorted(list(dataToWrite.keys()))} \n Data header: {self.results_columns}")
     # Define the columns to check for an existing match
     isUniqueCount = 0
     for column in self.columns_to_check_duplicates:         
       if (results[column].astype(str) == str(dataToWrite[column])).any():
-        print(f"Column {column} with value {dataToWrite[column]} is not unique")
         isUniqueCount += 1
-      else:
-        print(f"Column {column} with value {dataToWrite[column]} is unique")
-    print(f"isUniqueCount is: {isUniqueCount}")
-    print(f"len(self.columns_to_check_duplicates) is: {len(self.columns_to_check_duplicates)}")
     if isUniqueCount != len(self.columns_to_check_duplicates):
       with open(self.results_path, "a", newline='') as f: 
           writer = csv.writer(f)
           writer.writerow([str(dataToWrite[col]) for col in self.results_columns])
       print(f"!> Model results stored succesfully")
     else:
-      raise Warning(f"A model with the same values already exists in the results. Results will not be saved. \nYou tried to write {dataToWrite}")
+       print(f"****WARNING****: A model with the same values already exists in the results. Results will not be saved. \nYou tried to write {dataToWrite}")
     
-
-  
   def automatic_feature_selection_l1(self, logistic_model: dict, print_results: bool = True):
     """
     Automatically selects the features that are most predictive of the target variable using the L1 regularization method
@@ -166,9 +160,15 @@ class ModelAssesment:
       "test_predictions": None,
       "metrics": None
     }
+    hyperParameters = []
+    attributesToCheck = ["max_iter", "class_weight", "penalty", "C", "solver", "random_state", "max_depth", "n_estimators", "min_samples_split", "min_samples_leaf", "min_weight_fraction_leaf", "max_features", "max_leaf_nodes", "min_impurity_decrease", "min_impurity_split", "bootstrap", "oob_score", "n_jobs", "verbose", "warm_start", "class_weight", "ccp_alpha", "max_samples"]
+    for attribute in attributesToCheck:
+      if hasattr(modelObject, attribute):
+        hyperParameters.append(f"{attribute}: {getattr(modelObject, attribute)}")
+    self.models[modelName]["hyperParameters"] = hyperParameters
     print(f"Added {modelName} to the models dictionary successfully")
 
-  def __fit_and_predict__(self, model_item, print_results: bool = True, y_encoded: bool = True):
+  def __fit_and_predict__(self, model_item, print_results: bool = True):
     """
     Fits and predicts a model
 
@@ -189,7 +189,7 @@ class ModelAssesment:
     start_time = time.time()
     if print_results:
       print(f"!> Started fitting {classifierName}")
-    if y_encoded:
+    if hasattr(self.dataset, 'y_train_encoded'):
       classifier["model"].fit(self.dataset.X_train_encoded, self.dataset.y_train_encoded)
     else:
       classifier["model"].fit(self.dataset.X_train_encoded, self.dataset.y_train)
@@ -211,11 +211,11 @@ class ModelAssesment:
       print(f"\t\t => Predicted {classifierName}. Took {classifier['timeToMakePredictions']} seconds")
     return classifierName, classifier
   
-  def fit_models(self, print_results: bool = True, modelsToExclude: list = [], y_encoded: bool = True) -> dict:
+  def fit_models(self, print_results: bool = True, modelsToExclude: list = []) -> dict:
     """Fits and predicts the models in parallel"""
     with concurrent.futures.ProcessPoolExecutor() as executor:
       # Submit all model fitting tasks to the executor
-      future_to_model = {executor.submit(self.__fit_and_predict__, item, print_results, y_encoded): item for item in self.models.items() if item[0] not in modelsToExclude}
+      future_to_model = {executor.submit(self.__fit_and_predict__, item, print_results): item for item in self.models.items() if item[0] not in modelsToExclude}
       
       for future in concurrent.futures.as_completed(future_to_model):
           classifierName, classifier = future.result() 

@@ -19,7 +19,10 @@ class ClassifierAssesment(ModelAssesment):
   def __init__(self, dataset: Dataset, results_path: str, results_columns: list, columns_to_check_duplicates: list) -> None:
     super().__init__(dataset, results_path, results_columns, columns_to_check_duplicates)
   
-  def __set_assesment__(self, y_actual: pd.Series, y_pred: pd.Series, plot: bool = True):
+  def __set_assesment__(self, 
+                        y_actual: pd.Series,
+                        y_pred: pd.Series, 
+                        plot: bool = True):
     """
     Assesment of the model in a given set 
 
@@ -48,7 +51,12 @@ class ClassifierAssesment(ModelAssesment):
       plt.show()
     return class_report, conf_matrix
   
-  def __model_assesment__(self, modelName: str, model: dict, plot: bool = True, save_results: bool = True, dataToWrite: dict = {}):
+  def __model_assesment__(self, 
+                          modelName: str, 
+                          model: dict, 
+                          plot: bool = True, 
+                          save_results: bool = True, 
+                          dataToWrite: dict = {}):
     """
     Evaluate the classifier and save the results
     """
@@ -68,6 +76,7 @@ class ClassifierAssesment(ModelAssesment):
         "confusion_matrix": confusion_matrix
       }
     if save_results:
+      dataToWrite["hyperParameters"] = model["hyperParameters"]
       dataToWrite["modelName"] = modelName
       dataToWrite["accuracy"] = class_report["accuracy"]
       dataToWrite["f1"] = class_report["weighted avg"]["f1-score"]
@@ -77,7 +86,8 @@ class ClassifierAssesment(ModelAssesment):
       self.get_model_results_saved(dataToWrite=dataToWrite, featuresUsed=self.dataset.X_train_encoded.columns.tolist())
     return modelName, model
 
-  def evaluate_classifiers(self, plot: bool = True, 
+  def evaluate_classifiers(self, 
+                           plot: bool = True, 
                            modelsToExclude: list = [],
                            save_results: bool = True, 
                            dataToWrite: dict = {}):
