@@ -23,7 +23,7 @@ class FeatureEngineering:
         vif_data["VIF"] = [variance_inflation_factor(self.dataset.X_train.values, i) for i in range(len(self.dataset.X_train.columns))]
         return vif_data
     
-    def start_vif_elimination(self, threshold=10):
+    def start_vif_elimination(self, threshold=10, delete=True):
         """
         Starts the VIF elimination process. Eliminates in all sets.
         Note: this is computationally expensive for high-feature datasets.
@@ -46,10 +46,14 @@ class FeatureEngineering:
             if max_vif < threshold:
                   break
             feature_to_drop = vif_data.loc[vif_data["VIF"].idxmax(), "Feature"]
-            self.dataset.X_train.drop(columns=[feature_to_drop], inplace=True)
-            self.dataset.X_val.drop(columns=[feature_to_drop], inplace=True)
-            self.dataset.X_test.drop(columns=[feature_to_drop], inplace=True)
-            print(f"Dropped: {feature_to_drop}")
+            if delete:
+                self.dataset.X_train.drop(columns=[feature_to_drop], inplace=True)
+                self.dataset.X_val.drop(columns=[feature_to_drop], inplace=True)
+                self.dataset.X_test.drop(columns=[feature_to_drop], inplace=True)
+                print(f"Dropped: {feature_to_drop}")
+            else:
+                print(f"Feature with highest VIF: {feature_to_drop} with VIF: {max_vif}")
+                break
       
       
       
