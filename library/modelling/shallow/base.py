@@ -38,6 +38,7 @@ class ModelAssesment:
       dataset : Dataset
         The dataset to be used for the model assessment
     """
+    assert len(results_columns) > 0, "The results columns must be a non-empty list"
     self.models = dict()
     self.dataset = dataset
     self.results_path = results_path
@@ -47,8 +48,9 @@ class ModelAssesment:
 
   def __create_results_file__(self):
     if os.path.exists(self.results_path):
-      pass
+      return
     else: 
+      os.makedirs(os.path.dirname(self.results_path), exist_ok=True)
       with open(self.results_path, "w", newline='') as f:
         writer = csv.writer(f)
         writer.writerow(self.results_columns)
