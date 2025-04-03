@@ -69,24 +69,27 @@ class ModelAssesment:
     Returns the model by name
     """
     results = pd.read_csv(self.results_path)
-    if (sorted(list(dataToWrite.keys())) != sorted(self.results_columns)):
-      print(sorted(list(dataToWrite.keys())))
-      print(sorted(self.results_columns))
-      raise ValueError("The data to write does not match the columns of the results")
     dataToWrite["features_used"] = featuresUsed
+    print(f"Data to write is: {dataToWrite}")
+    if (sorted(list(dataToWrite.keys())) != self.results_columns):
+      raise ValueError(f"The data to write does not match the columns of the results. \n Data to write: {sorted(list(dataToWrite.keys()))} \n Data header: {self.results_columns}")
     # Define the columns to check for an existing match
-    isUnique = True
-    for column in self.columns_to_check_duplicates:
-      if results[column].isin([dataToWrite[column]]).any():
-        isUnique = False
-        break
-    if isUnique:
+    isUniqueCount = 0
+    for column in self.columns_to_check_duplicates:         
+      if (results[column].astype(str) == str(dataToWrite[column])).any():
+        print(f"Column {column} with value {dataToWrite[column]} is not unique")
+        isUniqueCount += 1
+      else:
+        print(f"Column {column} with value {dataToWrite[column]} is unique")
+    print(f"isUniqueCount is: {isUniqueCount}")
+    print(f"len(self.columns_to_check_duplicates) is: {len(self.columns_to_check_duplicates)}")
+    if isUniqueCount != len(self.columns_to_check_duplicates):
       with open(self.results_path, "a", newline='') as f: 
           writer = csv.writer(f)
-          writer.writerow([dataToWrite[col] for col in self.results_columns])
+          writer.writerow([str(dataToWrite[col]) for col in self.results_columns])
       print(f"!> Model results stored succesfully")
     else:
-      raise Warning("A model with the same values already exists in the results")
+      raise Warning(f"A model with the same values already exists in the results. Results will not be saved. \nYou tried to write {dataToWrite}")
     
 
   
