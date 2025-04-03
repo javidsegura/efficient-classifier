@@ -54,6 +54,12 @@ class Dataset:
       if print_info:
          print(info)
       return info
+    
+    def __get_X_y__(self, y_column: str, otherColumnsToDrop: list[str] = []) -> tuple[pd.DataFrame, pd.Series]:
+      """Splits the dataframe into features and target variable"""
+      X = self.df.drop(columns=[y_column] + otherColumnsToDrop)
+      y = self.df[y_column]
+      return X, y
   
     def asses_split_classifier(self, p: float, step: float, plot: bool = True, upper_bound: float = .50) -> pd.DataFrame:
       """
@@ -132,12 +138,6 @@ class Dataset:
          plt.show()
       self.df_split_assesment = df_split_assesment
       return df_split_assesment
-  
-    def __get_X_y__(self, y_column: str, otherColumnsToDrop: list[str] = []) -> tuple[pd.DataFrame, pd.Series]:
-      """Splits the dataframe into features and target variable"""
-      X = self.df.drop(columns=[y_column] + otherColumnsToDrop)
-      y = self.df[y_column]
-      return X, y
   
     def split_data(self, 
                  y_column: str, 
