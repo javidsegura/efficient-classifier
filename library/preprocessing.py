@@ -67,7 +67,7 @@ class Preprocessing:
         # Select a subset of features if there are too many
         if len(features) > n_features:
             features = np.random.choice(features, n_features, replace=False)
-        
+        e
         fig, axes = plt.subplots(len(features), 2, figsize=(12, 3*len(features)))
         
         for i, feature in enumerate(features):
@@ -109,6 +109,8 @@ class Preprocessing:
         Returns:
             DataFrame: The scaled training data
         """
+        self.prepare_scaling()
+        
         scaler_robust = RobustScaler()
         scaler_minmax = MinMaxScaler()
         
