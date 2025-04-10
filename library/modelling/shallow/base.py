@@ -1,6 +1,8 @@
 import time
 import csv
 import os
+import hashlib
+import json
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
@@ -72,74 +74,31 @@ class ModelAssesment:
     """
     results = pd.read_csv(self.results_path)
     dataToWrite["features_used"] = featuresUsed
+    dataToWrite["id"] = None
     if (sorted(list(dataToWrite.keys())) != self.results_columns):
       raise ValueError(f"The data to write does not match the columns of the results. \n Data to write: {sorted(list(dataToWrite.keys()))} \n Data header: {self.results_columns}")
-    # Define the columns to check for an existing match
-    isUniqueCount = 0
-    for column in self.columns_to_check_duplicates:         
-      if (results[column].astype(str) == str(dataToWrite[column])).any():
-        isUniqueCount += 1
-    if isUniqueCount != len(self.columns_to_check_duplicates):
+    
+    # Compute hash
+    dataForHash = {k: v for k, v in dataToWrite.items() if k in self.columns_to_check_duplicates}
+    hash_value = hashlib.sha256(json.dumps(dataForHash).encode()).hexdigest()
+
+    print(f"Hash value: {hash_value}")
+
+    # Debug prints
+    isNewModel = hash_value not in results["id"].values
+    dataToWrite["id"] = hash_value
+
+    print(f"IS NEW MODEL: {isNewModel}?")
+
+    if isNewModel:
       with open(self.results_path, "a", newline='') as f: 
           writer = csv.writer(f)
           writer.writerow([str(dataToWrite[col]) for col in self.results_columns])
       print(f"!> Model results stored succesfully")
     else:
-       print(f"****WARNING****: A model with the same values already exists in the results. Results will not be saved. \nYou tried to write {dataToWrite}")
-    
-  def automatic_feature_selection_l1(self, logistic_model: dict, print_results: bool = True):
-    """
-    Automatically selects the features that are most predictive of the target variable using the L1 regularization method
-
-    Parameters
-    ----------
-      logistic_model : dict
-        The logistic regression model
-      print_results : bool
-        Whether to print the results
-
-    Returns
-    -------
-      tuple
-      The predictive power features and the excluded features
-    """
-    logistic_model.fit(self.dataset.X_train_encoded, self.dataset.y_train_encoded)
-    coefficients = logistic_model.coef_
-    predictivePowerFeatures = set()
-    for i in range(len(coefficients[0])):
-      if abs(coefficients[0][i]) > 0:
-        predictivePowerFeatures.add(self.dataset.X_train_encoded.columns[i])
-    excludedFeatures = set(self.dataset.X_train_encoded.columns) - predictivePowerFeatures
-    if print_results:
-      print(f"Number of predictive power variables: {len(predictivePowerFeatures)}")
-      print(f"Number of excluded variables: {len(excludedFeatures)}")
-    return predictivePowerFeatures, excludedFeatures
-
-  def automatic_feature_selection_boruta(self, boruta_model: BorutaPy, print_results: bool = True):
-    """
-    Automatically selects the features that are most predictive of the target variable using the Boruta method
-
-    Parameters
-    ----------
-      boruta_model : BorutaPy
-        The Boruta model
-      print_results : bool
-        Whether to print the results
-
-    Returns
-    -------
-      tuple
-      The predictive power features and the excluded features
-    """
-    boruta_model.fit(self.dataset.X_train_encoded.values, 
-                        self.dataset.y_train_encoded.values)
-    selected_mask = boruta_model.support_
-    selected_features = set(self.dataset.X_train_encoded.columns[selected_mask])
-    excludedFeatures = set(self.dataset.X_train_encoded.columns) - selected_features
-    if print_results:
-      print(f"Number of predictive power variables: {len(selected_features)}")
-      print(f"Number of excluded variables: {len(excludedFeatures)}")
-    return selected_features, excludedFeatures
+       print(f"****WARNING****: A model with the same values already exists in the results. Results will not be saved. \n \
+             You tried to write {dataToWrite}")
+    return isNewModel
 
   def add_model(self, modelName: str, modelObject: dict):
     """
@@ -161,7 +120,10 @@ class ModelAssesment:
       "metrics": None
     }
     hyperParameters = []
-    attributesToCheck = ["max_iter", "class_weight", "penalty", "C", "solver", "random_state", "max_depth", "n_estimators", "min_samples_split", "min_samples_leaf", "min_weight_fraction_leaf", "max_features", "max_leaf_nodes", "min_impurity_decrease", "min_impurity_split", "bootstrap", "oob_score", "n_jobs", "verbose", "warm_start", "class_weight", "ccp_alpha", "max_samples"]
+    attributesToCheck = ["max_iter", "class_weight", "penalty", "C", "solver", "random_state", "max_depth",
+                          "n_estimators", "min_samples_split", "min_samples_leaf", "min_weight_fraction_leaf", 
+                          "max_features", "max_leaf_nodes", "min_impurity_decrease", "min_impurity_split", "bootstrap", 
+                          "oob_score", "n_jobs", "verbose", "warm_start", "class_weight", "ccp_alpha", "max_samples", "positive"]
     for attribute in attributesToCheck:
       if hasattr(modelObject, attribute):
         hyperParameters.append(f"{attribute}: {getattr(modelObject, attribute)}")
@@ -185,14 +147,17 @@ class ModelAssesment:
       tuple
       The model item
     """
+
     classifierName, classifier = model_item
     start_time = time.time()
     if print_results:
       print(f"!> Started fitting {classifierName}")
-    if hasattr(self.dataset, 'y_train_encoded'):
-      classifier["model"].fit(self.dataset.X_train_encoded, self.dataset.y_train_encoded)
+    if self.dataset.isYencoded:
+      classifier["model"].fit(self.dataset.X_train_encoded if self.dataset.isXencoded else self.dataset.X_train, 
+                              self.dataset.y_train_encoded)
     else:
-      classifier["model"].fit(self.dataset.X_train_encoded, self.dataset.y_train)
+      classifier["model"].fit(self.dataset.X_train_encoded if self.dataset.isXencoded else self.dataset.X_train, 
+                              self.dataset.y_train)
     end_time = time.time()
     time_to_fit = end_time - start_time
     classifier["timeToFit"] = time_to_fit
@@ -203,8 +168,8 @@ class ModelAssesment:
     if print_results:
       print(f"!> Started predicting for {classifierName}")
     start_time = time.time()
-    classifier["val_predictions"] = classifier["model"].predict(self.dataset.X_val_encoded)
-    classifier["test_predictions"] = classifier["model"].predict(self.dataset.X_test_encoded)
+    classifier["val_predictions"] = classifier["model"].predict(self.dataset.X_val_encoded if self.dataset.isXencoded else self.dataset.X_val)
+    classifier["test_predictions"] = classifier["model"].predict(self.dataset.X_test_encoded if self.dataset.isXencoded else self.dataset.X_test)
     end_time = time.time()
     classifier["timeToMakePredictions"] = end_time - start_time
     if print_results:
@@ -237,19 +202,25 @@ class ModelAssesment:
       if model["test_predictions"] is None or model["val_predictions"] is None:
         continue
       number_of_models += 1
-    fig, axes = plt.subplots(number_of_models, 1, figsize=(8, 5*number_of_models))
+    fig, axes = plt.subplots(number_of_models, 2, figsize=(12, 5*number_of_models))
 
     if number_of_models == 1:
         axes = [axes]
 
-    for ax, (classifierName, classifier) in zip(axes, self.models.items()):
-        ax.hist(classifier["test_predictions"], bins=30, edgecolor='black', alpha=0.5, label='Test Predictions')
-        ax.hist(classifier["val_predictions"], bins=30, edgecolor='black', alpha=0.5, label='Validation Predictions')
+    for ax, (modelName, model) in zip(axes, self.models.items()):
+        ax[0].hist(model["val_predictions"], bins=30, edgecolor='black', alpha=0.5, label='Validation Predictions')
+        ax[0].hist(self.dataset.y_val, bins=30, edgecolor='black', alpha=0.5, label='Actual Predictions (Validation Set)')
+        ax[1].hist(model["test_predictions"], bins=30, edgecolor='black', alpha=0.5, label='Test Predictions')
+        ax[1].hist(self.dataset.y_test, bins=30, edgecolor='black', alpha=0.5, label='Actual Predictions (Test Set)')
         
-        ax.set_title(f'{classifierName} - Distribution of Predicted Labels')
-        ax.set_xlabel('Predicted Label')
-        ax.set_ylabel('Frequency')
-        ax.legend()
+        ax[0].set_title(f'{modelName} - Distribution of Predicted Values (Validation Set)')
+        ax[0].set_xlabel('Predicted Values')
+        ax[0].set_ylabel('Frequency')
+        ax[0].legend()
+        ax[1].set_title(f'{modelName} - Distribution of Predicted Values (Test Set)')
+        ax[1].set_xlabel('Predicted Values')
+        ax[1].set_ylabel('Frequency')
+        ax[1].legend()
 
     plt.tight_layout()
     plt.show()

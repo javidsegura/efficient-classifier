@@ -3,7 +3,7 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
-from sklearn.preprocessing import MinMaxScaler, RobustScaler
+from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
 
 from library.dataset import Dataset
 
@@ -11,125 +11,65 @@ class Preprocessing:
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
     
-    def remove_reboot_column(self) -> None:
-        self.X_train_without_reboot = self.dataset.X_train.drop(columns="Reboot")
-    
-    # Function to determine if a feature needs standardization or normalization
-    def determine_scaling_method(self, feature_series) -> str:
+    def get_missing_values(self):
         """
-        Determine whether a feature should be standardized or normalized based on its characteristics.
+        Gets the missing values in the dataset and returns rows with missing values if any
+        """
+        missing_values_sum = self.dataset.df.isnull().sum().sum()
         
-        Args:
-            feature_series: Pandas Series containing the feature values
+        if missing_values_sum > 0:
+            print(f"Dataset contains {missing_values_sum} missing values")
             
-        Returns:
-            str: 'robust', 'normalize', or 'none'
-        """
-        # self.remove_reboot_column()
-        
-        # Skip if all values are the same (zero variance)
-        if feature_series.std() == 0:
-            return 'none'
-        
-        # Check for outliers using IQR method
-        Q1 = feature_series.quantile(0.25)
-        Q3 = feature_series.quantile(0.75)
-        IQR = Q3 - Q1
-        outlier_threshold = 1.5 * IQR
-        has_outliers = ((feature_series < (Q1 - outlier_threshold)) | 
-                        (feature_series > (Q3 + outlier_threshold))).any()
-        
-        # Check for normality using skewness
-        skewness = abs(stats.skew(feature_series.dropna()))
-        is_skewed = skewness > 1.0  # Threshold for significant skewness
-        
-        # Decision logic
-        if has_outliers:
-            return 'robust'  # Standardization handles outliers better
-        elif is_skewed:
-            return 'normalize'    # Normalization is better for non-normal distributions
+            # Get rows that have at least one missing value
+            rows_with_missing = self.dataset.df[self.dataset.df.isnull().any(axis=1)]
+            print(f"Rows with missing values:\n{rows_with_missing}")
+            
+            return rows_with_missing
         else:
-            return 'robust'  # Default to standardization for most ML algorithms
+            print("No missing values found in the dataset")
+            return None
         
-    # Visualize the effect of scaling on a few features
-    def plot_before_after_scaling(self, original_df, scaled_df, features, n_features=4) -> None:
-        """
-        Plot histograms before and after scaling for selected features.
-        
-        Args:
-            original_df: DataFrame containing the original data
-            scaled_df: DataFrame containing the scaled data
-            features: List of feature names to plot
-            
-        Returns:
-            None
-        """
-        # Select a subset of features if there are too many
-        if len(features) > n_features:
-            features = np.random.choice(features, n_features, replace=False)
-        
-        fig, axes = plt.subplots(len(features), 2, figsize=(12, 3*len(features)))
-        
-        for i, feature in enumerate(features):
-            # Original distribution
-            sns.histplot(original_df[feature], kde=True, ax=axes[i, 0])
-            axes[i, 0].set_title(f'Original: {feature}')
-            
-            # Scaled distribution
-            sns.histplot(scaled_df[feature], kde=True, ax=axes[i, 1])
-            axes[i, 1].set_title(f'Scaled: {feature}')
-        
-        plt.tight_layout()
-        plt.show()
-        
-    def prepare_scaling(self) -> None:
-        """
-        Prepare the data for scaling by determining the scaling method for each feature.
-        
-        Returns:
-            None
-        """
-        # Get numerical columns (excluding Reboot_before)
-        numerical_cols = [col for col in self.X_train_without_reboot.columns]
-        
-        # Determine scaling method for each feature
-        scaling_methods = {}
-        for col in numerical_cols:
-            scaling_methods[col] = self.determine_scaling_method(self.X_train_without_reboot[col])
-            
-        # Create lists for each scaling method
-        self.robust_cols = [col for col, method in scaling_methods.items() if method == 'robust']
-        self.normalize_cols = [col for col, method in scaling_methods.items() if method == 'normalize']
-        self.no_scaling_cols = [col for col, method in scaling_methods.items() if method == 'none']
-        
-    def apply_scaling(self):
-        """
-        Apply scaling to the training data based on the determined scaling methods.
-        
-        Returns:
-            DataFrame: The scaled training data
-        """
-        scaler_robust = RobustScaler()
-        scaler_minmax = MinMaxScaler()
-        
-        # Create a copy of the training data to avoid warnings
-        self.X_train_scaled = self.dataset.X_train.copy()
-        
-        # Apply standardization
-        if self.robust_cols:
-            self.X_train_scaled[self.robust_cols] = scaler_robust.fit_transform(self.X_train_without_reboot[self.robust_cols])
+    def get_outliers_df(self, plot: bool = False, threshold: float = 1.5, columnsToCheck: list[str] = []):
+      outlier_df = pd.DataFrame(columns=["feature", "outlierCount","percentageOfOutliers", "descriptiveStatistics"])
+      only_numerical_features = self.dataset.X_train.select_dtypes(include=["number"]).columns
+      outliers = {}
 
-        # Apply normalization
-        if self.normalize_cols:
-            self.X_train_scaled[self.normalize_cols] = scaler_minmax.fit_transform(self.X_train_without_reboot[self.normalize_cols])
+      for feature in only_numerical_features if not columnsToCheck else columnsToCheck:
+            original_values = self.dataset.X_train[feature].copy()
+            original_values_size = len(original_values)
+            IQR = self.dataset.X_train[feature].quantile(0.75) - self.dataset.X_train[feature].quantile(0.25)
+            lower_bound = self.dataset.X_train[feature].quantile(0.25) - threshold * IQR
+            upper_bound = self.dataset.X_train[feature].quantile(0.75) + threshold * IQR
+            outliersDataset = self.dataset.X_train[feature][(self.dataset.X_train[feature] < lower_bound) | (self.dataset.X_train[feature] > upper_bound)]
+            outliers_count = len(outliersDataset)
+            if (outliers_count > 0):
+                  outliers[feature] = outliersDataset
+                  outlier_df = pd.concat([outlier_df, 
+                                          pd.DataFrame({"feature": feature, 
+                                                        "outlierCount": len(outliersDataset), 
+                                                        "percentageOfOutliers": len(outliersDataset) / original_values_size * 100, 
+                                                        "descriptiveStatistics": [self.dataset.X_train[feature].describe()],
+                                                        "outliersValues": [outliersDataset.values]
+                                                    })])
+                  # Print distribution of feature
+                  if plot:
+                        plt.title(f"Distribution of '{feature}'")
+                        sns.histplot(self.dataset.X_train[feature], kde=True)
+                        plt.show()
+      print(f"There are {len(outlier_df)} features with outliers out of {len(only_numerical_features)} numerical features ({len(outlier_df) / len(only_numerical_features) * 100}%)")
+      return outlier_df, outliers
+    
+    def scale_features(self, scaler: str = "minmax", columnsToScale: list[str] = []):
+      if scaler == "minmax":
+        scaler = MinMaxScaler()
+      elif scaler == "robust":
+        scaler = RobustScaler()
+      elif scaler == "standard":
+        scaler = StandardScaler()
+      else:
+        raise ValueError(f"Invalid scaler: {scaler}")
+      
+      self.dataset.X_train[columnsToScale] = scaler.fit_transform(self.dataset.X_train[columnsToScale])
+      self.dataset.X_val[columnsToScale] = scaler.transform(self.dataset.X_val[columnsToScale])
+      self.dataset.X_test[columnsToScale] = scaler.transform(self.dataset.X_test[columnsToScale])
 
-        # Visualize scaling effects using utility function
-        if self.robust_cols:
-            print("\nExamples of standardized features:")
-            self.plot_before_after_scaling(self.X_train_without_reboot, self.X_train_scaled, self.robust_cols)
-
-        if self.normalize_cols:
-            print("\nExamples of normalized features:")
-            self.plot_before_after_scaling(self.X_train_without_reboot, self.X_train_scaled, self.normalize_cols)
-            
-        return self.X_train_scaled
