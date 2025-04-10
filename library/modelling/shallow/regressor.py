@@ -66,7 +66,7 @@ class RegressorAssesment(ModelAssesment):
         dataToWrite["mae"] = mae_test
         dataToWrite["r2"] = r2_test
         dataToWrite["timeStamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        wasSaved = self.get_model_results_saved(dataToWrite=dataToWrite, featuresUsed=self.dataset.X_train_encoded.columns.tolist() if self.dataset.isXencoded else self.dataset.X_train.columns.tolist())
+        wasSaved = self.get_model_results_saved(dataToWrite=dataToWrite, featuresUsed=self.dataset.X_train_encoded.columns.tolist() if self.dataset.isXencoded else self.dataset.X_train.columns.tolist() if self.dataset.isXencoded else self.dataset.X_train.columns.tolist())
     return modelName, model, wasSaved
 
   def evaluate_regressors(self, 

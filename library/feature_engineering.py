@@ -193,10 +193,11 @@ class FeatureEngineering:
         """
         Removes the features with low variance.
         """
+        
         # Create dataframe with feature and standard deviation (spreadness)
         spreadness_df = pd.DataFrame({
-            "feature": self.dataset.X_train.columns,
-            "spreadness": self.dataset.X_train.std()
+            "feature": self.dataset.X_train.columns if not self.dataset.isXencoded else self.dataset.X_train_encoded.columns,
+            "spreadness": self.dataset.X_train.std() if not self.dataset.isXencoded else self.dataset.X_train_encoded.std()
         }).reset_index(drop=True)
         if plot:
             plt.figure(figsize=(12, 8))
@@ -206,8 +207,13 @@ class FeatureEngineering:
             plt.ylabel('Frequency')
             plt.show()
         columns_to_drop = spreadness_df[spreadness_df["spreadness"] < threshold]["feature"].tolist()
-        self.dataset.X_train.drop(columns=columns_to_drop, inplace=True)
-        self.dataset.X_val.drop(columns=columns_to_drop, inplace=True)
-        self.dataset.X_test.drop(columns=columns_to_drop, inplace=True)
+        if not self.dataset.isXencoded:
+            self.dataset.X_train.drop(columns=columns_to_drop, inplace=True)
+            self.dataset.X_val.drop(columns=columns_to_drop, inplace=True)
+            self.dataset.X_test.drop(columns=columns_to_drop, inplace=True)
+        else:
+            self.dataset.X_train_encoded.drop(columns=columns_to_drop, inplace=True)
+            self.dataset.X_val_encoded.drop(columns=columns_to_drop, inplace=True)
+            self.dataset.X_test_encoded.drop(columns=columns_to_drop, inplace=True)
 
 

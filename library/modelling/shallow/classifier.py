@@ -65,25 +65,29 @@ class ClassifierAssesment(ModelAssesment):
     y_actual_val = self.dataset.y_val_encoded
     y_pred_val = model["val_predictions"]
     assert y_actual_val is not None and y_pred_val is not None, f"y_actual_val or y_pred_val is None for {modelName}. Model name is {modelName}, model object is {model}"
-    self.__set_assesment__(y_actual_val, y_pred_val, plot)
+    class_report_val, confusion_matrix_val = self.__set_assesment__(y_actual_val, y_pred_val, plot)
     print(f"\t => TEST ASSESMENT:")
     y_actual_test = self.dataset.y_test_encoded
     y_pred_test = model["test_predictions"]
     assert y_actual_test is not None and y_pred_test is not None, f"y_actual_test or y_pred_test is None for {modelName}. Model name is {modelName}, model object is {model}"
-    class_report, confusion_matrix = self.__set_assesment__(y_actual_test, y_pred_test, plot)
+    class_report_test, confusion_matrix_test = self.__set_assesment__(y_actual_test, y_pred_test, plot)
     self.models[modelName]["metrics"] = {
-        "class_report": class_report,
-        "confusion_matrix": confusion_matrix
+        "class_report_val": class_report_val,
+        "confusion_matrix_val": confusion_matrix_val,
+        "class_report_test": class_report_test,
+        "confusion_matrix_test": confusion_matrix_test
       }
     if save_results:
       dataToWrite["hyperParameters"] = model["hyperParameters"]
       dataToWrite["modelName"] = modelName
-      dataToWrite["accuracy"] = class_report["accuracy"]
-      dataToWrite["f1"] = class_report["weighted avg"]["f1-score"]
-      dataToWrite["precision"] = class_report["weighted avg"]["precision"]
-      dataToWrite["recall"] = class_report["weighted avg"]["recall"]
+
+      dataToWrite["accuracy"] = class_report_test["accuracy"]
+      dataToWrite["f1"] = class_report_test["weighted avg"]["f1-score"]
+      dataToWrite["precision"] = class_report_test["weighted avg"]["precision"]
+      dataToWrite["recall"] = class_report_test["weighted avg"]["recall"]
+
       dataToWrite["timeStamp"] =  datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-      self.get_model_results_saved(dataToWrite=dataToWrite, featuresUsed=self.dataset.X_train_encoded.columns.tolist())
+      self.get_model_results_saved(dataToWrite=dataToWrite, featuresUsed=self.dataset.X_train_encoded.columns.tolist() if self.dataset.isXencoded else self.dataset.X_train.columns.tolist())
     return modelName, model
 
   def evaluate_classifiers(self, 
@@ -123,5 +127,52 @@ class ClassifierAssesment(ModelAssesment):
             modelName, model = future.result() 
             self.models[modelName] = model # update results
         print("All models have been assesed and results saved.")
-    return self.models
+
+    # # Prepare a list to hold each model's results.
+    # rows = []
+    # for model_name, result in self.models.items():
+    #     metrics = result['metrics']
+    #     # Compute deltas as (test - validation)
+    #     delta_mae = metrics['mae_test'] - metrics['mae_val']
+    #     delta_mae_percentage = delta_mae / metrics['mae_val']
+    #     delta_mse = metrics['mse_test'] - metrics['mse_val']
+    #     delta_mse_percentage = delta_mse / metrics['mse_val']
+    #     delta_root_mse = metrics['root_mse_test'] - metrics['root_mse_val']
+    #     delta_root_mse_percentage = delta_root_mse / metrics['root_mse_val']
+    #     delta_r2 = metrics['r2_test'] - metrics['r2_val']
+    #     delta_r2_percentage = delta_r2 / metrics['r2_val']
+    #     # Combine hyperparameters into a single string if desired (optional)
+    #     hyper_str = "; ".join(result['hyperParameters'])
+        
+    #     # Build a row dictionary
+    #     row = {
+    #         "Model": model_name,
+    #         "Model_Definition": result['model'],
+    #         "wasSaved": result['wasSaved'],
+    #         "timeToFit": result['timeToFit'],
+    #         "timeToMakePredictions": result['timeToMakePredictions'],
+    #         "mae_val": metrics['mae_val'],
+    #         "mae_test": metrics['mae_test'],
+    #         "delta_mae": delta_mae,
+    #         "delta_mae_percentage": delta_mae_percentage,
+    #         "mse_val": metrics['mse_val'],
+    #         "mse_test": metrics['mse_test'],
+    #         "delta_mse": delta_mse,
+    #         "delta_mse_percentage": delta_mse_percentage,
+    #         "root_mse_val": metrics['root_mse_val'],
+    #         "root_mse_test": metrics['root_mse_test'],
+    #         "delta_root_mse": delta_root_mse,
+    #         "delta_root_mse_percentage": delta_root_mse_percentage,
+    #         "r2_val": metrics['r2_val'],
+    #         "r2_test": metrics['r2_test'],
+    #         "delta_r2": delta_r2,
+    #         "delta_r2_percentage": delta_r2_percentage,
+    #         "HyperParameters": hyper_str
+    #     }
+    #     rows.append(row)
+
+    # # Create a DataFrame from the list of dictionaries.
+    # model_results = pd.DataFrame(rows)
+    # return model_results
+
      

@@ -209,9 +209,9 @@ class ModelAssesment:
 
     for ax, (modelName, model) in zip(axes, self.models.items()):
         ax[0].hist(model["val_predictions"], bins=30, edgecolor='black', alpha=0.5, label='Validation Predictions')
-        ax[0].hist(self.dataset.y_val, bins=30, edgecolor='black', alpha=0.5, label='Actual Predictions (Validation Set)')
+        ax[0].hist(self.dataset.y_val_encoded if self.dataset.isYencoded else self.dataset.y_val, bins=30, edgecolor='black', alpha=0.5, label='Actual Predictions (Validation Set)')
         ax[1].hist(model["test_predictions"], bins=30, edgecolor='black', alpha=0.5, label='Test Predictions')
-        ax[1].hist(self.dataset.y_test, bins=30, edgecolor='black', alpha=0.5, label='Actual Predictions (Test Set)')
+        ax[1].hist(self.dataset.y_test_encoded if self.dataset.isYencoded else self.dataset.y_test, bins=30, edgecolor='black', alpha=0.5, label='Actual Predictions (Test Set)')
         
         ax[0].set_title(f'{modelName} - Distribution of Predicted Values (Validation Set)')
         ax[0].set_xlabel('Predicted Values')
