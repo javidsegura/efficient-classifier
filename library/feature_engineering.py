@@ -142,7 +142,7 @@ class FeatureEngineering:
             print(f"Number of excluded variables: {len(excludedFeatures)}")
         return predictivePowerFeatures, excludedFeatures, coefficients
 
-    def boruta_automatic_feature_selection(self, max_iter: int = 100, print_results: bool = True):
+    def boruta_automatic_feature_selection(self, max_iter: int = 100, print_results: bool = True, delete_features: bool = True):
         """
         Automatically selects the features that are most predictive of the target variable using the Boruta method
 
@@ -187,6 +187,10 @@ class FeatureEngineering:
         if print_results:
             print(f"Number of predictive power variables: {len(selected_features)}")
             print(f"Number of excluded variables: {len(excludedFeatures)}") 
+        if delete_features:
+            self.dataset.X_train_encoded.drop(columns=excludedFeatures, inplace=True)
+            self.dataset.X_val_encoded.drop(columns=excludedFeatures, inplace=True)
+            self.dataset.X_test_encoded.drop(columns=excludedFeatures, inplace=True)
         return selected_features, excludedFeatures
     
     def remove_low_variance_features(self, threshold: float = 0.01, plot: bool = True):

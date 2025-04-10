@@ -4,6 +4,10 @@ import os
 import hashlib
 import json
 
+from datetime import datetime
+
+import matplotlib.dates as mdates
+
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 import seaborn as sns
@@ -31,7 +35,7 @@ class ModelAssesment:
   """
   Base class for all shallow models. Provides a general overview of all the models.
   """
-  def __init__(self, dataset: Dataset, results_path: str, results_columns: list, columns_to_check_duplicates: list) -> None:
+  def __init__(self, dataset: Dataset, results_path: str, metricsToEvaluate: list) -> None:
     """
     Initializes the ModelAssesment class
 
@@ -40,12 +44,22 @@ class ModelAssesment:
       dataset : Dataset
         The dataset to be used for the model assessment
     """
-    assert len(results_columns) > 0, "The results columns must be a non-empty list"
+    assert len(metricsToEvaluate) > 0, "The metrics to evaluate must be a non-empty list"
+    fixed_columns = ["id", "timeStamp", "comments", "modelName", "features_used", "hyperParameters",
+                      "isEDADone", "isDataPreprocessingDone", "isFeatureEngineeringDone", "isHyperParameterOptimizationDone"]
+    
+    self.metricsToEvaluatePerSet = []
+    for metric in metricsToEvaluate:
+      self.metricsToEvaluatePerSet.append(f"{metric}_val")
+      self.metricsToEvaluatePerSet.append(f"{metric}_test")
+      self.metricsToEvaluatePerSet.append(f"{metric}_delta")
+      self.metricsToEvaluatePerSet.append(f"{metric}_delta_percentage") 
     self.models = dict()
     self.dataset = dataset
     self.results_path = results_path
-    self.results_columns = sorted(results_columns)
-    self.columns_to_check_duplicates = columns_to_check_duplicates
+    self.results_columns = fixed_columns + self.metricsToEvaluatePerSet
+    self.columns_to_check_duplicates = ["modelName", "features_used", "isHyperParameterOptimizationDone", "hyperParameters",
+                                        "isEDADone", "isDataPreprocessingDone", "isFeatureEngineeringDone", "comments"]
     self.__create_results_file__()
 
   def __create_results_file__(self):
@@ -68,37 +82,53 @@ class ModelAssesment:
     """
     return list(self.models.keys())
   
-  def get_model_results_saved(self, dataToWrite: dict, featuresUsed: list):
+  def get_model_results_saved(self, phaseProcess: dict, modelName: str, save_results: bool = True):
     """
     Returns the model by name
     """
     results = pd.read_csv(self.results_path)
-    dataToWrite["features_used"] = featuresUsed
-    dataToWrite["id"] = None
-    if (sorted(list(dataToWrite.keys())) != self.results_columns):
-      raise ValueError(f"The data to write does not match the columns of the results. \n Data to write: {sorted(list(dataToWrite.keys()))} \n Data header: {self.results_columns}")
-    
-    # Compute hash
-    dataForHash = {k: v for k, v in dataToWrite.items() if k in self.columns_to_check_duplicates}
-    hash_value = hashlib.sha256(json.dumps(dataForHash).encode()).hexdigest()
 
-    print(f"Hash value: {hash_value}")
+    # General info
+    phaseProcess["id"] = None
+    phaseProcess["timeStamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    phaseProcess["comments"] = phaseProcess["comments"] 
+    phaseProcess["modelName"] = modelName
+    phaseProcess["features_used"] = self.models[modelName]["featuresUsed"]
+    phaseProcess["hyperParameters"] = self.models[modelName]["hyperParameters"]
+    phaseProcess["isEDADone"] = phaseProcess["isEDADone"]
+    phaseProcess["isDataPreprocessingDone"] = phaseProcess["isDataPreprocessingDone"]
+    phaseProcess["isFeatureEngineeringDone"] = phaseProcess["isFeatureEngineeringDone"]
+    phaseProcess["isHyperParameterOptimizationDone"] = phaseProcess["isHyperParameterOptimizationDone"]
+    # Metrics
+    for metric in self.metricsToEvaluatePerSet:
+      phaseProcess[metric] = self.models[modelName]["metrics"][metric]
 
-    # Debug prints
-    isNewModel = hash_value not in results["id"].values
-    dataToWrite["id"] = hash_value
+    if save_results:
+      if (sorted(list(phaseProcess.keys())) != sorted(self.results_columns)):
+        raise ValueError(f"The data to write does not match the columns of the results. \n Data to write: {sorted(list(phaseProcess.keys()))} \n Data header: {sorted(self.results_columns)}")
+      
+      # Compute hash
+      dataForHash = {k: v for k, v in phaseProcess.items() if k in self.columns_to_check_duplicates}
+      hash_value = hashlib.sha256(json.dumps(dataForHash).encode()).hexdigest()
 
-    print(f"IS NEW MODEL: {isNewModel}?")
+      print(f"Hash value: {hash_value}")
 
-    if isNewModel:
-      with open(self.results_path, "a", newline='') as f: 
-          writer = csv.writer(f)
-          writer.writerow([str(dataToWrite[col]) for col in self.results_columns])
-      print(f"!> Model results stored succesfully")
-    else:
-       print(f"****WARNING****: A model with the same values already exists in the results. Results will not be saved. \n \
-             You tried to write {dataToWrite}")
-    return isNewModel
+      # Debug prints
+      isNewModel = hash_value not in results["id"].values
+      phaseProcess["id"] = hash_value
+
+      print(f"IS NEW MODEL: {isNewModel}?")
+
+      if isNewModel:
+        with open(self.results_path, "a", newline='') as f: 
+            writer = csv.writer(f)
+            writer.writerow([str(phaseProcess[col]) for col in self.results_columns])
+        print(f"!> Model results stored succesfully")
+      else:
+        print(f"****WARNING****: A model with the same values already exists in the results. Results will not be saved. \n \
+              You tried to write {phaseProcess}")
+    phaseProcess["wasStored"] = save_results and isNewModel
+    return phaseProcess
 
   def add_model(self, modelName: str, modelObject: dict):
     """
@@ -224,6 +254,39 @@ class ModelAssesment:
 
     plt.tight_layout()
     plt.show()
+  
+  def plot_results_over_time(self, metric: str):
+    """
+    Plots the results over time for all models
+
+    Parameters
+    ----------
+      metric : str
+        The metric to plot
+    """
+    assert metric in self.metricsToEvaluatePerSet, f"Metric {metric} not found in the metrics stored. \n Available metrics: {self.metricsToEvaluatePerSet}"
+    results_df = pd.read_csv(self.results_path)
+    results_df = results_df.sort_values(by="timeStamp")
+    
+    sns.lineplot(x="timeStamp", y=metric, hue="modelName", data=results_df)
+    plt.title(f"Results over time for {metric}")
+    plt.xlabel("Time")
+    ax = plt.gca()
+
+    # Set locator for ticks (more dense)
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+
+    # Date format (year-month)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+
+    plt.xticks(rotation=45, fontsize=8)  # smaller font
+
+    plt.ylabel(metric)
+    plt.legend(title="Model", bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    plt.show()
+    
+    
 
 
   
