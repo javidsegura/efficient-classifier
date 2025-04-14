@@ -14,7 +14,7 @@ class ResultAnalysis(ABC):
       def __init__(self, phase_results_df: pd.DataFrame):
             self.phase_results_df = phase_results_df
 
-      def plot_multiple_model_metrics(self,feature_list):
+      def plot_multiple_model_metrics(self, feature_list):
             num_features = len(feature_list)
             cols = 2
             rows = math.ceil(num_features / cols)
