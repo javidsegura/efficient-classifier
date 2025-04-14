@@ -50,7 +50,7 @@ class Classifier(Model):
                   y_actual = self.dataset.y_test
             else:
                   raise ValueError("Invalid phase")
-            y_pred = self.tuning_states[self.currentPhase].assesment["predictions"]
+            y_pred = self.tuning_states[self.currentPhase].assesment["predictions_val"]
 
             class_report, conf_matrix = self.__set_assesment__(y_actual, y_pred, modelName)
 
@@ -65,7 +65,7 @@ class Classifier(Model):
                   "accuracy": accuracy
             }
             print(f"METRIC RESULTS FOR {modelName} => F1: {f1_score}, Precision: {precision}, Recall: {recall}, Accuracy: {accuracy}")
-            self.tuning_states[self.currentPhase].store_assesment(results, conf_matrix=conf_matrix)
+            self.tuning_states[self.currentPhase].store_assesment(results)
 
       def evaluate_training(self, modelName: str):
             raise NotImplementedError("Training evaluation not implemented for classifier")

@@ -4,6 +4,33 @@ import time
 from library.phases.dataset.dataset import Dataset
 
 
+"""
+
+Assesment currently has the following structure:
+- `id`: NoneType
+- `timeStamp`: NoneType
+- `comments`: NoneType
+- `modelName`: str
+- `status`: str
+- `features_used`: NoneType
+- `hyperParameters`: NoneType
+- `timeToFit`: float
+- `timeToMakePredictions`: float
+- `is_EDA_done`: NoneType
+- `is_DataPreprocessing_done`: NoneType
+- `is_FeatureAnalysis_done`: NoneType
+- `is_HyperParameterOptimization_done`: NoneType
+- `accuracy`: float
+- `precision`: float
+- `recall`: float
+- `f1-score`: float
+- `predictions_val`: numpy.ndarray
+- `precictions_train`: numpy.ndarray
+- `model_sklearn`: sklearn
+
+"""
+
+
 class ModelState(ABC):
       def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str]):
             self.model_sklearn = model_sklearn
@@ -32,25 +59,24 @@ class ModelState(ABC):
                   self.assesment["timeToFit"] = time_taken
                   print(f"\t\t => Fitted {self.modelName}. Took {time_taken} seconds")
       
-      def predict(self):
-                  start_time = time.time()
-                  print(f"!> Started predicting {self.modelName}")
-                  X_data = self.get_predict_data()
-                  self.assesment["predictions"] = self.model_sklearn.predict(X_data)
-                  end_time = time.time()
-                  time_taken = end_time - start_time
-                  self.assesment["timeToMakePredictions"] = time_taken
+      def predict(self, is_training: bool = False):
+                  if is_training:
+                        self._predict_training()
+                  else:
+                        start_time = time.time()
+                        print(f"!> Started predicting {self.modelName}")
+                        X_data = self.get_predict_data()
+                        self.assesment["predictions_val"] = self.model_sklearn.predict(X_data)
+                        end_time = time.time()
+                        time_taken = end_time - start_time
+                  self.assesment["timeToPredict"] = time_taken
                   print(f"\t\t => Predicted {self.modelName}. Took {time_taken} seconds")
       
-      def predict_training(self):
+      def _predict_training(self):
             X_data, y_data = self.get_fit_data()
             self.assesment["predictions_train"] = self.model_sklearn.predict(X_data)
 
-      def store_assesment(self, metrics: dict[str, float], **kwargs):
-            if self.dataset.modelTask == "classification":
-                  conf_matrix = kwargs.get("conf_matrix", None)
-                  if conf_matrix is not None:
-                        self.assesment["conf_matrix"] = conf_matrix
+      def store_assesment(self, metrics: dict[str, float]):
             for metric, value in metrics.items():
                   self.assesment[metric] = value
             print(f"Metrics stored in assesment")

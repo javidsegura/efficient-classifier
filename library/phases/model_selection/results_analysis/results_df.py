@@ -95,7 +95,7 @@ class ResultsDF:
                         "features_used": self.dataset.X_train.columns.tolist(),
                         "hyperParameters": self.extract_model_hyperparameters(model_sklearn),
                         "timeToFit": metadata["timeToFit"],
-                        "timeToMakePredictions": metadata["timeToMakePredictions"],
+                        "timeToPredict": metadata["timeToPredict"],
                   }
                   # Adding remaining data 
                   for phase in self.phases:
