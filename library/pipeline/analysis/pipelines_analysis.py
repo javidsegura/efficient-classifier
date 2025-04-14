@@ -1,4 +1,4 @@
-
+from library.pipeline.pipeline import Pipeline
 
 class PipelinesAnalysis:
       def __init__(self, pipelines: dict[str, dict[str, Pipeline]]):
