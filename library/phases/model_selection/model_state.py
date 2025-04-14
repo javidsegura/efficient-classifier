@@ -26,6 +26,7 @@ Assesment currently has the following structure:
 - `f1-score`: float
 - `predictions_val`: numpy.ndarray
 - `precictions_train`: numpy.ndarray
+- `predictions_test`: numpy.ndarray
 - `model_sklearn`: sklearn
 
 """
@@ -84,7 +85,6 @@ class ModelState(ABC):
 class PreTuningState(ModelState):
       def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str]):
             super().__init__(model_sklearn, modelName, dataset, results_header)
-            self.assesment["status"] = "pre_tuning"
       
       def get_fit_data(self):
             return self.dataset.X_train, self.dataset.y_train
@@ -95,7 +95,6 @@ class PreTuningState(ModelState):
 class InTuningState(ModelState):
       def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str]):
             super().__init__(model_sklearn, modelName, dataset, results_header)
-            self.assesment["status"] = "in_tuning"
       
       def get_fit_data(self):
             return self.dataset.X_train, self.dataset.y_train
@@ -107,7 +106,6 @@ class InTuningState(ModelState):
 class PostTuningState(ModelState):
       def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str]):
             super().__init__(model_sklearn, modelName, dataset, results_header)
-            self.assesment["status"] = "post_tuning"
       
       def get_fit_data(self): # THIS NEEDS TO BE CHANGES (MERGED WITH VAL SET!!!)
             X_train_combined = np.vstack([self.dataset.X_train, self.dataset.X_val])

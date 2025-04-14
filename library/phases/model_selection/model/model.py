@@ -23,14 +23,13 @@ class Model(ABC):
                        continue
                   else:
                         cleaned_header.append(col)
-            self.results_header = cleaned_header + ["predictions", "model_sklearn"]
+            self.results_header = cleaned_header + ["predictions_val", "predictions_train", "predictions_test", "model_sklearn"]
 
             self.tuning_states = {
                   "pre": PreTuningState(model_sklearn, modelName, dataset, self.results_header),
                   "in": InTuningState(model_sklearn, modelName, dataset, self.results_header),
                   "post": PostTuningState(model_sklearn, modelName, dataset, self.results_header)
             }
-            self.currentPhase = "pre"
             self.optimizer_type = None
 
 
@@ -42,28 +41,24 @@ class Model(ABC):
       def evaluate_training(self, modelName: str):
             pass
 
-      def fit(self, modelName: str):      
+      def fit(self, modelName: str, current_phase: str):    
+            assert current_phase in self.tuning_states.keys(), "Current phase must be one of the tuning states"
             print(f"=> Fitting {modelName} model")
-            if self.currentPhase == "pre":
-                  self.tuning_states["pre"].fit()
-            elif self.currentPhase == "post":
-                  self.tuning_states["post"].fit()
+            self.tuning_states[current_phase].fit()
 
       
-      def predict(self, modelName: str):
+      def predict(self, modelName: str, current_phase: str):
+            assert current_phase in self.tuning_states.keys(), "Current phase must be one of the tuning states"
             print(f"=> Predicting {modelName} model")
-            if self.currentPhase == "pre":
-                  self.tuning_states["pre"].predict()
-            elif self.currentPhase == "post":
-                  self.tuning_states["post"].predict()
+            self.tuning_states[current_phase].predict()
       
       def optimize(self, param_grid: dict, max_iter):
             assert self.optimizer_type, "Optimizer type must be set before optimizing"
             optimizer = Optimizer(self.model_sklearn, self.modelName, self.dataset, self.optimizer_type, param_grid, max_iter)
             cv_results_df, best_model, y_pred = optimizer.start_optimization()
-            self.inTuningState.assesment["predictions"] = y_pred
-            self.inTuningState.assesment["model_sklearn"] = best_model
-            self.inTuningState.assesment["modelName"] = self.modelName
+            self.tuning_states["in"].assesment["predictions_val"] = y_pred
+            self.tuning_states["in"].assesment["model_sklearn"] = best_model
+            self.tuning_states["in"].assesment["modelName"] = self.modelName
             assesment = self.evaluate(self.modelName)
             return cv_results_df, best_model, assesment, optimizer 
 

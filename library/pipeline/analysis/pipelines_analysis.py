@@ -1,16 +1,14 @@
-
 from library.pipeline.pipeline import Pipeline
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 
 import matplotlib.pyplot as plt
 import seaborn as sns
 import math
 import pandas as pd
+import numpy as np
 class PipelinesAnalysis:
       def __init__(self, pipelines: dict[str, dict[str, Pipeline]]):
             self.pipelines = pipelines
-
-      def analyze_pipelines(self):
-            pass
       
       def plot_results_metrics(self, metrics: list[str], phase: str = "pre"):
             """
@@ -77,5 +75,44 @@ class PipelinesAnalysis:
                   plt.title(f"Feature Importances for {pipeline} model")
                   plt.show()
             return importances_dfs
+
+      def plot_confusion_matrix(self, phase: str = "pre"):
+            """
+            Plots the confusion matrix of a given model
+            """
+            assert phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
+            confusion_matrices = {}
+            residuals = {}
+            for category in self.pipelines:
+                  for pipeline in self.pipelines[category]:
+                        for modelName in self.pipelines[category][pipeline].model_selection.list_of_models:
+                              if modelName not in self.pipelines[category][pipeline].model_selection.models_to_exclude:
+                                    pred = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[phase].assesment["predictions_val"]
+                                    actual = self.pipelines[category][pipeline].model_selection.dataset.y_val
+                                    cm = confusion_matrix(actual, pred)
+                                    confusion_matrices[pipeline] = {
+                                                                    "absolute": cm,
+                                                                    "relative": cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] * 100
+                                                                    }
+            
+            fig, axes = plt.subplots(len(confusion_matrices), 2, figsize=(15, 5 * len(confusion_matrices)))
+            for i, (pipeline, cm_data) in enumerate(confusion_matrices.items()):
+                  # Absolute Confusion Matrix
+                  disp = ConfusionMatrixDisplay(cm_data["absolute"])
+                  disp.plot(ax=axes[i, 0], values_format="0f", xticks_rotation=45)
+                  axes[i, 0].set_title("Absolute Confusion Matrix")
+                  axes[i, 0].set_xlabel("Predicted")
+                  axes[i, 0].set_ylabel("Actual")
+
+                  # Relative Confusion Matrix
+                  disp = ConfusionMatrixDisplay(cm_data["relative"])
+                  disp.plot(ax=axes[i, 1], values_format="0f", xticks_rotation=45)
+                  axes[i, 1].set_title("Relative Confusion Matrix")
+                  axes[i, 1].set_xlabel("Predicted")
+                  axes[i, 1].set_ylabel("Actual")
+            
+            plt.tight_layout()
+            plt.show()
+            
 
             

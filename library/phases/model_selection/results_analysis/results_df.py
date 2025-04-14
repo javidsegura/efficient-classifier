@@ -18,14 +18,11 @@ class ResultsDF:
             self.results_path = results_path
             self.metrics_to_evaluate = metrics_to_evaluate
             self.dataset = dataset
-            self.phases = ["EDA", "DataPreprocessing", "FeatureAnalysis", "HyperParameterOptimization"]
-            header = ["id", "timeStamp", "comments", "modelName", "status", "features_used", "hyperParameters", "timeToFit", "timeToMakePredictions"]
-            header += [f"is_{phase}_done" for phase in self.phases]
+            header = ["id", "timeStamp", "comments", "modelName", "currentPhase", "features_used", "hyperParameters", "timeToFit", "timeToPredict"]
             header += [f"{metric}_val" for metric in self.metrics_to_evaluate]
             header += [f"{metric}_test" for metric in self.metrics_to_evaluate]
             self.header = header
             columns_to_check_duplicates = ["modelName", "features_used", "hyperParameters", "comments", "status"]
-            columns_to_check_duplicates += [f"is_{phase}_done" for phase in self.phases]
             self.columns_to_check_duplicates = columns_to_check_duplicates
             self._create_results_file()
             self.results_df = pd.read_csv(self.results_path)
@@ -44,8 +41,6 @@ class ResultsDF:
             metadata = metadata.copy() # Temporary copy for the check
             header_cols = set(self.header)
             metadata_cols = set(metadata.keys())
-            for phase in self.phases:
-                  metadata_cols.add(f"is_{phase}_done")
             for metric in self.metrics_to_evaluate:
                   metadata_cols.add(metric + "_val")
                   metadata_cols.add(metric + "_test")
@@ -54,11 +49,11 @@ class ResultsDF:
                   if col not in metadata_cols:
                         raise ValueError(f"The data to write does not match the columns of the results. \n Data to write: {sorted(list(metadata_cols))} \n Data header: {sorted(header_cols)}")
       
-      def store_results(self, list_of_models: dict[str, Model], phaseProcess: dict, comments: str, models_to_exclude: list[str] = None):
+      def store_results(self, list_of_models: dict[str, Model], current_phase: str, comments: str, models_to_exclude: list[str] = None):
             start_time = time.time()
             print(f"[DEBUG] Starting store_results")
             sys.stdout.flush()
-            assert phaseProcess and comments, "Either phaseProcess and comments must be provided"
+            assert current_phase and comments, "Either current_phase and comments must be provided"
             model_logs = []
             model_count = 0
             for modelName, modelObject in list_of_models.items():
@@ -71,35 +66,25 @@ class ResultsDF:
                       sys.stdout.flush()
                   
                   # Extracting the metadata from the assesment
-                  using_validation_set = modelObject.currentPhase == "pre" or modelObject.currentPhase == "in"
-                  metadata = None
-                  if modelObject.currentPhase == "pre":
-                        metadata = modelObject.tuning_states["pre"].assesment
-                  elif modelObject.currentPhase == "in":
-                        metadata = modelObject.tuning_states["in"].assesment
-                  elif modelObject.currentPhase == "post":
-                        metadata = modelObject.tuning_states["post"].assesment
-                  else:
-                        raise ValueError("Invalid phase")
+                  using_validation_set = current_phase == "pre" or current_phase == "in"
+                  metadata = modelObject.tuning_states[current_phase].assesment
                   
                   self.check_header_consitency(metadata)
             
                   # Extracting the model_log
-                  model_sklearn = modelObject.tuning_states[modelObject.currentPhase].assesment["model_sklearn"]      
+                  model_sklearn = metadata["model_sklearn"]      
                   model_log = {
                         "id": "",
                         "timeStamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                         "comments": comments,
                         "modelName": modelName,
-                        "status": metadata["status"],
+                        "currentPhase": current_phase,
                         "features_used": self.dataset.X_train.columns.tolist(),
                         "hyperParameters": self.extract_model_hyperparameters(model_sklearn),
                         "timeToFit": metadata["timeToFit"],
                         "timeToPredict": metadata["timeToPredict"],
                   }
                   # Adding remaining data 
-                  for phase in self.phases:
-                        model_log[f"is_{phase}_done"] = "Yes" if phaseProcess[f"is_{phase}_done"] else "No"
                   metricsAdded = 0
                   for col in list(metadata.keys()):
                         print(f"Col is: {col}")

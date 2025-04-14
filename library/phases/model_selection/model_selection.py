@@ -16,7 +16,6 @@ class ModelSelection:
             self.list_of_models = {}
             self.dataset = dataset
             self._models_to_exclude = []
-            self.phaseProcess = {}
             self.comments = ""
             self.results_analysis = {
                   "pre": PreTuningResultAnalysis(phase_results_df= pd.DataFrame()),
@@ -43,41 +42,33 @@ class ModelSelection:
 
             self.list_of_models[model_name] = new_model
       
-      def _fit_and_predict(self, modelName, modelObject):
-            modelObject.fit(modelName=modelName)
-            modelObject.predict(modelName=modelName)
+      def _fit_and_predict(self, modelName, modelObject, current_phase: str):
+            modelObject.fit(modelName=modelName, current_phase=current_phase)
+            modelObject.predict(modelName=modelName, current_phase=current_phase)
             return modelName, modelObject
 
-      def fit_models(self):
+      def fit_models(self, current_phase: str):
+            assert current_phase in ["pre", "in", "post"], "Current phase must be one of the tuning states"
             with concurrent.futures.ProcessPoolExecutor() as executor:
                   # Submit all model fitting tasks to the executor
-                  future_to_model = [executor.submit(self._fit_and_predict, modelName, modelObject) for modelName, modelObject in self.list_of_models.items() if modelName not in self.models_to_exclude]
+                  future_to_model = [executor.submit(self._fit_and_predict, modelName, modelObject, current_phase) for modelName, modelObject in self.list_of_models.items() if modelName not in self.models_to_exclude]
                   
                   for future in concurrent.futures.as_completed(future_to_model):
                         modelName, model = future.result() 
                         self.list_of_models[modelName] = model # update results
             print("All models have been fitted and made predictions in parallel.")
 
-      def _evaluate_model(self, modelName, modelObject):
-            modelObject.evaluate(modelName=modelName)
+      def _evaluate_model(self, modelName, modelObject, current_phase: str):
+            modelObject.evaluate(modelName=modelName, current_phase=current_phase)
             return modelName, modelObject
 
-      def evaluate_models(self, phaseProcess: dict[str, bool], comments: str):
-            self.phaseProcess = phaseProcess 
+      def evaluate_models(self, comments: str, current_phase: str):
             self.comments = comments
-            assert self.phaseProcess and self.comments, "Either phaseProcess and comments must be provided"
-
-            current_phase = "pre"
-            for modelName, modelObject in self.list_of_models.items():
-                  if self.phaseProcess["is_HyperParameterOptimization_done"]:
-                        modelObject.currentPhase = "in"
-                  else:
-                        modelObject.currentPhase = "pre"
-                  current_phase = modelObject.currentPhase
+            assert self.comments, "comments must be provided"
 
             with concurrent.futures.ProcessPoolExecutor() as executor:
                   # Submit all model fitting tasks to the executor
-                  future_to_model = [executor.submit(self._evaluate_model, modelName, modelObject) for modelName, modelObject in self.list_of_models.items() if modelName not in self.models_to_exclude]
+                  future_to_model = [executor.submit(self._evaluate_model, modelName, modelObject, current_phase) for modelName, modelObject in self.list_of_models.items() if modelName not in self.models_to_exclude]
                   
                   for future in concurrent.futures.as_completed(future_to_model):
                         modelName, modelObject = future.result() 
@@ -85,12 +76,11 @@ class ModelSelection:
          
                         
             print("All models have been evaluated.")
-            if not self.phaseProcess["is_HyperParameterOptimization_done"]:
-                  model_logs = self.results_df.store_results(list_of_models=self.list_of_models, 
-                                                       phaseProcess=self.phaseProcess,
+            model_logs = self.results_df.store_results(list_of_models=self.list_of_models, 
+                                                       current_phase=current_phase,
                                                       comments=self.comments,
                                                       models_to_exclude=self.models_to_exclude)
-                  self.results_analysis[current_phase].phase_results_df = pd.DataFrame(model_logs)
+            self.results_analysis[current_phase].phase_results_df = pd.DataFrame(model_logs)
 
             return self.results_analysis[current_phase].phase_results_df
       

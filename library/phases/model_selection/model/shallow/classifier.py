@@ -43,14 +43,15 @@ class Classifier(Model):
 
           return class_report, conf_matrix
       
-      def evaluate(self, modelName: str):
-            if self.currentPhase == "pre" or self.currentPhase == "in":
+      def evaluate(self, modelName: str, current_phase: str):
+            assert current_phase in ["pre", "in", "post"], "Current phase must be one of the tuning states"
+            if current_phase == "pre" or current_phase == "in":
                   y_actual = self.dataset.y_val
-            elif self.currentPhase == "post":
+            elif current_phase == "post":
                   y_actual = self.dataset.y_test
             else:
                   raise ValueError("Invalid phase")
-            y_pred = self.tuning_states[self.currentPhase].assesment["predictions_val"]
+            y_pred = self.tuning_states[current_phase].assesment["predictions_val"]
 
             class_report, conf_matrix = self.__set_assesment__(y_actual, y_pred, modelName)
 
@@ -65,7 +66,7 @@ class Classifier(Model):
                   "accuracy": accuracy
             }
             print(f"METRIC RESULTS FOR {modelName} => F1: {f1_score}, Precision: {precision}, Recall: {recall}, Accuracy: {accuracy}")
-            self.tuning_states[self.currentPhase].store_assesment(results)
+            self.tuning_states[current_phase].store_assesment(results)
 
       def evaluate_training(self, modelName: str):
             raise NotImplementedError("Training evaluation not implemented for classifier")
