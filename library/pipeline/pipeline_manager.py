@@ -5,6 +5,7 @@ import concurrent.futures
 import threading
 from typing import Any
 
+from library.pipeline.analysis.pipelines_analysis import PipelinesAnalysis
 
 class PipelineManager:
       """
@@ -14,6 +15,7 @@ class PipelineManager:
       """
       def __init__(self, pipelines: dict[str, dict[str, Pipeline]]):
             self.pipelines = pipelines
+            self.pipelines_analysis = PipelinesAnalysis(pipelines)
       
       def create_pipeline_divergence(self, category: str, pipelineName: str, print_results: bool = False):
             """

@@ -117,7 +117,6 @@ class ModelSelection:
                         print(f"In-tuning model: {modelName} \n {modelObject.inTuningState.assesment}")
                         assert modelObject.inTuningState.assesment["status"] == "in_tuning", f"Model {modelName} is not in in-tuning phase"
             
-            
             with concurrent.futures.ProcessPoolExecutor() as executor:
                   future_to_model_name = {}
                   for modelName, optimization_params in modelNameToOptimizer.items():
