@@ -56,6 +56,13 @@ class ModelSelection:
             self.phaseProcess = phaseProcess 
             self.comments = comments
             assert self.phaseProcess and self.comments, "Either phaseProcess and comments must be provided"
+
+            for modelName, modelObject in self.list_of_models.items():
+                  if self.phaseProcess["is_HyperParameterOptimization_done"]:
+                        modelObject.currentPhase = "in"
+                  else:
+                        modelObject.currentPhase = "pre"
+
             with concurrent.futures.ProcessPoolExecutor() as executor:
                   # Submit all model fitting tasks to the executor
                   future_to_model = [executor.submit(self._evaluate_model, modelName, modelObject) for modelName, modelObject in self.list_of_models.items() if modelName not in self.models_to_exclude]
@@ -63,9 +70,14 @@ class ModelSelection:
                   for future in concurrent.futures.as_completed(future_to_model):
                         modelName, modelObject, assesment = future.result() 
                         self.list_of_models[modelName] = modelObject # update results
-                        self.list_of_models[modelName].preTuningState.assesment = assesment
+                        self.list_of_models[modelName].tuning_states[modelObject.currentPhase].assesment = assesment
+         
+                        
             print("All models have been evaluated.")
-            model_logs = self.results_df.store_results(list_of_models=self.list_of_models, phaseProcess=self.phaseProcess, comments=self.comments)
+            model_logs = self.results_df.store_results(list_of_models=self.list_of_models, 
+                                                       phaseProcess=self.phaseProcess,
+                                                      comments=self.comments,
+                                                      models_to_exclude=self.models_to_exclude)
             return pd.DataFrame(model_logs)
       
       def constrast_results(self):

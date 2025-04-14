@@ -25,10 +25,12 @@ class Model(ABC):
                         cleaned_header.append(col)
             self.results_header = cleaned_header + ["predictions", "model_sklearn"]
 
-            self.preTuningState = PreTuningState(model_sklearn, modelName, dataset, self.results_header)
-            self.inTuningState = InTuningState(model_sklearn, modelName, dataset, self.results_header)
-            self.postTuningState = PostTuningState(model_sklearn, modelName, dataset, self.results_header)
-            self.currentPhase = "pre_tuning"
+            self.tuning_states = {
+                  "pre": PreTuningState(model_sklearn, modelName, dataset, self.results_header),
+                  "in": InTuningState(model_sklearn, modelName, dataset, self.results_header),
+                  "post": PostTuningState(model_sklearn, modelName, dataset, self.results_header)
+            }
+            self.currentPhase = "pre"
             self.optimizer_type = None
 
       @abstractmethod
@@ -41,18 +43,18 @@ class Model(ABC):
 
       def fit(self, modelName: str):      
             print(f"=> Fitting {modelName} model")
-            if self.currentPhase == "pre_tuning":
-                  self.preTuningState.fit()
-            elif self.currentPhase == "post_tuning":
-                  self.postTuningState.fit()
+            if self.currentPhase == "pre":
+                  self.tuning_states["pre"].fit()
+            elif self.currentPhase == "post":
+                  self.tuning_states["post"].fit()
 
       
       def predict(self, modelName: str):
             print(f"=> Predicting {modelName} model")
-            if self.currentPhase == "pre_tuning":
-                  self.preTuningState.predict()
-            elif self.currentPhase == "post_tuning":
-                  self.postTuningState.predict()
+            if self.currentPhase == "pre":
+                  self.tuning_states["pre"].predict()
+            elif self.currentPhase == "post":
+                  self.tuning_states["post"].predict()
       
       def optimize(self, param_grid: dict, max_iter):
             assert self.optimizer_type, "Optimizer type must be set before optimizing"
@@ -76,7 +78,7 @@ class Model(ABC):
             fig, axes = plt.subplots(2, 1, figsize=(12, 5))
 
             # Pre-tuning
-            axes[0].hist(self.preTuningState.assesment["predictions"], bins=30, edgecolor='black', alpha=0.5, label='Predictions (Validation Set / Pre-tuning)')
+            axes[0].hist(self.tuning_states["pre"].assesment["predictions"], bins=30, edgecolor='black', alpha=0.5, label='Predictions (Validation Set / Pre-tuning)')
             axes[0].set_title(f'{self.modelName} - Distribution of Predicted Values (Validation Set)')
             axes[0].set_xlabel('Predicted Values')
             axes[0].set_ylabel('Frequency')
@@ -87,7 +89,7 @@ class Model(ABC):
             axes[0].set_ylabel('Frequency')
             axes[0].legend()
             # Post-tuning
-            axes[1].hist(self.postTuningState.assesment["predictions"], bins=30, edgecolor='black', alpha=0.5, label='Predictions (Test Set / Post-tuning)')
+            axes[1].hist(self.tuning_states["post"].assesment["predictions"], bins=30, edgecolor='black', alpha=0.5, label='Predictions (Test Set / Post-tuning)')
             axes[1].set_title(f'{self.modelName} - Distribution of Predicted Values (Test Set)')
             axes[1].set_xlabel('Predicted Values')
             axes[1].set_ylabel('Frequency')

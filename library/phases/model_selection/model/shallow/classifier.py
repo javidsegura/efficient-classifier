@@ -40,44 +40,33 @@ class Classifier(Model):
           """
           class_report = classification_report(y_actual, y_pred, output_dict=True) # F1 score, precision, recall for each class
           conf_matrix = confusion_matrix(y_actual, y_pred)
-          sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues') 
-          plt.title(f"Confusion Matrix for {modelName}")
-          plt.show()
 
           return class_report, conf_matrix
       
       def evaluate(self, modelName: str):
-            if self.currentPhase == "pre_tuning":
+            if self.currentPhase == "pre" or self.currentPhase == "in":
                   y_actual = self.dataset.y_val
-                  y_pred = self.preTuningState.assesment["predictions"]
-            elif self.currentPhase == "in_tuning":
-                  y_actual = self.dataset.y_val
-                  y_pred = self.inTuningState.assesment["predictions"]
-            elif self.currentPhase == "post_tuning":
+            elif self.currentPhase == "post":
                   y_actual = self.dataset.y_test
-                  y_pred = self.postTuningState.assesment["predictions"]
             else:
                   raise ValueError("Invalid phase")
+            y_pred = self.tuning_states[self.currentPhase].assesment["predictions"]
 
-            class_report, confusion_matrix = self.__set_assesment__(y_actual, y_pred, modelName)
+            class_report, conf_matrix = self.__set_assesment__(y_actual, y_pred, modelName)
 
+            accuracy = class_report["accuracy"]
             f1_score = class_report["weighted avg"]["f1-score"]
             precision = class_report["weighted avg"]["precision"]
             recall = class_report["weighted avg"]["recall"]
             results = {
-                  "f1_score": f1_score,
+                  "f1-score": f1_score,
                   "precision": precision,
-                  "recall": recall
+                  "recall": recall,
+                  "accuracy": accuracy
             }
-            print(f"METRIC RESULTS => F1: {f1_score}, Precision: {precision}, Recall: {recall}")
-            if self.currentPhase == "pre_tuning":
-                  self.preTuningState.store_assesment(results)
-            elif self.currentPhase == "in_tuning":
-                  self.inTuningState.store_assesment(results)
-            elif self.currentPhase == "post_tuning":
-                  self.postTuningState.store_assesment(results)
-            else:
-                  raise ValueError("Invalid phase")
-      
+            print(f"METRIC RESULTS => F1: {f1_score}, Precision: {precision}, Recall: {recall}, Accuracy: {accuracy}")
+            assesment = self.tuning_states[self.currentPhase].store_assesment(results, conf_matrix=conf_matrix)
+            return assesment
+
       def evaluate_training(self, modelName: str):
             raise NotImplementedError("Training evaluation not implemented for classifier")

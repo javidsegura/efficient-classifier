@@ -46,7 +46,11 @@ class ModelState(ABC):
             X_data, y_data = self.get_fit_data()
             self.assesment["predictions_train"] = self.model_sklearn.predict(X_data)
 
-      def store_assesment(self, metrics: dict[str, float]):
+      def store_assesment(self, metrics: dict[str, float], **kwargs):
+            if self.dataset.modelTask == "classification":
+                  conf_matrix = kwargs.get("conf_matrix", None)
+                  if conf_matrix is not None:
+                        self.assesment["conf_matrix"] = conf_matrix
             for metric, value in metrics.items():
                   self.assesment[metric] = value
             print(f"Metrics stored in assesment")

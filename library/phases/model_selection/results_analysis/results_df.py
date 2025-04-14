@@ -39,7 +39,7 @@ class ResultsDF:
                         writer = csv.writer(f)
                         writer.writerow(self.header)
       
-      def store_results(self, list_of_models: dict[str, Model], phaseProcess: dict, comments: str, models_to_include: list[str] = None):
+      def store_results(self, list_of_models: dict[str, Model], phaseProcess: dict, comments: str, models_to_exclude: list[str] = None):
             start_time = time.time()
             print(f"[DEBUG] Starting store_results")
             sys.stdout.flush()
@@ -47,7 +47,7 @@ class ResultsDF:
             model_logs = []
             model_count = 0
             for modelName, modelObject in list_of_models.items():
-                  if models_to_include is not None and modelName not in models_to_include:
+                  if models_to_exclude is not None and modelName in models_to_exclude:
                         continue
                   
                   model_count += 1
@@ -55,14 +55,14 @@ class ResultsDF:
                       print(f"[DEBUG {time.time() - start_time:.2f}s] Processing model {model_count}: {modelName}")
                       sys.stdout.flush()
                   
-                  using_validation_set = modelObject.currentPhase == "pre_tuning" or modelObject.currentPhase == "in_tuning"
+                  using_validation_set = modelObject.currentPhase == "pre" or modelObject.currentPhase == "in"
                   metadata = None
-                  if modelObject.currentPhase == "pre_tuning":
-                        metadata = modelObject.preTuningState.assesment
-                  elif modelObject.currentPhase == "in_tuning":
-                        metadata = modelObject.inTuningState.assesment
-                  elif modelObject.currentPhase == "post_tuning":
-                        metadata = modelObject.postTuningState.assesment
+                  if modelObject.currentPhase == "pre":
+                        metadata = modelObject.tuning_states["pre"].assesment
+                  elif modelObject.currentPhase == "in":
+                        metadata = modelObject.tuning_states["in"].assesment
+                  elif modelObject.currentPhase == "post":
+                        metadata = modelObject.tuning_states["post"].assesment
                   else:
                         raise ValueError("Invalid phase")
                   
@@ -74,6 +74,8 @@ class ResultsDF:
                         model_log_header.remove("model_sklearn")
                   if "predictions" in model_log_header:
                         model_log_header.remove("predictions")
+                  if "conf_matrix" in model_log_header:
+                        model_log_header.remove("conf_matrix")
                   model_log_cleaned = []
                   for metric in model_log_header:
                         if metric in self.metrics_to_evaluate:
@@ -85,7 +87,7 @@ class ResultsDF:
                         raise ValueError(f"The data to write does not match the columns of the results. \n Data to write: {sorted(model_log_cleaned)} \n Data header: {sorted(self.header)}")
                   
                   # Extracting the model_log
-                  model_sklearn = modelObject.preTuningState.assesment["model_sklearn"] if using_validation_set else modelObject.postTuningState.assesment["model_sklearn"]      
+                  model_sklearn = modelObject.tuning_states["pre"].assesment["model_sklearn"] if using_validation_set else modelObject.tuning_states["post"].assesment["model_sklearn"]      
                   model_log = {
                         "id": "",
                         "timeStamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
