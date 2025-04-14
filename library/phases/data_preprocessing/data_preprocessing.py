@@ -5,11 +5,25 @@ import pandas as pd
 import scipy.stats as stats
 from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
 
-from library.dataset import Dataset
+from library.phases.dataset.dataset import Dataset
 
 class Preprocessing:
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
+    
+    def remove_duplicates(self):
+        """
+        Removes duplicates from the dataset
+        """
+        duplicates = self.dataset.df.duplicated()
+        duplicates_sum = duplicates.sum()
+        if duplicates_sum > 0:
+            print(f"Dataset duplicates: \n {self.df[duplicates]}")
+            print(f"There are {duplicates_sum} duplicates in the dataset")
+            self.dataset.df.drop_duplicates(inplace=True)
+            print(f"Succesfully removed duplicates from the dataset")
+        else:
+            print("No duplicates found in the dataset")
     
     def get_missing_values(self):
         """
@@ -60,6 +74,7 @@ class Preprocessing:
       return outlier_df, outliers
     
     def scale_features(self, scaler: str = "minmax", columnsToScale: list[str] = []):
+      assert len(columnsToScale) > 0, "Columns to scale must be provided"
       if scaler == "minmax":
         scaler = MinMaxScaler()
       elif scaler == "robust":

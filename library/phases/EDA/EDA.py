@@ -5,12 +5,11 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 
-from library.dataset import Dataset
+from library.phases.dataset.dataset import Dataset
 
 
 
-
-class Plots:
+class EDA:
   """ 
   We will be using 'composition' desing pattern to create plots from the dataframe object that is an instance of the Dataset class
   This design pattern allows for two classes to be able to share data (e.g: dataset object)
@@ -19,7 +18,7 @@ class Plots:
     self.dataset = dataset
     
 
-  def plot_correlation_matrix(self, size: str = "small", splitted_sets: bool = False):
+  def plot_correlation_matrix(self, size: str = "small", splitted_sets: bool = False, title: str = "", **kwargs):
     """
     Plots the correlation matrix of the dataframe
 
@@ -29,7 +28,7 @@ class Plots:
         The size of the plot. Taken on ["s", "m", "l", "auto"]
     """
     if splitted_sets:
-      only_numerical_df = self.dataset.X_train_encoded.select_dtypes(include=["number"]) if self.dataset.isXencoded else self.dataset.X_train.select_dtypes(include=["number"])
+      only_numerical_df = self.dataset.X_train.select_dtypes(include=["number"])
       corr = only_numerical_df.corr()
     else:
       only_numerical_df = self.dataset.df.select_dtypes(include=["number"])
@@ -46,7 +45,9 @@ class Plots:
     cmap = sns.diverging_palette(230, 20, as_cmap=True)
     vmin, vmax = corr.min().min(), corr.max().max()
     sns.heatmap(corr, mask=mask, cmap=cmap, center=0,
-              square=True, linewidths=.5, cbar_kws={"shrink": .8}, vmin=vmin, vmax=vmax)
+              square=True, linewidths=.5, cbar_kws={"shrink": .8}, vmin=vmin, vmax=vmax, **kwargs)
+    plt.title(f"{title}")
+    plt.show()
 
   def plot_categorical_distributions(self, features: list[str], n_cols: int = 2):
     """
