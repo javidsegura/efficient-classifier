@@ -18,3 +18,6 @@ class Pipeline:
             self.preprocessing = Preprocessing(self.dataset)
             self.feature_analysis = FeatureAnalysis(self.dataset)
             self.model_selection = ModelSelection(self.dataset, results_path, metrics_to_evaluate)
+      
+      def speak(self, message: str):
+            print(f"{message} from {id(self)}")

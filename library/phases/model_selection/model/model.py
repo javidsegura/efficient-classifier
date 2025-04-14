@@ -33,6 +33,7 @@ class Model(ABC):
             self.currentPhase = "pre"
             self.optimizer_type = None
 
+
       @abstractmethod
       def evaluate(self, modelName: str):
             pass

@@ -64,7 +64,7 @@ class Classifier(Model):
                   "recall": recall,
                   "accuracy": accuracy
             }
-            print(f"METRIC RESULTS => F1: {f1_score}, Precision: {precision}, Recall: {recall}, Accuracy: {accuracy}")
+            print(f"METRIC RESULTS FOR {modelName} => F1: {f1_score}, Precision: {precision}, Recall: {recall}, Accuracy: {accuracy}")
             self.tuning_states[self.currentPhase].store_assesment(results, conf_matrix=conf_matrix)
 
       def evaluate_training(self, modelName: str):

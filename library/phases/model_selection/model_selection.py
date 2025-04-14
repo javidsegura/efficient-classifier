@@ -15,14 +15,24 @@ class ModelSelection:
             self.results_df = ResultsDF(results_path, metrics_to_evaluate, dataset)
             self.list_of_models = {}
             self.dataset = dataset
-            self.models_to_exclude = []
+            self._models_to_exclude = []
             self.phaseProcess = {}
             self.comments = ""
             self.results_analysis = {
-                  "pre_tuning": PreTuningResultAnalysis(self.results_df, self.dataset),
-                  "in_tuning": InTuningResultAnalysis(self.results_df, self.dataset),
-                  "post_tuning": PostTuningResultAnalysis(self.results_df, self.dataset),
+                  "pre": PreTuningResultAnalysis(phase_results_df= pd.DataFrame()),
+                  "in": InTuningResultAnalysis(phase_results_df= pd.DataFrame()),
+                  "post": PostTuningResultAnalysis(phase_results_df= pd.DataFrame()),
             }
+
+      @property
+      def models_to_exclude(self):
+            return self._models_to_exclude
+      
+      @models_to_exclude.setter
+      def models_to_exclude(self, value: list[str]):
+            for modelName in value:
+                  assert modelName in self.list_of_models, f"Model {modelName} not found in list of models"
+            self._models_to_exclude = value
 
       def add_model(self, model_name: str, model_sklearn: object):
             new_model = None
@@ -57,11 +67,13 @@ class ModelSelection:
             self.comments = comments
             assert self.phaseProcess and self.comments, "Either phaseProcess and comments must be provided"
 
+            current_phase = "pre"
             for modelName, modelObject in self.list_of_models.items():
                   if self.phaseProcess["is_HyperParameterOptimization_done"]:
                         modelObject.currentPhase = "in"
                   else:
                         modelObject.currentPhase = "pre"
+                  current_phase = modelObject.currentPhase
 
             with concurrent.futures.ProcessPoolExecutor() as executor:
                   # Submit all model fitting tasks to the executor
@@ -73,11 +85,14 @@ class ModelSelection:
          
                         
             print("All models have been evaluated.")
-            model_logs = self.results_df.store_results(list_of_models=self.list_of_models, 
+            if not self.phaseProcess["is_HyperParameterOptimization_done"]:
+                  model_logs = self.results_df.store_results(list_of_models=self.list_of_models, 
                                                        phaseProcess=self.phaseProcess,
                                                       comments=self.comments,
                                                       models_to_exclude=self.models_to_exclude)
-            return pd.DataFrame(model_logs)
+                  self.results_analysis[current_phase].phase_results_df = pd.DataFrame(model_logs)
+
+            return self.results_analysis[current_phase].phase_results_df
       
       def constrast_results(self):
             for modelName, modelObject in self.list_of_models.items():

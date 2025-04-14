@@ -18,6 +18,9 @@ class AutomaticFeatureSelection():
       
       def fit(self, type: str, max_iter: int, print_results: bool, delete_features: bool):
             return self.options[type](self.dataset).fit(max_iter, print_results, delete_features)
+      
+      def speak(self, message: str):
+            print(f"{message} from {id(self)}. You are at automatic feature selection!")
 
 
 class AutomaticFeatureSelectionFactory(ABC):
