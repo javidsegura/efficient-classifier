@@ -39,11 +39,26 @@ class ResultsDF:
                         writer = csv.writer(f)
                         writer.writerow(self.header)
       
+      def check_header_consitency(self, metadata: dict):
+            print(f"Metadata is: {metadata}")
+            metadata = metadata.copy() # Temporary copy for the check
+            header_cols = set(self.header)
+            metadata_cols = set(metadata.keys())
+            for phase in self.phases:
+                  metadata_cols.add(f"is_{phase}_done")
+            for metric in self.metrics_to_evaluate:
+                  metadata_cols.add(metric + "_val")
+                  metadata_cols.add(metric + "_test")
+                  metadata.pop(metric)
+            for col in header_cols:
+                  if col not in metadata_cols:
+                        raise ValueError(f"The data to write does not match the columns of the results. \n Data to write: {sorted(list(metadata_cols))} \n Data header: {sorted(header_cols)}")
+      
       def store_results(self, list_of_models: dict[str, Model], phaseProcess: dict, comments: str, models_to_exclude: list[str] = None):
             start_time = time.time()
             print(f"[DEBUG] Starting store_results")
             sys.stdout.flush()
-            
+            assert phaseProcess and comments, "Either phaseProcess and comments must be provided"
             model_logs = []
             model_count = 0
             for modelName, modelObject in list_of_models.items():
@@ -55,6 +70,7 @@ class ResultsDF:
                       print(f"[DEBUG {time.time() - start_time:.2f}s] Processing model {model_count}: {modelName}")
                       sys.stdout.flush()
                   
+                  # Extracting the metadata from the assesment
                   using_validation_set = modelObject.currentPhase == "pre" or modelObject.currentPhase == "in"
                   metadata = None
                   if modelObject.currentPhase == "pre":
@@ -66,28 +82,10 @@ class ResultsDF:
                   else:
                         raise ValueError("Invalid phase")
                   
-                  print(f"Metadata: {metadata}")
-                  print(f"Current phase: {modelObject.currentPhase}")
-                  # Checking same header between model_log and results_df
-                  model_log_header = list(metadata.keys())
-                  if "model_sklearn" in model_log_header:
-                        model_log_header.remove("model_sklearn")
-                  if "predictions" in model_log_header:
-                        model_log_header.remove("predictions")
-                  if "conf_matrix" in model_log_header:
-                        model_log_header.remove("conf_matrix")
-                  model_log_cleaned = []
-                  for metric in model_log_header:
-                        if metric in self.metrics_to_evaluate:
-                              model_log_cleaned.append(metric + "_val")
-                              model_log_cleaned.append(metric + "_test")
-                        else:
-                              model_log_cleaned.append(metric)
-                  if sorted(model_log_cleaned) != sorted(self.header):
-                        raise ValueError(f"The data to write does not match the columns of the results. \n Data to write: {sorted(model_log_cleaned)} \n Data header: {sorted(self.header)}")
-                  
+                  self.check_header_consitency(metadata)
+            
                   # Extracting the model_log
-                  model_sklearn = modelObject.tuning_states["pre"].assesment["model_sklearn"] if using_validation_set else modelObject.tuning_states["post"].assesment["model_sklearn"]      
+                  model_sklearn = modelObject.tuning_states[modelObject.currentPhase].assesment["model_sklearn"]      
                   model_log = {
                         "id": "",
                         "timeStamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -99,17 +97,23 @@ class ResultsDF:
                         "timeToFit": metadata["timeToFit"],
                         "timeToMakePredictions": metadata["timeToMakePredictions"],
                   }
+                  # Adding remaining data 
                   for phase in self.phases:
                         model_log[f"is_{phase}_done"] = "Yes" if phaseProcess[f"is_{phase}_done"] else "No"
-                  for metric in metadata.keys():
-                        if metric in self.metrics_to_evaluate:
+                  metricsAdded = 0
+                  for col in list(metadata.keys()):
+                        print(f"Col is: {col}")
+                        if col in self.metrics_to_evaluate:
                               if using_validation_set:
-                                    model_log[f"{metric}_val"] = metadata[metric]
-                                    model_log[f"{metric}_test"] = -1
+                                    model_log[f"{col}_val"] = metadata[col]
+                                    model_log[f"{col}_test"] = -1
                               else:
-                                    model_log[f"{metric}_test"] = metadata[metric]
-                                    model_log[f"{metric}_val"] = -1
+                                    model_log[f"{col}_test"] = metadata[col]
+                                    model_log[f"{col}_val"] = -1
+                              metricsAdded += 1
+                  assert metricsAdded == len(self.metrics_to_evaluate), f"Not all metrics were added. Model_log is: {model_log}"
 
+                  # Computing hash values 
                   dataForHash = {k: v for k, v in model_log.items() if k in self.columns_to_check_duplicates}
                   hash_value = hashlib.sha256(json.dumps(dataForHash).encode()).hexdigest()
                   isNewModel = hash_value not in self.results_df["id"].values

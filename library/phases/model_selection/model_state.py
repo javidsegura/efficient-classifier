@@ -54,7 +54,7 @@ class ModelState(ABC):
             for metric, value in metrics.items():
                   self.assesment[metric] = value
             print(f"Metrics stored in assesment")
-            return self.assesment
+
 class PreTuningState(ModelState):
       def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str]):
             super().__init__(model_sklearn, modelName, dataset, results_header)

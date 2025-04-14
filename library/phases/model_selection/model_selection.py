@@ -49,8 +49,8 @@ class ModelSelection:
             print("All models have been fitted and made predictions in parallel.")
 
       def _evaluate_model(self, modelName, modelObject):
-            assesment = modelObject.evaluate(modelName=modelName)
-            return modelName, modelObject, assesment
+            modelObject.evaluate(modelName=modelName)
+            return modelName, modelObject
 
       def evaluate_models(self, phaseProcess: dict[str, bool], comments: str):
             self.phaseProcess = phaseProcess 
@@ -68,9 +68,8 @@ class ModelSelection:
                   future_to_model = [executor.submit(self._evaluate_model, modelName, modelObject) for modelName, modelObject in self.list_of_models.items() if modelName not in self.models_to_exclude]
                   
                   for future in concurrent.futures.as_completed(future_to_model):
-                        modelName, modelObject, assesment = future.result() 
+                        modelName, modelObject = future.result() 
                         self.list_of_models[modelName] = modelObject # update results
-                        self.list_of_models[modelName].tuning_states[modelObject.currentPhase].assesment = assesment
          
                         
             print("All models have been evaluated.")

@@ -65,8 +65,7 @@ class Classifier(Model):
                   "accuracy": accuracy
             }
             print(f"METRIC RESULTS => F1: {f1_score}, Precision: {precision}, Recall: {recall}, Accuracy: {accuracy}")
-            assesment = self.tuning_states[self.currentPhase].store_assesment(results, conf_matrix=conf_matrix)
-            return assesment
+            self.tuning_states[self.currentPhase].store_assesment(results, conf_matrix=conf_matrix)
 
       def evaluate_training(self, modelName: str):
             raise NotImplementedError("Training evaluation not implemented for classifier")
