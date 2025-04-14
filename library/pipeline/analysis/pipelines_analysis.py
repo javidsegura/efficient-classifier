@@ -10,7 +10,33 @@ class PipelinesAnalysis:
       def __init__(self, pipelines: dict[str, dict[str, Pipeline]]):
             self.pipelines = pipelines
       
-      def plot_results_metrics(self, metrics: list[str], phase: str = "pre"):
+      def _compute_classification_report(self, phase: str = "pre"):
+            """
+            Plots the classification report of a given model
+            """
+            assert phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
+            classification_reports = []
+            for category in self.pipelines:
+                  for pipeline in self.pipelines[category]:
+                              if pipeline not in ["ensembled", "tree-based"]:
+                                    continue
+                              for modelName in self.pipelines[category][pipeline].model_selection.list_of_models:
+                                    if modelName not in self.pipelines[category][pipeline].model_selection.models_to_exclude:
+                                          classification_report = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[phase].assesment["classification_report"]
+                                          classification_report["modelName"] = modelName
+                                          classification_reports.append(pd.DataFrame(classification_report))
+            self.classification_report = pd.concat(classification_reports)
+            return self.classification_report
+      
+      def plot_classification_report(self, phase: str = "pre"):
+            """
+            Plots the classification report of a given model
+            """
+            assert phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
+            classification_report = self._compute_classification_report(phase)
+
+
+      def plot_results_df(self, metrics: list[str], phase: str = "pre"):
             """
             For all the metrics it plots all the trained models 
             """
@@ -89,30 +115,39 @@ class PipelinesAnalysis:
                               if modelName not in self.pipelines[category][pipeline].model_selection.models_to_exclude:
                                     pred = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[phase].assesment["predictions_val"]
                                     actual = self.pipelines[category][pipeline].model_selection.dataset.y_val
+                                    residuals[pipeline] = self.pipelines[category][pipeline].model_selection.dataset.y_val[pred != actual]
                                     cm = confusion_matrix(actual, pred)
-                                    confusion_matrices[pipeline] = {
+                                    confusion_matrices[modelName] = {
                                                                     "absolute": cm,
                                                                     "relative": cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] * 100
                                                                     }
             
-            fig, axes = plt.subplots(len(confusion_matrices), 2, figsize=(15, 5 * len(confusion_matrices)))
-            for i, (pipeline, cm_data) in enumerate(confusion_matrices.items()):
+            fig, axes = plt.subplots(len(confusion_matrices), 2, figsize=(15, 5* len(confusion_matrices)))
+            for i, (modelName, cm_data) in enumerate(confusion_matrices.items()):
                   # Absolute Confusion Matrix
-                  disp = ConfusionMatrixDisplay(cm_data["absolute"])
-                  disp.plot(ax=axes[i, 0], values_format="0f", xticks_rotation=45)
-                  axes[i, 0].set_title("Absolute Confusion Matrix")
+                  sns.heatmap(cm_data["absolute"], 
+                        annot=True, 
+                        fmt='d',  # 'd' for integers in absolute matrix
+                        cmap='Blues',
+                        ax=axes[i, 0])
+                  axes[i, 0].set_title("Absolute Confusion Matrix for model: " + pipeline)
                   axes[i, 0].set_xlabel("Predicted")
                   axes[i, 0].set_ylabel("Actual")
 
                   # Relative Confusion Matrix
-                  disp = ConfusionMatrixDisplay(cm_data["relative"])
-                  disp.plot(ax=axes[i, 1], values_format="0f", xticks_rotation=45)
-                  axes[i, 1].set_title("Relative Confusion Matrix")
+                  sns.heatmap(cm_data["relative"], 
+                        annot=True, 
+                        fmt='.1f',  # .1f for one decimal place in relative matrix
+                        cmap='Blues',
+                        ax=axes[i, 1])
+                  axes[i, 1].set_title("Relative Confusion Matrix for model: " + pipeline)
                   axes[i, 1].set_xlabel("Predicted")
                   axes[i, 1].set_ylabel("Actual")
             
             plt.tight_layout()
             plt.show()
+            self.residuals = residuals
+            return residuals
             
 
             

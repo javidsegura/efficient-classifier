@@ -28,6 +28,7 @@ Assesment currently has the following structure:
 - `precictions_train`: numpy.ndarray
 - `predictions_test`: numpy.ndarray
 - `model_sklearn`: sklearn
+- `classification_report`: dict
 
 """
 
@@ -76,11 +77,6 @@ class ModelState(ABC):
       def _predict_training(self):
             X_data, y_data = self.get_fit_data()
             self.assesment["predictions_train"] = self.model_sklearn.predict(X_data)
-
-      def store_assesment(self, metrics: dict[str, float]):
-            for metric, value in metrics.items():
-                  self.assesment[metric] = value
-            print(f"Metrics stored in assesment")
 
 class PreTuningState(ModelState):
       def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str]):

@@ -13,12 +13,18 @@ import time, sys
 from library.phases.model_selection.model.model import Model
 from library.phases.dataset.dataset import Dataset
 class ResultsDF:
-      def __init__(self, results_path: str, metrics_to_evaluate: list[str], dataset: Dataset):
+      def __init__(self, results_path: str, dataset: Dataset):
+            if dataset.modelTask == "classification":
+                  metrics_to_evaluate = ["accuracy", "precision", "recall", "f1-score"]
+            else:
+                  metrics_to_evaluate = ["r2", "mae", "mse"]
             assert len(metrics_to_evaluate) > 0, "The metrics to evaluate must be a non-empty list"
-            self.results_path = results_path
             self.metrics_to_evaluate = metrics_to_evaluate
+            self.results_path = results_path
             self.dataset = dataset
             header = ["id", "timeStamp", "comments", "modelName", "currentPhase", "features_used", "hyperParameters", "timeToFit", "timeToPredict"]
+            if dataset.modelTask == "classification":
+                  header += ["classification_report"]
             header += [f"{metric}_val" for metric in self.metrics_to_evaluate]
             header += [f"{metric}_test" for metric in self.metrics_to_evaluate]
             self.header = header
@@ -84,6 +90,8 @@ class ResultsDF:
                         "timeToFit": metadata["timeToFit"],
                         "timeToPredict": metadata["timeToPredict"],
                   }
+                  if self.dataset.modelTask == "classification":
+                        model_log["classification_report"] = metadata["classification_report"]
                   # Adding remaining data 
                   metricsAdded = 0
                   for col in list(metadata.keys()):
@@ -113,7 +121,11 @@ class ResultsDF:
                   model_logs.append(model_log)
             print(f"[DEBUG {time.time() - start_time:.2f}s] Completed store_results, processed {model_count} models")
             sys.stdout.flush()
+
+
             return model_logs
+      
+
 
       def extract_model_hyperparameters(self, modelObject: Model):
             return "NA"

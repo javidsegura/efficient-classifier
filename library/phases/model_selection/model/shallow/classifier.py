@@ -39,9 +39,8 @@ class Classifier(Model):
             The classification report and the confusion matrix
           """
           class_report = classification_report(y_actual, y_pred, output_dict=True) # F1 score, precision, recall for each class
-          conf_matrix = confusion_matrix(y_actual, y_pred)
 
-          return class_report, conf_matrix
+          return class_report
       
       def evaluate(self, modelName: str, current_phase: str):
             assert current_phase in ["pre", "in", "post"], "Current phase must be one of the tuning states"
@@ -53,7 +52,7 @@ class Classifier(Model):
                   raise ValueError("Invalid phase")
             y_pred = self.tuning_states[current_phase].assesment["predictions_val"]
 
-            class_report, conf_matrix = self.__set_assesment__(y_actual, y_pred, modelName)
+            class_report = self.__set_assesment__(y_actual, y_pred, modelName)
 
             accuracy = class_report["accuracy"]
             f1_score = class_report["weighted avg"]["f1-score"]
@@ -66,7 +65,10 @@ class Classifier(Model):
                   "accuracy": accuracy
             }
             print(f"METRIC RESULTS FOR {modelName} => F1: {f1_score}, Precision: {precision}, Recall: {recall}, Accuracy: {accuracy}")
-            self.tuning_states[current_phase].store_assesment(results)
-
+            # Storing results to assesment attribute
+            for metric, value in results.items():
+                  self.tuning_states[current_phase].assesment[metric] = value
+            self.tuning_states[current_phase].assesment["classification_report"] = class_report
+            
       def evaluate_training(self, modelName: str):
             raise NotImplementedError("Training evaluation not implemented for classifier")

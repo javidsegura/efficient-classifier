@@ -11,8 +11,8 @@ import pandas as pd
 import time
 
 class ModelSelection:
-      def __init__(self, dataset: Dataset, results_path: str, metrics_to_evaluate: list[str]):
-            self.results_df = ResultsDF(results_path, metrics_to_evaluate, dataset)
+      def __init__(self, dataset: Dataset, results_path: str):
+            self.results_df = ResultsDF(results_path, dataset)
             self.list_of_models = {}
             self.dataset = dataset
             self._models_to_exclude = []
