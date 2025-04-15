@@ -28,12 +28,46 @@ class PipelinesAnalysis:
             self.classification_report = pd.concat(classification_reports)
             return self.classification_report
       
-      def plot_classification_report(self, phase: str = "pre"):
+      def plot_classification_report(self, metric: list[str], phase: str = "pre", cols:int = 2):
             """
             Plots the classification report of a given model
             """
             assert phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
-            classification_report = self._compute_classification_report(phase)
+            class_report = self._compute_classification_report(phase="pre")
+            class_report_df = pd.DataFrame(class_report).T
+
+            num_metrics = len(metric)
+            cols = cols
+            rows =  math.ceil(num_metrics / cols)
+
+            fig, axes = plt.subplots(rows, cols, figsize=(cols * 8, rows * 7))
+            axes = axes.flatten()  # Flatten to iterate easily, even if 1 row
+
+            for i, metric in enumerate(metric):
+                  class_report_cols = class_report_df.columns
+                  assert metric in class_report_cols, f"Metric not present in {class_report_cols}"
+                  ax = axes[i]
+                  metric_df = class_report_df[metric]
+                  df_numeric = metric_df.iloc[:-1].astype(float)  
+                  model_names = metric_df.iloc[-1].values        
+
+                  # Plotting
+                  ax.plot(df_numeric.index, df_numeric.iloc[:, 0], marker='o', label=model_names[0])
+                  ax.plot(df_numeric.index, df_numeric.iloc[:, 1], marker='s', label=model_names[1])
+
+                  ax.set_title(f'{metric} by Model')
+                  ax.set_xlabel('Class Index')
+                  ax.set_ylabel(metric)
+                  ax.tick_params(axis='x', rotation=45)
+                  ax.legend()
+                  ax.grid(True)
+
+            # Hide any unused subplots
+            for j in range(i + 1, len(axes)):
+                  fig.delaxes(axes[j])
+
+            plt.tight_layout()
+            plt.show()
 
 
       def plot_results_df(self, metrics: list[str], phase: str = "pre"):
@@ -147,7 +181,7 @@ class PipelinesAnalysis:
             plt.tight_layout()
             plt.show()
             self.residuals = residuals
-            return residuals
+            return residuals, confusion_matrices
             
 
             
