@@ -89,49 +89,63 @@ class EDA:
     - category_column: the column name for category
     """
     if by_category:
-        if category_column not in self.dataset.columns:
+        if category_column not in self.dataset.df.columns:
             raise ValueError(f"Category column '{category_column}' not found in the dataset.")
 
-        categories = self.dataset[category_column].unique()
+        categories = self.dataset.df[category_column].unique()
         for category in categories:
-            subset = self.dataset[self.dataset[category_column] == category]
+            subset = self.dataset.df[self.dataset.df[category_column] == category]
             n_rows = math.ceil(len(features) / n_cols)
-            fig, axes = plt.subplots(n_rows, n_cols, figsize=(20, 5 * n_rows))
-            if n_rows == 1 and n_cols == 1:
-                axes = [axes]
-            elif n_rows == 1 or n_cols == 1:
-                axes = np.array(axes).flatten()
-
-            for i, feature in enumerate(features):
-                ax_hist = axes[i]
-                sns.histplot(subset[feature], bins=bins, ax=ax_hist, color="pink")
-                ax_hist.set_title(f"{feature} - {category}")
-                ax_hist.set_xlabel(feature)
-                ax_hist.set_ylabel("Frequency")
-
-            for j in range(len(features), len(axes)):
-                axes[j].set_visible(False)
+            
+            # Special handling for single feature
+            if len(features) == 1:
+                fig, ax = plt.subplots(figsize=(10, 5))
+                sns.histplot(data=subset, x=features[0], bins=bins, ax=ax, color="pink")
+                ax.set_title(f"{features[0]} - {category}")
+                ax.set_xlabel(features[0])
+                ax.set_ylabel("Frequency")
+            else:
+                fig, axes = plt.subplots(n_rows, n_cols, figsize=(20, 5 * n_rows))
+                axes = axes.ravel() if isinstance(axes, np.ndarray) else np.array([axes])
+                
+                for i, feature in enumerate(features):
+                    if i < len(axes):
+                        sns.histplot(data=subset, x=feature, bins=bins, ax=axes[i], color="pink")
+                        axes[i].set_title(f"{feature} - {category}")
+                        axes[i].set_xlabel(feature)
+                        axes[i].set_ylabel("Frequency")
+                
+                # Hide any unused subplots
+                for j in range(len(features), len(axes)):
+                    axes[j].set_visible(False)
 
             plt.tight_layout()
             plt.suptitle(f"Histograms for Category: {category}", y=1.02, fontsize=16)
             plt.show()
     else:
         n_rows = math.ceil(len(features) / n_cols)
-        fig, axes = plt.subplots(n_rows, n_cols, figsize=(20, 5 * n_rows))
-        if n_rows == 1 and n_cols == 1:
-            axes = [axes]
-        elif n_rows == 1 or n_cols == 1:
-            axes = np.array(axes).flatten()
-
-        for i, feature in enumerate(features):
-            ax_hist = axes[i]
-            sns.histplot(self.dataset[feature], bins=bins, ax=ax_hist, color="pink")
-            ax_hist.set_title(f"{feature} - Histogram")
-            ax_hist.set_xlabel(feature)
-            ax_hist.set_ylabel("Frequency")
-
-        for j in range(len(features), len(axes)):
-            axes[j].set_visible(False)
+        
+        # Special handling for single feature
+        if len(features) == 1:
+            fig, ax = plt.subplots(figsize=(10, 5))
+            sns.histplot(data=self.dataset.df, x=features[0], bins=bins, ax=ax, color="pink")
+            ax.set_title(f"{features[0]} - Histogram")
+            ax.set_xlabel(features[0])
+            ax.set_ylabel("Frequency")
+        else:
+            fig, axes = plt.subplots(n_rows, n_cols, figsize=(20, 5 * n_rows))
+            axes = axes.ravel() if isinstance(axes, np.ndarray) else np.array([axes])
+            
+            for i, feature in enumerate(features):
+                if i < len(axes):
+                    sns.histplot(data=self.dataset.df, x=feature, bins=bins, ax=axes[i], color="pink")
+                    axes[i].set_title(f"{feature} - Histogram")
+                    axes[i].set_xlabel(feature)
+                    axes[i].set_ylabel("Frequency")
+            
+            # Hide any unused subplots
+            for j in range(len(features), len(axes)):
+                axes[j].set_visible(False)
 
         plt.tight_layout()
         plt.show()
