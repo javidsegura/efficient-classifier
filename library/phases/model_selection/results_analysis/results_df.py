@@ -43,7 +43,6 @@ class ResultsDF:
                         writer.writerow(self.header)
       
       def check_header_consitency(self, metadata: dict):
-            print(f"Metadata is: {metadata}")
             metadata = metadata.copy() # Temporary copy for the check
             header_cols = set(self.header)
             metadata_cols = set(metadata.keys())
@@ -57,20 +56,13 @@ class ResultsDF:
       
       def store_results(self, list_of_models: dict[str, Model], current_phase: str, comments: str, models_to_exclude: list[str] = None):
             start_time = time.time()
-            print(f"[DEBUG] Starting store_results")
             sys.stdout.flush()
             assert current_phase and comments, "Either current_phase and comments must be provided"
             model_logs = []
-            model_count = 0
             for modelName, modelObject in list_of_models.items():
                   if models_to_exclude is not None and modelName in models_to_exclude:
                         continue
-                  
-                  model_count += 1
-                  if model_count % 5 == 0:  # Log every 5 models
-                      print(f"[DEBUG {time.time() - start_time:.2f}s] Processing model {model_count}: {modelName}")
-                      sys.stdout.flush()
-                  
+         
                   # Extracting the metadata from the assesment
                   using_validation_set = current_phase == "pre" or current_phase == "in"
                   metadata = modelObject.tuning_states[current_phase].assesment
@@ -86,7 +78,7 @@ class ResultsDF:
                         "modelName": modelName,
                         "currentPhase": current_phase,
                         "features_used": self.dataset.X_train.columns.tolist(),
-                        "hyperParameters": self.extract_model_hyperparameters(model_sklearn),
+                        "hyperParameters": model_sklearn.get_params(),
                         "timeToFit": metadata["timeToFit"],
                         "timeToPredict": metadata["timeToPredict"],
                   }
@@ -95,7 +87,6 @@ class ResultsDF:
                   # Adding remaining data 
                   metricsAdded = 0
                   for col in list(metadata.keys()):
-                        print(f"Col is: {col}")
                         if col in self.metrics_to_evaluate:
                               if using_validation_set:
                                     model_log[f"{col}_val"] = metadata[col]
@@ -119,17 +110,11 @@ class ResultsDF:
                         print(f"****WARNING****: A model with the same values already exists in the results. Results will not be saved. \n \
                               You tried to write {model_log}")
                   model_logs.append(model_log)
-            print(f"[DEBUG {time.time() - start_time:.2f}s] Completed store_results, processed {model_count} models")
             sys.stdout.flush()
 
 
             return model_logs
-      
 
-
-      def extract_model_hyperparameters(self, modelObject: Model):
-            return "NA"
-      
       def plot_results_over_time(self, metric: str):
             """
             Plots the results over time for all models

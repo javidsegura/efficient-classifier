@@ -42,20 +42,56 @@ class ModelSelection:
 
             self.list_of_models[model_name] = new_model
       
-      def _fit_and_predict(self, modelName, modelObject, current_phase: str):
+      def _fit_and_predict(self, modelName, modelObject: Model, current_phase: str):
             modelObject.fit(modelName=modelName, current_phase=current_phase)
             modelObject.predict(modelName=modelName, current_phase=current_phase)
+            print(f"Fitted and predicted model {modelName}")
             return modelName, modelObject
 
-      def fit_models(self, current_phase: str):
+      def _optimize_model(self, 
+                          modelName: str, 
+                          modelObject: Model, 
+                          current_phase: str,
+                          optimization_params: dict):
+            assert current_phase == "in", "Optimize model can only be used in the 'in' phase"
+            modelObject.optimizer_type = optimization_params["optimizer_type"]
+      
+            modelObject.fit(modelName=modelName, current_phase=current_phase,
+                            param_grid=optimization_params["param_grid"],
+                            max_iter=optimization_params["max_iter"],
+                            optimizer_type=optimization_params["optimizer_type"])
+            modelObject.predict(modelName=modelName, current_phase=current_phase)
+            print(f"Optimized model {modelName}")
+            return modelName, modelObject
+
+      def fit_models(self, current_phase: str, **kwargs):
             assert current_phase in ["pre", "in", "post"], "Current phase must be one of the tuning states"
             with concurrent.futures.ProcessPoolExecutor() as executor:
                   # Submit all model fitting tasks to the executor
-                  future_to_model = [executor.submit(self._fit_and_predict, modelName, modelObject, current_phase) for modelName, modelObject in self.list_of_models.items() if modelName not in self.models_to_exclude]
+                  if current_phase == "pre":
+                        future_to_model = [executor.submit(self._fit_and_predict, modelName, modelObject, current_phase) for modelName, modelObject in self.list_of_models.items() if modelName not in self.models_to_exclude]
                   
-                  for future in concurrent.futures.as_completed(future_to_model):
-                        modelName, model = future.result() 
-                        self.list_of_models[modelName] = model # update results
+                        for future in concurrent.futures.as_completed(future_to_model):
+                              modelName, model = future.result() 
+                              self.list_of_models[modelName] = model # update results
+                  elif current_phase == "in":
+                        modelNameToOptimizer = kwargs.get("modelNameToOptimizer", None)
+                        assert modelNameToOptimizer is not None, "modelNameToOptimizer must be provided"
+                        future_to_model_name = {}
+                        for modelName, optimization_params in modelNameToOptimizer.items():
+                              if modelName not in list(self.list_of_models.keys()):
+                                    continue
+                              if modelName in self.models_to_exclude:
+                                    continue
+                              print(f"Optimizing model {modelName}")
+                              modelObject = self.list_of_models[modelName]
+                              future = executor.submit(self._optimize_model, modelName, modelObject, current_phase, optimization_params)
+                              future_to_model_name[future] = modelName
+                        
+                        for future in concurrent.futures.as_completed(future_to_model_name.keys()):
+                              modelName = future_to_model_name[future]  # Get the model name for this future
+                              modelName, modelObject = future.result()
+                              self.list_of_models[modelName] = modelObject
             print("All models have been fitted and made predictions in parallel.")
 
       def _evaluate_model(self, modelName, modelObject, current_phase: str):
@@ -63,8 +99,9 @@ class ModelSelection:
             return modelName, modelObject
 
       def evaluate_models(self, comments: str, current_phase: str):
-            self.comments = comments
-            assert self.comments, "comments must be provided"
+            if comments:
+                  self.comments = comments
+                  assert self.comments, "comments must be provided"
 
             with concurrent.futures.ProcessPoolExecutor() as executor:
                   # Submit all model fitting tasks to the executor
@@ -84,62 +121,6 @@ class ModelSelection:
 
             return self.results_analysis[current_phase].phase_results_df
       
-      def constrast_results(self):
-            for modelName, modelObject in self.list_of_models.items():
-                  modelObject._constrast_sets_predictions()
-      
-      def _optimize_model(self, modelName: str, optimization_params: dict):
-            
-            self.list_of_models[modelName].optimizer_type = optimization_params["optimizer_type"]
-            cv_results_df, best_model, assesment, optimizer = self.list_of_models[modelName].optimize(param_grid=optimization_params["param_grid"], max_iter=optimization_params["max_iter"])
-            print("I am done")
-            return cv_results_df, best_model, assesment, optimizer
-
-      def models_optimization(self, modelNameToOptimizer: dict[str, dict[str, dict]]):
-            cv_results_dataframes = {}
-            best_models = {}
-
-            print(f"Models to optimize: {list(modelNameToOptimizer.keys())}")
-
-            for modelName, modelObject in self.list_of_models.items():
-                  if modelName in modelNameToOptimizer:
-                        modelObject.currentPhase = "in_tuning"
-                        print(f"In-tuning model: {modelName} \n {modelObject.inTuningState.assesment}")
-                        assert modelObject.inTuningState.assesment["status"] == "in_tuning", f"Model {modelName} is not in in-tuning phase"
-            
-            with concurrent.futures.ProcessPoolExecutor() as executor:
-                  future_to_model_name = {}
-                  for modelName, optimization_params in modelNameToOptimizer.items():
-                        future = executor.submit(self._optimize_model, modelName, optimization_params)
-                        future_to_model_name[future] = modelName
-                  
-                  # Process results as they complete
-                  for future in concurrent.futures.as_completed(future_to_model_name.keys()):
-                        modelName = future_to_model_name[future]  # Get the model name for this future
-                        print(f"Getting results for {modelName}")
-                        cv_results_df, best_model, assesment, optimizer = future.result()
-                        print(f"Results for {modelName} obtained")
-                        cv_results_dataframes[modelName] = cv_results_df
-                        best_models[modelName] = best_model
-                        self.list_of_models[modelName].inTuningState.assesment = assesment
-                        self.list_of_models[modelName].optimizer = optimizer
-                        print(f"Results for {modelName} stored")
-                  
-
-            print("All models have been optimized in parallel. Gonna store results.")
-            start_time = time.time()
-            
-            print(f"[DEBUG {time.time() - start_time:.2f}s] Starting to print model assessments")
-            for modelName, modelObject in self.list_of_models.items():
-                  # List all the assesment 
-                  if modelObject.currentPhase == "in_tuning":
-                        print(f"Model {modelName} in-tuning assesment: {modelObject.inTuningState.assesment}")
-            
-            print(f"[DEBUG {time.time() - start_time:.2f}s] About to call store_results")
-            model_logs = self.results_df.store_results(list_of_models=self.list_of_models, phaseProcess=self.phaseProcess, comments=self.comments, models_to_include=list(modelNameToOptimizer.keys()))
-            print(f"[DEBUG {time.time() - start_time:.2f}s] store_results completed")
-
-            return cv_results_dataframes, best_models, pd.DataFrame(model_logs)
 
       def final_model(self, best_model: object, finalModelName: str, baseModelName: str, plot: bool = True):
             """

@@ -16,6 +16,17 @@ class PipelineManager:
       def __init__(self, pipelines: dict[str, dict[str, Pipeline]]):
             self.pipelines = pipelines
             self.pipelines_analysis = PipelinesAnalysis(pipelines)
+            self._pipeline_state = None # Can only take upon "pre", "in", "post"
+
+      @property
+      def pipeline_state(self):
+            return self._pipeline_state
+
+      @pipeline_state.setter
+      def pipeline_state(self, pipeline_state: str):
+            assert pipeline_state in ["pre", "in", "post"], "Pipeline state must be one of the following: pre, in, post"
+            self._pipeline_state = pipeline_state
+            self.pipelines_analysis.phase = pipeline_state
       
       def create_pipeline_divergence(self, category: str, pipelineName: str, print_results: bool = False):
             """
