@@ -4,12 +4,43 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
-
+from imblearn.over_sampling import SMOTE
 from library.phases.dataset.dataset import Dataset
 
 class Preprocessing:
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
+    
+    def analyze_duplicates(self, plot: bool = False):
+        """
+        Analyzes the duplicates in the dataset
+        """
+        duplicates = self.dataset.df.duplicated()
+        duplicates_sum = duplicates.sum()
+        if duplicates_sum > 0:
+            if plot:
+                # Count duplicates per column
+                duplicates_by_column = self.dataset.df[duplicates].count()
+            
+                # Create generic feature names
+                feature_names = [f'{i+1}' for i in range(len(duplicates_by_column))]
+                
+                # Create barplot
+                plt.figure(figsize=(15, 4))
+                sns.barplot(x=feature_names, y=duplicates_by_column.values)
+                plt.title("Number of Duplicates by Column")
+                plt.xlabel("Features")
+                plt.ylabel("Number of Duplicates")
+                plt.xticks(rotation=45, ha='right')
+                plt.tight_layout()
+                plt.show()
+        else:
+            if plot:
+                print("No duplicates found in the dataset, no need to plot")
+            else:
+                print("No duplicates found in the dataset")
+        return f"There are {duplicates_sum} duplicates in the dataset"
+      
     
     def remove_duplicates(self):
         """
@@ -25,7 +56,7 @@ class Preprocessing:
         else:
             print("No duplicates found in the dataset")
     
-    def get_missing_values(self):
+    def get_missing_values(self, plot: bool = False):
         """
         Gets the missing values in the dataset and returns rows with missing values if any
         """
@@ -38,10 +69,28 @@ class Preprocessing:
             rows_with_missing = self.dataset.df[self.dataset.df.isnull().any(axis=1)]
             print(f"Rows with missing values:\n{rows_with_missing}")
             
+            if plot:
+                # Plot missing values
+                missing_values_by_column = self.dataset.df.isnull().sum()
+                feature_names = [f'{i+1}' for i in range(len(missing_values_by_column))]
+                plt.figure(figsize=(15, 4))
+                sns.barplot(x=feature_names, y=missing_values_by_column.values)
+                plt.title("Missing Values by Column")
+                plt.xlabel("Features")
+                plt.ylabel("Number of Missing Values")
+                plt.xticks(rotation=45, ha='right')
+                plt.tight_layout()
+                plt.show()
             return rows_with_missing
         else:
-            print("No missing values found in the dataset")
+            if plot:
+                print("No missing values found in the dataset, no need to plot")
+            else:
+                print("No missing values found in the dataset")
             return None
+          
+    def bound_checking(self, plot: bool = False):
+        
         
     def get_outliers_df(self, plot: bool = False, threshold: float = 1.5, columnsToCheck: list[str] = []):
       outlier_df = pd.DataFrame(columns=["feature", "outlierCount","percentageOfOutliers", "descriptiveStatistics"])
@@ -73,7 +122,7 @@ class Preprocessing:
       print(f"There are {len(outlier_df)} features with outliers out of {len(only_numerical_features)} numerical features ({len(outlier_df) / len(only_numerical_features) * 100}%)")
       return outlier_df, outliers
     
-    def scale_features(self, scaler: str = "minmax", columnsToScale: list[str] = []):
+    def scale_features(self, scaler: str, columnsToScale: list[str] = []):
       assert len(columnsToScale) > 0, "Columns to scale must be provided"
       if scaler == "minmax":
         scaler = MinMaxScaler()
@@ -87,4 +136,21 @@ class Preprocessing:
       self.dataset.X_train[columnsToScale] = scaler.fit_transform(self.dataset.X_train[columnsToScale])
       self.dataset.X_val[columnsToScale] = scaler.transform(self.dataset.X_val[columnsToScale])
       self.dataset.X_test[columnsToScale] = scaler.transform(self.dataset.X_test[columnsToScale])
+      
+      return f"Succesfully scaled {len(columnsToScale)} features, to check the results run: \n baseline_pipeline.dataset.X_train.head()"
 
+    def delete_columns(self, columnsToDelete: list[str]):
+      self.dataset.X_train.drop(columns=columnsToDelete, inplace=True)
+      self.dataset.X_val.drop(columns=columnsToDelete, inplace=True)
+      self.dataset.X_test.drop(columns=columnsToDelete, inplace=True)
+      return f"Succesfully deleted {len(columnsToDelete)} columns, to check the results run: \n baseline_pipeline.dataset.X_train.head()"
+    
+    def class_imbalance(self):
+      """
+      Checks if the dataset is imbalanced and returns the imbalance ratio
+      """
+      self.imbalance_ratio = self.dataset.y_train.value_counts().min() / self.dataset.y_train.value_counts().max()
+      
+      smote = SMOTE(random_state=42)
+      self.dataset.X_train, self.dataset.y_train = smote.fit_resample(self.dataset.X_train, self.dataset.y_train)
+      return f"Succesfully balanced the classes in the dataset. There was a {self.imbalance_ratio} to 1 ratio before balancing, now it is 1 to 1"
