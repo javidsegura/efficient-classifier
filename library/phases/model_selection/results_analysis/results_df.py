@@ -28,7 +28,7 @@ class ResultsDF:
             header += [f"{metric}_val" for metric in self.metrics_to_evaluate]
             header += [f"{metric}_test" for metric in self.metrics_to_evaluate]
             self.header = header
-            columns_to_check_duplicates = ["modelName", "features_used", "hyperParameters", "comments", "status"]
+            columns_to_check_duplicates = ["modelName", "features_used", "hyperParameters", "comments", "currentPhase"]
             self.columns_to_check_duplicates = columns_to_check_duplicates
             self._create_results_file()
             self.results_df = pd.read_csv(self.results_path)

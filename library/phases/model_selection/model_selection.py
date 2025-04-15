@@ -77,7 +77,7 @@ class ModelSelection:
                   elif current_phase == "in":
                         modelNameToOptimizer = kwargs.get("modelNameToOptimizer", None)
                         assert modelNameToOptimizer is not None, "modelNameToOptimizer must be provided"
-                        future_to_model_name = {}
+                        future_to_model = []
                         for modelName, optimization_params in modelNameToOptimizer.items():
                               if modelName not in list(self.list_of_models.keys()):
                                     continue
@@ -86,30 +86,59 @@ class ModelSelection:
                               print(f"Optimizing model {modelName}")
                               modelObject = self.list_of_models[modelName]
                               future = executor.submit(self._optimize_model, modelName, modelObject, current_phase, optimization_params)
-                              future_to_model_name[future] = modelName
-                        
-                        for future in concurrent.futures.as_completed(future_to_model_name.keys()):
-                              modelName = future_to_model_name[future]  # Get the model name for this future
+                              future_to_model.append(future)
+                        for future in concurrent.futures.as_completed(future_to_model):
                               modelName, modelObject = future.result()
                               self.list_of_models[modelName] = modelObject
+                  elif current_phase == "post":
+                        best_model_name, baseline_model_name = kwargs.get("best_model_name", None), kwargs.get("baseline_model_name", None)
+                        assert (best_model_name is not None) or (baseline_model_name is not None), "You must provide at least one of the best or baseline model"
+                        future_to_model = []
+
+                        if best_model_name:
+                              future = executor.submit(self._fit_and_predict, best_model_name, self.list_of_models[best_model_name], current_phase)
+                              future_to_model.append(future)
+                        if baseline_model_name:
+                              future = executor.submit(self._fit_and_predict, baseline_model_name, self.list_of_models[baseline_model_name], current_phase)
+                              future_to_model.append(future)
+
+                        for future in concurrent.futures.as_completed(future_to_model):
+                              modelName, modelObject = future.result()
+                              self.list_of_models[modelName] = modelObject
+
             print("All models have been fitted and made predictions in parallel.")
 
       def _evaluate_model(self, modelName, modelObject, current_phase: str):
             modelObject.evaluate(modelName=modelName, current_phase=current_phase)
             return modelName, modelObject
 
-      def evaluate_models(self, comments: str, current_phase: str):
+      def evaluate_and_store_models(self, comments: str, current_phase: str, **kwargs):
             if comments:
                   self.comments = comments
-                  assert self.comments, "comments must be provided"
-
+            assert self.comments, "comments must be provided"
             with concurrent.futures.ProcessPoolExecutor() as executor:
                   # Submit all model fitting tasks to the executor
-                  future_to_model = [executor.submit(self._evaluate_model, modelName, modelObject, current_phase) for modelName, modelObject in self.list_of_models.items() if modelName not in self.models_to_exclude]
-                  
-                  for future in concurrent.futures.as_completed(future_to_model):
-                        modelName, modelObject = future.result() 
-                        self.list_of_models[modelName] = modelObject # update results
+                  if current_phase != "post":
+                        future_to_model = [executor.submit(self._evaluate_model, modelName, modelObject, current_phase) for modelName, modelObject in self.list_of_models.items() if modelName not in self.models_to_exclude]
+                        
+                        for future in concurrent.futures.as_completed(future_to_model):
+                              modelName, modelObject = future.result() 
+                              self.list_of_models[modelName] = modelObject # update results
+                  else:
+                        best_model_name, baseline_model_name = kwargs.get("best_model_name", None), kwargs.get("baseline_model_name", None)
+                        assert (best_model_name is not None) or (baseline_model_name is not None), "You must provide at least one of the best or baseline model"
+                        future_to_model = []
+
+                        if best_model_name:
+                              future = executor.submit(self._evaluate_model, best_model_name, self.list_of_models[best_model_name], current_phase)
+                              future_to_model.append(future)
+                        if baseline_model_name:
+                              future = executor.submit(self._evaluate_model, baseline_model_name, self.list_of_models[baseline_model_name], current_phase)
+                              future_to_model.append(future)
+
+                        for future in concurrent.futures.as_completed(future_to_model):
+                              modelName, modelObject = future.result()
+                              self.list_of_models[modelName] = modelObject
          
                         
             print("All models have been evaluated.")
@@ -122,32 +151,7 @@ class ModelSelection:
             return self.results_analysis[current_phase].phase_results_df
       
 
-      def final_model(self, best_model: object, finalModelName: str, baseModelName: str, plot: bool = True):
-            """
-            TO BE DONE: 
-            - Add parallelism to fit, predict, evalute 
-            """
-            finalModelObj = self.list_of_models[finalModelName]
-            finalModelObj.currentPhase = "post_tuning"
-            finalModelObj.postTuningState.model_sklearn = finalModelObj.model_sklearn = best_model
-            finalModelObj.fit(finalModelName)
-            finalModelObj.predict(finalModelName)
-            finalModelObj.evaluate(finalModelName)
-
-            baselineModelObj = self.list_of_models[baseModelName]
-            baselineModelObj.currentPhase = "post_tuning"
-            baselineModelObj.fit(baseModelName)
-            baselineModelObj.predict(baseModelName)
-            baselineModelObj.evaluate(baseModelName)
-            
-            if plot:
-                  ...
-
-            return finalModelObj, baselineModelObj
-      
-      def plot_bias_variance(self, finalModelName: str):
-            ...
-      
-      def plot_test_metrics(self, finalModelName: str, baseModelName: str):
-            ...
-
+      def plot_convergence(self):
+            for modelName, modelObject in self.list_of_models.items():
+                  if hasattr(modelObject.tuning_states["in"], "optimizer"):
+                        modelObject.tuning_states["in"].optimizer.plot_convergence()

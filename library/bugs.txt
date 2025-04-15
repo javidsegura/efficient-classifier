@@ -1,0 +1,5 @@
+
+
+
+- Time to fit metrics not written to baseline 
+- Convergance of bayes is not identifiable

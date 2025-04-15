@@ -122,6 +122,7 @@ class InTuningState(ModelState):
 
                   optimizer = Optimizer(self.model_sklearn, self.modelName, self.dataset, optimizer_type, param_grid, max_iter)
                   optimizer.fit()
+                  self.optimizer = optimizer
                   self.cv_tuner = optimizer.cv_tuner
                   self.model_sklearn = optimizer.cv_tuner.best_estimator_
                   self.assesment["model_sklearn"] = self.model_sklearn
@@ -143,9 +144,9 @@ class InTuningState(ModelState):
                   time_taken = end_time - start_time
                   self.assesment["timeToPredict"] = time_taken
                   print(f"\t\t => Predicted {self.modelName}. Took {time_taken} seconds")
-
-
-
+      
+      def plot_convergence(self):
+            self.optimizer.plot_convergence()
 
 
 
@@ -153,19 +154,48 @@ class InTuningState(ModelState):
 class PostTuningState(ModelState):
       def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str]):
             super().__init__(model_sklearn, modelName, dataset, results_header)
+            """ model object needs to be overwritten!!!"""
       
       def get_fit_data(self): 
-            X_train_combined = np.vstack([self.dataset.X_train, self.dataset.X_val])
-            y_train_combined = np.concatenate([self.dataset.y_train, self.dataset.y_val])
-            return X_train_combined, y_train_combined
+            self.X_train_combined = np.vstack([self.dataset.X_train, self.dataset.X_val])
+            self.y_train_combined = np.concatenate([self.dataset.y_train, self.dataset.y_val])
+            print(f"X_train_combined: {self.X_train_combined.shape}")
+            return self.X_train_combined, self.y_train_combined
       
       def get_predict_data(self):
-            return self.dataset.X_test
+            return {
+                   "training": self.X_train_combined,
+                   "not-training": self.dataset.X_test
+                   }
       
       def fit(self, **kwargs):
-            pass
+            print(f"Sklearn model: {self.model_sklearn}")
+            start_time = time.time()
+            print(f"!> Started fitting {self.modelName}")
+            X_data, y_data = self.get_fit_data()
+            print(f"Lenght of X_data: {X_data.shape[0]}")
+            self.assesment["model_sklearn"] = self.model_sklearn.fit(X_data, y_data)
+            end_time = time.time()
+            time_taken = end_time - start_time
+            self.assesment["timeToFit"] = time_taken
+            print(f"\t\t => Fitted {self.modelName}. Took {time_taken} seconds")
       
-      def predict(self, **kwargs):
-            pass
+      def predict(self):
+            start_time = time.time()
+            print(f"!> Started predicting {self.modelName}")
+            data = self.get_predict_data()
+
+            # Predict training data
+            training_data = data["training"]
+            self.assesment["predictions_train"] = self.model_sklearn.predict(training_data)
+
+            # Predict not training data
+            not_training_data = data["not-training"]
+            self.assesment["predictions_test"] = self.model_sklearn.predict(not_training_data)
+
+            end_time = time.time()
+            time_taken = end_time - start_time
+            self.assesment["timeToPredict"] = time_taken
+            print(f"\t\t => Predicted {self.modelName}. Took {time_taken} seconds")
       
       

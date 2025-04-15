@@ -13,6 +13,7 @@ class PipelinesAnalysis:
             self.pipelines = pipelines
             self.encoded_map = None
             self.phase = None
+            self.best_performing_model = None
       
       def _compute_classification_report(self, include_training: bool = False):
             """
@@ -22,84 +23,89 @@ class PipelinesAnalysis:
             classification_reports = []
             for category in self.pipelines:
                   for pipeline in self.pipelines[category]:
-                              if pipeline not in ["ensembled", "tree-based"]:
-                                    continue
                               for modelName in self.pipelines[category][pipeline].model_selection.list_of_models:
+                                    # Only select the model that is the best if pipeline is post and and phase is post
+                                    if category == "not-baseline" and self.phase == "post" and self.best_performing_model["modelName"] != modelName:
+                                          continue
                                     if modelName not in self.pipelines[category][pipeline].model_selection.models_to_exclude:
                                           if self.phase != "post":
+                                                      if self.phase == "in" and category == "baseline":
+                                                            continue
                                                       y_pred = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_val"]
                                                       y_true = self.pipelines[category][pipeline].model_selection.dataset.y_val
-                                                      not_training_report = classification_report(y_true, y_pred, output_dict=True)
+                                                      not_training_report = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
                                                       not_training_report["modelName"] = modelName
                                                       classification_reports.append(pd.DataFrame(not_training_report))
                                                       if include_training:
                                                             y_pred_train = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_train"]
                                                             y_true_train = self.pipelines[category][pipeline].model_selection.dataset.y_train
-                                                            training_report = classification_report(y_true_train, y_pred_train, output_dict=True)
+                                                            training_report = classification_report(y_true_train, y_pred_train, output_dict=True, zero_division=0)
                                                             training_report["modelName"] = modelName + "_train"
                                                             classification_reports.append(pd.DataFrame(training_report))
                                           else:
                                                       y_pred = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_test"]
                                                       y_true = self.pipelines[category][pipeline].model_selection.dataset.y_test
-                                                      not_training_report = classification_report(y_true, y_pred, output_dict=True)
+                                                      not_training_report = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
                                                       not_training_report["modelName"] = modelName
                                                       classification_reports.append(pd.DataFrame(not_training_report))
                                                       if include_training:
                                                             y_pred_train = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_train"]
-                                                            y_true_train = self.pipelines[category][pipeline].model_selection.dataset.y_train
-                                                            training_report = classification_report(y_true_train, y_pred_train, output_dict=True)
+                                                            train = self.pipelines[category][pipeline].model_selection.dataset.y_train
+                                                            test = self.pipelines[category][pipeline].model_selection.dataset.y_test
+                                                            y_true_train = np.concatenate([train, test])
+                                                            training_report = classification_report(y_true_train, y_pred_train, output_dict=True, zero_division=0)
                                                             training_report["modelName"] = modelName + "_train"
                                                             classification_reports.append(pd.DataFrame(training_report))
 
-            self.classification_report = pd.concat(classification_reports).T
+            self.merged_report = pd.concat(classification_reports).T
             
             if self.encoded_map is not None:
                   reverse_map = {str(v): k for k, v in self.encoded_map.items()} #{number:name}
-                  index = self.classification_report.index.tolist()
+                  index = self.merged_report.index.tolist()
                   new_index = []
                   for idx in index:
                         if idx in reverse_map:  
                               new_index.append(reverse_map[idx])
                         else:  
                               new_index.append(idx)
-                  self.classification_report.index = new_index
+                  self.merged_report.index = new_index
             
-            return self.classification_report
+            return self.merged_report
       
-      def plot_cross_model_comparison(self, metric: list[str], cols:int = 2):
+      def plot_cross_model_comparison(self, metric: list[str], cols: int = 2):
             """
             Plots the classification report of a given model
             """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
+            
+            # Compute the classification report DataFrame.
             class_report_df = self._compute_classification_report()
-
             num_metrics = len(metric)
-            cols = cols
-            rows =  math.ceil(num_metrics / cols)
+            rows = math.ceil(num_metrics / cols)
 
             fig, axes = plt.subplots(rows, cols, figsize=(cols * 8, rows * 7))
-            axes = axes.flatten()  # Flatten to iterate easily, even if 1 row
+            axes = axes.flatten()  
 
-            for i, metric in enumerate(metric):
+            for i, metric_key in enumerate(metric):
                   class_report_cols = class_report_df.columns
-                  assert metric in class_report_cols, f"Metric not present in {class_report_cols}"
+                  assert metric_key in class_report_cols, f"Metric not present in {class_report_cols}"
                   ax = axes[i]
-                  metric_df = class_report_df[metric]
-                  df_numeric = metric_df.iloc[:-1].astype(float)  
-                  model_names = metric_df.iloc[-1].values        
+                  
+                  metric_df = class_report_df[metric_key]
 
-                  # Plotting
+                  df_numeric = metric_df.iloc[:-1].astype(float)
+                  model_names = metric_df.iloc[-1].index.values
+
                   ax.plot(df_numeric.index, df_numeric.iloc[:, 0], marker='o', label=model_names[0])
                   ax.plot(df_numeric.index, df_numeric.iloc[:, 1], marker='s', label=model_names[1])
-
-                  ax.set_title(f'{metric} by Model')
+                  
+                  ax.set_title(f'{metric_key} by Model')
                   ax.set_xlabel('Class Index')
-                  ax.set_ylabel(metric)
+                  ax.set_ylabel(metric_key)
                   ax.tick_params(axis='x', rotation=45)
                   ax.legend()
                   ax.grid(True)
 
-            # Hide any unused subplots
             for j in range(i + 1, len(axes)):
                   fig.delaxes(axes[j])
 
@@ -147,24 +153,25 @@ class PipelinesAnalysis:
             plt.tight_layout()
             plt.show()
       
-      def pot_feature_importance(self):
+      def plot_feature_importance(self):
             """
             Plots the feature importance of a given model
             """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             importances_dfs = {}
-            for category in self.pipelines:
-                  for pipeline in self.pipelines[category]:
-                              if pipeline not in ["ensembled", "tree-based"]:
-                                    continue
-                              for modelName in self.pipelines[category][pipeline].model_selection.list_of_models:
-                                    if modelName not in self.pipelines[category][pipeline].model_selection.models_to_exclude:
-                                          importances = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["model_sklearn"].feature_importances_
-                                          feature_importance_df = pd.DataFrame({
-                                                                            'Feature': self.pipelines[category][pipeline].dataset.X_train.columns,
+            for pipeline in self.pipelines["not-baseline"]:
+                  if pipeline not in ["ensembled", "tree-based"]:
+                        continue
+                  for modelName in self.pipelines["not-baseline"][pipeline].model_selection.list_of_models:
+                        if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
+                                          continue
+                        if modelName not in self.pipelines["not-baseline"][pipeline].model_selection.models_to_exclude:
+                              importances = self.pipelines["not-baseline"][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["model_sklearn"].feature_importances_
+                              feature_importance_df = pd.DataFrame({
+                                                                            'Feature': self.pipelines["not-baseline"][pipeline].dataset.X_train.columns,
                                                                             'Importance': importances
                                                                             }).sort_values(by='Importance', ascending=False)
-                                          importances_dfs[pipeline] = feature_importance_df
+                              importances_dfs[pipeline] = feature_importance_df
             for pipeline in importances_dfs:
                   sns.barplot(
                         x="Importance",
@@ -186,9 +193,22 @@ class PipelinesAnalysis:
                   for pipeline in self.pipelines[category]:
                         for modelName in self.pipelines[category][pipeline].model_selection.list_of_models:
                               if modelName not in self.pipelines[category][pipeline].model_selection.models_to_exclude:
-                                    pred = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_val"]
-                                    actual = self.pipelines[category][pipeline].model_selection.dataset.y_val
-                                    residuals[pipeline] = self.pipelines[category][pipeline].model_selection.dataset.y_val[pred != actual]
+                                    if category == "not-baseline" and self.phase == "post" and modelName != self.best_performing_model["modelName"]:
+                                          continue
+                                    if self.phase == "in" and category == "baseline":
+                                          continue
+                                    if self.phase != "post":
+                                          pred = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_val"]
+                                          actual = self.pipelines[category][pipeline].model_selection.dataset.y_val
+                                          residuals[pipeline] = self.pipelines[category][pipeline].model_selection.dataset.y_val[pred != actual]
+                                    else:
+                                          pred = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_test"]
+                                          actual = self.pipelines[category][pipeline].model_selection.dataset.y_test
+                                          residuals[pipeline] = self.pipelines[category][pipeline].model_selection.dataset.y_test[pred != actual]
+
+                                    assert pred is not None, "Predictions are None"
+                                    assert actual is not None, "Actual is None"
+                                    assert len(pred) == len(actual), "Predictions and actual must be of the same length"
                                     cm = confusion_matrix(actual, pred)
                                     confusion_matrices[modelName] = {
                                                                     "absolute": cm,
@@ -282,7 +302,7 @@ class PipelinesAnalysis:
             plt.tight_layout(rect=[0, 0, 1, 0.96])  
             plt.suptitle(f"Intra-model Perfomance Comparison - {self.phase} phase")
             plt.show()
-
+      
                 
             
 

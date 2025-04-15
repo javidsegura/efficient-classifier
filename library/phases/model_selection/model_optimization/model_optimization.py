@@ -1,11 +1,14 @@
-
 from abc import ABC, abstractmethod
 from library.phases.dataset.dataset import Dataset
 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from skopt import BayesSearchCV
+
+from skopt.plots import plot_convergence
+
 
 
 class Optimizer():
@@ -14,6 +17,7 @@ class Optimizer():
             self.modelName = modelName
             self.dataset = dataset
             self.cv_tuner = self._set_up_optimizer(optimizer_type, param_grid, max_iter)
+            self.optimizer_type = optimizer_type
            
       def _set_up_optimizer(self, type: str, param_grid: dict, max_iter: int = 100):
             if type == "grid":
@@ -55,3 +59,12 @@ class Optimizer():
             print(f" => STARTING OPTIMIZATION FOR {self.modelName}")
             self.cv_tuner.fit(self.dataset.X_train, self.dataset.y_train)
             print(f" => FINISHED OPTIMIZATION FOR {self.modelName}")
+      
+      def plot_convergence(self):
+            if self.optimizer_type == "bayes":
+                  plot_convergence(self.cv_tuner.optimizer_results_)
+                  plt.title(f"Convergence Plot for {self.modelName}")
+                  plt.gca().get_lines()[0].set_label(self.modelName)
+                  plt.legend()
+
+                  

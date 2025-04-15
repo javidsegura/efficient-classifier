@@ -43,14 +43,19 @@ class Classifier(Model):
           return class_report
       
       def evaluate(self, modelName: str, current_phase: str):
+            print(f"Evaluating {modelName} in {current_phase} phase")
             assert current_phase in ["pre", "in", "post"], "Current phase must be one of the tuning states"
             if current_phase == "pre" or current_phase == "in":
                   y_actual = self.dataset.y_val
+                  y_pred = self.tuning_states[current_phase].assesment["predictions_val"]
             elif current_phase == "post":
                   y_actual = self.dataset.y_test
+                  y_pred = self.tuning_states[current_phase].assesment["predictions_test"]
             else:
                   raise ValueError("Invalid phase")
-            y_pred = self.tuning_states[current_phase].assesment["predictions_val"]
+            
+            assert y_actual is not None, "y_actual is None"
+            assert y_pred is not None, "y_pred is None"
 
             class_report = self.__set_assesment__(y_actual, y_pred, modelName)
 
