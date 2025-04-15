@@ -9,6 +9,7 @@ import numpy as np
 class PipelinesAnalysis:
       def __init__(self, pipelines: dict[str, dict[str, Pipeline]]):
             self.pipelines = pipelines
+            self.encoded_map = None
       
       def _compute_classification_report(self, phase: str = "pre"):
             """
@@ -25,7 +26,19 @@ class PipelinesAnalysis:
                                           classification_report = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[phase].assesment["classification_report"]
                                           classification_report["modelName"] = modelName
                                           classification_reports.append(pd.DataFrame(classification_report))
-            self.classification_report = pd.concat(classification_reports)
+            self.classification_report = pd.concat(classification_reports).T
+            
+            if self.encoded_map is not None:
+                  reverse_map = {str(v): k for k, v in self.encoded_map.items()} #{number:name}
+                  index = self.classification_report.index.tolist()
+                  new_index = []
+                  for idx in index:
+                        if idx in reverse_map:  
+                              new_index.append(reverse_map[idx])
+                        else:  
+                              new_index.append(idx)
+                  self.classification_report.index = new_index
+            
             return self.classification_report
       
       def plot_classification_report(self, metric: list[str], phase: str = "pre", cols:int = 2):
@@ -34,7 +47,7 @@ class PipelinesAnalysis:
             """
             assert phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             class_report = self._compute_classification_report(phase="pre")
-            class_report_df = pd.DataFrame(class_report).T
+            class_report_df = pd.DataFrame(class_report)
 
             num_metrics = len(metric)
             cols = cols
@@ -157,14 +170,26 @@ class PipelinesAnalysis:
                                                                     }
             
             fig, axes = plt.subplots(len(confusion_matrices), 2, figsize=(15, 5* len(confusion_matrices)))
+            # Convert axes to 2D array if there's only one model
+            if len(confusion_matrices) == 1:
+                  axes = np.array([axes])
+                  
+            # Get category labels if encoded_map exists
+            labels = None
+            if self.encoded_map is not None:
+                  # Sort by encoded value to ensure correct order
+                  labels = [k for k, v in sorted(self.encoded_map.items(), key=lambda x: x[1])]
+            
             for i, (modelName, cm_data) in enumerate(confusion_matrices.items()):
                   # Absolute Confusion Matrix
                   sns.heatmap(cm_data["absolute"], 
                         annot=True, 
                         fmt='d',  # 'd' for integers in absolute matrix
                         cmap='Blues',
-                        ax=axes[i, 0])
-                  axes[i, 0].set_title("Absolute Confusion Matrix for model: " + pipeline)
+                        ax=axes[i, 0],
+                        xticklabels=labels,
+                        yticklabels=labels)
+                  axes[i, 0].set_title(f"Absolute Confusion Matrix for model: {modelName}")
                   axes[i, 0].set_xlabel("Predicted")
                   axes[i, 0].set_ylabel("Actual")
 
@@ -173,8 +198,10 @@ class PipelinesAnalysis:
                         annot=True, 
                         fmt='.1f',  # .1f for one decimal place in relative matrix
                         cmap='Blues',
-                        ax=axes[i, 1])
-                  axes[i, 1].set_title("Relative Confusion Matrix for model: " + pipeline)
+                        ax=axes[i, 1],
+                        xticklabels=labels,
+                        yticklabels=labels)
+                  axes[i, 1].set_title(f"Relative Confusion Matrix for model: {modelName}")
                   axes[i, 1].set_xlabel("Predicted")
                   axes[i, 1].set_ylabel("Actual")
             
