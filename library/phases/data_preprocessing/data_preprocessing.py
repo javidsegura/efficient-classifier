@@ -14,6 +14,15 @@ class Preprocessing:
     def analyze_duplicates(self, plot: bool = False):
         """
         Analyzes the duplicates in the dataset
+        
+        Parameters:
+        -----------
+        plot : bool
+            Whether to plot the duplicates
+            
+        Returns:
+        --------
+        None
         """
         duplicates = self.dataset.df.duplicated()
         duplicates_sum = duplicates.sum()
@@ -40,11 +49,15 @@ class Preprocessing:
             else:
                 print("No duplicates found in the dataset")
         return f"There are {duplicates_sum} duplicates in the dataset"
-      
-    
+       
     def remove_duplicates(self):
         """
         Removes duplicates from the dataset
+        
+        Returns:
+        --------
+        str
+            Message indicating the number of duplicates removed
         """
         duplicates = self.dataset.df.duplicated()
         duplicates_sum = duplicates.sum()
@@ -59,6 +72,15 @@ class Preprocessing:
     def get_missing_values(self, plot: bool = False):
         """
         Gets the missing values in the dataset and returns rows with missing values if any
+        
+        Parameters:
+        -----------
+        plot : bool
+            Whether to plot the missing values
+            
+        Returns:
+        --------
+        None
         """
         missing_values_sum = self.dataset.df.isnull().sum().sum()
         
@@ -89,10 +111,66 @@ class Preprocessing:
                 print("No missing values found in the dataset")
             return None
           
-    def bound_checking(self, plot: bool = False):
+    def bound_checking(self, columnsToCheck: list[str] = [], bounds: list[tuple] = []):
+        """
+        Checks if the values are within the bounds of the dataset
         
+        Parameters:
+        -----------
+        columnsToCheck : list[str]
+            List of column names to check bounds for
+        bounds : list[tuple]
+            List of (min, max) tuples corresponding to each column in columnsToCheck
+            
+        Returns:
+        --------
+        dict
+            Dictionary with column names as keys and DataFrames of out-of-bounds values as values
+        """
+        assert len(columnsToCheck) > 0, "Columns to check must be provided"
+        assert len(bounds) > 0, "Bounds must be provided"
+        assert len(columnsToCheck) == len(bounds), "Number of columns and bounds must match"
         
+        out_of_bounds = {}
+        
+        for i, column in enumerate(columnsToCheck):
+            min_val, max_val = bounds[i]
+            
+            # Check if column exists in the dataset
+            if column not in self.dataset.df.columns:
+                print(f"Warning: Column '{column}' not found in dataset")
+                continue
+                
+            # Find values outside the bounds
+            out_of_range = self.dataset.df[(self.dataset.df[column] < min_val) | 
+                                          (self.dataset.df[column] > max_val)]
+            
+            if len(out_of_range) > 0:
+                out_of_bounds[column] = out_of_range
+                print(f"Found {len(out_of_range)} values outside bounds [{min_val}, {max_val}] in column '{column}'")
+                print(f"Percentage: {len(out_of_range) / len(self.dataset.df) * 100:.2f}% of data")
+            else:
+                print(f"All values in column '{column}' are within bounds [{min_val}, {max_val}]")
+        
+        return out_of_bounds
+    
     def get_outliers_df(self, plot: bool = False, threshold: float = 1.5, columnsToCheck: list[str] = []):
+      """
+      Gets the outliers in the dataset and returns a DataFrame with the outliers
+      
+      Parameters:
+      -----------
+      plot : bool
+        Whether to plot the outliers
+
+      Args:
+          plot (bool, optional): _description_. Defaults to False.
+          threshold (float, optional): _description_. Defaults to 1.5.
+          columnsToCheck (list[str], optional): _description_. Defaults to [].
+
+      Returns:
+          _type_: _description_
+      """
       outlier_df = pd.DataFrame(columns=["feature", "outlierCount","percentageOfOutliers", "descriptiveStatistics"])
       only_numerical_features = self.dataset.X_train.select_dtypes(include=["number"]).columns
       outliers = {}
@@ -123,6 +201,21 @@ class Preprocessing:
       return outlier_df, outliers
     
     def scale_features(self, scaler: str, columnsToScale: list[str] = []):
+      """
+      Scales the features in the dataset
+      
+      Parameters:
+      -----------
+      scaler : str
+        The scaler to use
+      columnsToScale : list[str]
+        The columns to scale
+        
+      Returns:
+      --------
+      str
+        Message indicating the number of features scaled  
+      """
       assert len(columnsToScale) > 0, "Columns to scale must be provided"
       if scaler == "minmax":
         scaler = MinMaxScaler()
@@ -140,6 +233,19 @@ class Preprocessing:
       return f"Succesfully scaled {len(columnsToScale)} features, to check the results run: \n baseline_pipeline.dataset.X_train.head()"
 
     def delete_columns(self, columnsToDelete: list[str]):
+      """ 
+      Deletes the columns in the dataset
+      
+      Parameters:
+      -----------
+      columnsToDelete : list[str]
+        The columns to delete
+        
+      Returns:
+      --------
+      str
+        Message indicating the number of columns deleted
+      """
       self.dataset.X_train.drop(columns=columnsToDelete, inplace=True)
       self.dataset.X_val.drop(columns=columnsToDelete, inplace=True)
       self.dataset.X_test.drop(columns=columnsToDelete, inplace=True)
@@ -148,6 +254,11 @@ class Preprocessing:
     def class_imbalance(self):
       """
       Checks if the dataset is imbalanced and returns the imbalance ratio
+      
+      Returns:
+      --------
+      str
+        Message indicating the number of columns deleted
       """
       self.imbalance_ratio = self.dataset.y_train.value_counts().min() / self.dataset.y_train.value_counts().max()
       
