@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
+from imblearn.over_sampling import SMOTE
+
 
 from library.phases.dataset.dataset import Dataset
 
