@@ -1,5 +1,6 @@
 
 
 
+- Logistic regression not being plotted before tuning
 - Time to fit metrics not written to baseline 
 - Convergance of bayes is not identifiable
