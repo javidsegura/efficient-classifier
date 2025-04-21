@@ -80,6 +80,73 @@ class EDA:
     plt.tight_layout()
     plt.show()
 
+  def plot_feature_frequency_by_category(self, feature, category_column, bins=40):
+    """
+    Plots the frequency of a feature by category.
+    """
+    plt.figure(figsize=(12, 6))
+
+    bin_edges = np.linspace(self.dataset[feature].min(), self.dataset[feature].max(), bins)
+
+    for category in self.dataset[category_column].unique():
+        subset = self.dataset[self.dataset[category_column] == category]
+        freq, _ = np.histogram(subset[feature], bins=bin_edges)
+        plt.plot(bin_edges[:-1], freq, marker='o', label=category)
+
+    plt.title(f"Frequency of {feature} by {category_column}", fontsize=14)
+    plt.xlabel(feature, fontsize=12)
+    plt.ylabel("Frequency", fontsize=12)
+    plt.legend(title=category_column, bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    plt.show()
+
+  def plot_proportional_feature_frequency_by_category(self, feature, category_column, bins=20, by_reboot=False, reboot_column="Reboot"):
+    """
+    Generates line plots showing the proportional distribution of a specific feature
+    within each category. If by_reboot is True, it generates separate plots for
+    'before' and 'after' based on the reboot column.
+
+    Parameters:
+    - feature: Name of the feature column to analyze.
+    - category_column: Name of the column containing the categories.
+    - by_reboot: If True, generates separate plots for 'before' and 'after' in the reboot column.
+    - reboot_column: Name of the column indicating reboot state ('before' or 'after')
+    """
+    if by_reboot:
+        for reboot_state in self.dataset[reboot_column].unique():
+            subset = self.dataset[self.dataset[reboot_column] == reboot_state]
+            plt.figure(figsize=(12, 6))
+            bin_edges = np.linspace(subset[feature].min(), subset[feature].max(), bins)
+            
+            for category in subset[category_column].unique():
+                category_subset = subset[subset[category_column] == category]
+                freq, _ = np.histogram(category_subset[feature], bins=bin_edges)
+                freq_proportional = freq / freq.sum() if freq.sum() > 0 else freq
+                plt.plot(bin_edges[:-1], freq_proportional, marker='o', label=category)
+            
+            plt.title(f"Proportional distribution of {feature} by {category_column} ({reboot_state})", fontsize=14)
+            plt.xlabel(feature, fontsize=12)
+            plt.ylabel("Proportion", fontsize=12)
+            plt.legend(title=category_column, bbox_to_anchor=(1.05, 1), loc='upper left')
+            plt.tight_layout()
+            plt.show()
+    else:
+        plt.figure(figsize=(12, 6))
+        bin_edges = np.linspace(self.dataset[feature].min(), self.dataset[feature].max(), bins)
+        
+        for category in self.dataset[category_column].unique():
+            subset = self.dataset[self.dataset[category_column] == category]
+            freq, _ = np.histogram(subset[feature], bins=bin_edges)
+            freq_proportional = freq / freq.sum() if freq.sum() > 0 else freq
+            plt.plot(bin_edges[:-1], freq_proportional, marker='o', label=category)
+        
+        plt.title(f"Proportional distribution of {feature} by {category_column}", fontsize=14)
+        plt.xlabel(feature, fontsize=12)
+        plt.ylabel("Proportion", fontsize=12)
+        plt.legend(title=category_column, bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.tight_layout()
+        plt.show()
+
   def plot_histograms(self, features: list[str], n_cols: int = 2, bins: int = 30, by_category: bool = False, category_column: str = "Category"):
     """
     Plots histograms for numerical features. Optionally, creates separate plots for each category.
@@ -156,11 +223,9 @@ class EDA:
           self.dataset.df[feature].plot(kind="box", ax=ax_box)
           ax_box.set_title(f"{feature} - Boxplot")
 
-          # Generate summary statistics text using describe()
           summary_text = self.dataset.df[feature].describe().to_string()
 
           ax_text.axis('off')
-          # Place the text; using a monospaced font helps align the numbers
           ax_text.text(0.5, 0.5, summary_text, ha='center', va='center', fontfamily='monospace', fontsize=10)
           ax_text.set_title(f"{feature} - Summary Statistics")
 
