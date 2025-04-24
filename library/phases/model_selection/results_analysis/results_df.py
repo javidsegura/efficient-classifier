@@ -76,7 +76,7 @@ class ResultsDF:
                         "modelName": modelName,
                         "currentPhase": current_phase,
                         "features_used": self.dataset.X_train.columns.tolist(),
-                        "hyperParameters": model_sklearn.get_params(),
+                        "hyperParameters": self.serialize_params(model_sklearn.get_params()),
                         "timeToFit": metadata["timeToFit"],
                         "timeToPredict": metadata["timeToPredict"],
                   }
@@ -110,8 +110,20 @@ class ResultsDF:
                   model_logs.append(model_log)
             sys.stdout.flush()
 
-
             return model_logs
+      
+      def serialize_params(self, params):
+            def make_serializable(val):
+                  if hasattr(val, '__class__'):
+                        return str(val)
+                  if isinstance(val, dict):
+                        return {k: make_serializable(v) for k, v in val.items()}
+                  if isinstance(val, (list, tuple)):
+                        return [make_serializable(v) for v in val]
+                  return val
+
+            return make_serializable(params)
+
 
       def plot_results_over_time(self, metric: str):
             """

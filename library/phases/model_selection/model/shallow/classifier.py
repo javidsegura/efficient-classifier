@@ -54,8 +54,8 @@ class Classifier(Model):
             else:
                   raise ValueError("Invalid phase")
             
-            assert y_actual is not None, "y_actual is None"
-            assert y_pred is not None, "y_pred is None"
+            assert y_actual is not None, f"y_actual is None for model: {modelName}"
+            assert y_pred is not None, f"y_pred is None for model: {modelName}"
 
             class_report = self.__set_assesment__(y_actual, y_pred, modelName)
 

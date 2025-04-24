@@ -45,7 +45,11 @@ class PipelineManager:
                   print(f"Pipeline {pipelineName} in category {category} has diverged\n Pipeline schema is now: {self.pipelines}")
             return newPipeline
       
-      def all_pipelines_execute(self, methodName: str, verbose: bool = True, exclude_baseline: bool = False, **kwargs):
+      def all_pipelines_execute(self, methodName: str, 
+                                verbose: bool = False, 
+                                exclude_categories: list[str] = [], 
+                                exclude_pipeline_names: list[str] = [], 
+                                **kwargs):
             """
             Executes a method for all pipelines using threading for parallelization.
             Method name can include dot notation for nested attributes (e.g. "model.fit")
@@ -80,16 +84,18 @@ class PipelineManager:
             # Create thread pool
             with concurrent.futures.ThreadPoolExecutor() as executor:
                   futures = []
-                  if exclude_baseline:
-                        categories = ["not-baseline"]
-                  else:
-                        categories = self.pipelines.keys()
                   # Submit tasks for each unique pipeline
-                  for category in categories:
+                  for category in self.pipelines.keys():
+                        if category in exclude_categories:
+                              continue
+
                         if category not in results:
                               results[category] = {}
                       
                         for pipelineName, pipeline in self.pipelines[category].items():
+                              if pipelineName in exclude_pipeline_names:
+                                    continue
+
                               if id(pipeline) not in processed_pipelines:
                                     processed_pipelines.add(id(pipeline))
                                     futures.append(
