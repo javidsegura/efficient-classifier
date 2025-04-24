@@ -14,6 +14,24 @@ class PipelinesAnalysis:
             self.encoded_map = None
             self.phase = None
             self.best_performing_model = None
+            self.merged_report = None
+            self.results_per_phase = {
+                   "pre": {
+                          "classification_report": None,
+                          "classification_report_train": None,
+                          "metrics_df": None
+                   },
+                   "in": {
+                          "classification_report": None,
+                          "classification_report_train": None,
+                          "metrics_df": None
+                   },
+                   "post": {
+                          "classification_report": None,
+                          "classification_report_train": None,
+                          "metrics_df": None
+                   }
+            }
       
       def _compute_classification_report(self, include_training: bool = False):
             """
@@ -80,6 +98,7 @@ class PipelinesAnalysis:
             
             # Compute the classification report DataFrame.
             class_report_df = self._compute_classification_report()
+            self.results_per_phase[self.phase]["classification_report"] = class_report_df
             num_metrics = len(metric)
             rows = math.ceil(num_metrics / cols)
 
@@ -101,9 +120,7 @@ class PipelinesAnalysis:
                         ax.plot(df_numeric.index, df_numeric.iloc[:], marker='o', label=model_names[0])
                   else:
                         model_names = model_names.values
-                        print(f"Model names: {model_names}")
                         for i, model_name in enumerate(model_names):
-                              print(f"Plotting: {model_name}")
                               ax.plot(df_numeric.index, df_numeric.iloc[:, i], marker='o', label=model_name)
                         
                   ax.set_title(f'{metric_key} by Model')
@@ -120,13 +137,14 @@ class PipelinesAnalysis:
             plt.suptitle(f"Cross-model Performance Comparison - {self.phase} phase")
             plt.tight_layout(rect=[0, 0, 1, 0.96])
             plt.show()
-            
+
       
       def plot_intra_model_comparison(self,metrics: list[str]):
             """
             3 cols each with two trends. As many rows as unique models
             """
             class_report_df = self._compute_classification_report(include_training=True)
+            self.results_per_phase[self.phase]["classification_report_train"] = class_report_df
             models = class_report_df.T["modelName"].unique()
             models = {model.split("_")[0] for model in models}
             
@@ -137,7 +155,7 @@ class PipelinesAnalysis:
             fig, axes = plt.subplots(rows, cols, figsize=(cols * 6, rows * 5))
 
             print(f"There going to be {rows} rows and {cols} columns")
-            colors = ["red", "blue", "green", "yellow", "purple"]
+            colors = ["red", "blue", "green", "purple", "orange", "brown", "pink", "gray", "cyan", "magenta"]
             colors_length = len(colors)
             
             for i, model in enumerate(models):
@@ -187,6 +205,7 @@ class PipelinesAnalysis:
                         df = self.pipelines[category][pipeline].model_selection.results_analysis[self.phase].phase_results_df
                         dataframes.append(df)
             metrics_df = pd.concat(dataframes)
+            self.results_per_phase[self.phase]["metrics_df"] = metrics_df
 
             num_metrics = len(metrics)
             cols = 2
@@ -321,9 +340,61 @@ class PipelinesAnalysis:
             plt.tight_layout(rect=[0, 0, 1, 0.96])
             plt.show()
             self.residuals = residuals
+            
             return residuals, confusion_matrices
       
-      
+      def plot_results_summary(self, training_metric: str, performance_metric: str):
+            """
+            Scatterplot: x-axis is either timeToFit or timeToPredict and y-axis is a performance metric
+            """
+            assert training_metric in ["timeToFit", "timeToPredict"], "training_metric must be either timeToFit or timeToPredict"
+            assert performance_metric in ["accuracy", "f1-score", "precision", "recall"], "performance_metric must be either accuracy, f1-score, precision or recall"
+
+            if self.phase == "pre" or self.phase == "in":
+                  performance_metric += "_val"
+            else:
+                  performance_metric += "_test"
+            
+            metrics_df = self.results_per_phase[self.phase]["metrics_df"]
+            
+            fig, ax = plt.subplots(figsize=(15, 8))
+
+            # draw the scatterplot without legend
+            sns.scatterplot(
+            data=metrics_df,
+            x=training_metric,
+            y=performance_metric,
+            hue="modelName",
+            legend=False,        
+            s=150,                
+            alpha=0.7,
+            ax=ax
+                              
+            )
+
+            for _, row in metrics_df.iterrows():
+                  plt.annotate(
+                        row["modelName"],                   
+                        (row[training_metric], row[performance_metric]),  
+                        textcoords="offset points",         
+                        xytext=(5, 5),                      
+                        ha='left',                         
+                        va='bottom',                        
+                        fontsize=9                          
+                  )
+
+            plt.xlabel(f"{training_metric} (log scale)")
+            plt.ylabel(performance_metric)
+            plt.title(f"Model Performance: {training_metric} vs. {performance_metric}")
+            plt.tight_layout()
+            plt.ylim(0, 1)
+            plt.grid(True)
+            plt.xscale("log")
+            plt.show()
+                        
+
+             
+                        
       
                 
             
