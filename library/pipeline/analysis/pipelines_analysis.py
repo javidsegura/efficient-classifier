@@ -94,11 +94,18 @@ class PipelinesAnalysis:
                   metric_df = class_report_df[metric_key]
 
                   df_numeric = metric_df.iloc[:-1].astype(float)
-                  model_names = metric_df.iloc[-1].index.values
+                  model_names = metric_df.loc["modelName"]
 
-                  ax.plot(df_numeric.index, df_numeric.iloc[:, 0], marker='o', label=model_names[0])
-                  ax.plot(df_numeric.index, df_numeric.iloc[:, 1], marker='s', label=model_names[1])
-                  
+                  if isinstance(model_names, str): # single model
+                        model_names = [model_names]
+                        ax.plot(df_numeric.index, df_numeric.iloc[:], marker='o', label=model_names[0])
+                  else:
+                        model_names = model_names.values
+                        print(f"Model names: {model_names}")
+                        for i, model_name in enumerate(model_names):
+                              print(f"Plotting: {model_name}")
+                              ax.plot(df_numeric.index, df_numeric.iloc[:, i], marker='o', label=model_name)
+                        
                   ax.set_title(f'{metric_key} by Model')
                   ax.set_xlabel('Class Index')
                   ax.set_ylabel(metric_key)
@@ -112,6 +119,60 @@ class PipelinesAnalysis:
             plt.tight_layout()
             plt.suptitle(f"Cross-model Performance Comparison - {self.phase} phase")
             plt.tight_layout(rect=[0, 0, 1, 0.96])
+            plt.show()
+            
+      
+      def plot_intra_model_comparison(self,metrics: list[str]):
+            """
+            3 cols each with two trends. As many rows as unique models
+            """
+            class_report_df = self._compute_classification_report(include_training=True)
+            models = class_report_df.T["modelName"].unique()
+            models = {model.split("_")[0] for model in models}
+            
+            num_metrics = len(metrics)
+            cols = num_metrics
+            rows = len(models)
+
+            fig, axes = plt.subplots(rows, cols, figsize=(cols * 6, rows * 5))
+
+            print(f"There going to be {rows} rows and {cols} columns")
+            colors = ["red", "blue", "green", "yellow", "purple"]
+            colors_length = len(colors)
+            
+            for i, model in enumerate(models):
+                color_train = colors[i % colors_length]
+                color_no_train = colors[(i + 1) % colors_length]
+                for j, metric in enumerate(metrics):
+                    class_report_cols = class_report_df.columns
+                    assert metric in class_report_cols, f"Metric not present in {class_report_cols}"
+                    model_filter = class_report_df.T["modelName"].str.startswith(model)
+                    model_df = class_report_df.T[model_filter]
+
+                    ax = axes[i, j]
+                    metric_df = model_df.T[metric]
+
+                    df_numeric = metric_df.iloc[:-1].astype(float)
+                    model_names = metric_df.loc["modelName"].values
+
+                    
+                    ax.plot(df_numeric.index, df_numeric.iloc[:, 0], marker="o", label=model_names[0], color=color_train)
+                    ax.plot(df_numeric.index, df_numeric.iloc[:, 1], marker="s", label=model_names[1], color=color_no_train)
+
+                    ax.set_title(f'{metric} - {model}')
+                    ax.set_xlabel('Class Index')
+                    ax.set_ylabel(metric)
+                    ax.tick_params(axis='x', rotation=45)
+                    ax.legend()
+                    ax.grid(True)
+
+            # Hide any unused subplots
+            for j in range(i + 1, len(axes)):
+                  fig.delaxes(axes[j])
+
+            plt.tight_layout()
+            plt.tight_layout(rect=[0, 0, 1, 0.96])  
+            plt.suptitle(f"Intra-model Perfomance Comparison - {self.phase} phase")
             plt.show()
 
 
@@ -152,6 +213,8 @@ class PipelinesAnalysis:
 
             plt.tight_layout()
             plt.show()
+
+            return metrics_df
       
       def plot_feature_importance(self):
             """
@@ -225,8 +288,10 @@ class PipelinesAnalysis:
             if self.encoded_map is not None:
                   # Sort by encoded value to ensure correct order
                   labels = [k for k, v in sorted(self.encoded_map.items(), key=lambda x: x[1])]
+            assert labels is not None, "Labels are None"
             
             for i, (modelName, cm_data) in enumerate(confusion_matrices.items()):
+                  print(f"Plotting: {modelName}")
                   # Absolute Confusion Matrix
                   sns.heatmap(cm_data["absolute"], 
                         annot=True, 
@@ -258,50 +323,7 @@ class PipelinesAnalysis:
             self.residuals = residuals
             return residuals, confusion_matrices
       
-      def plot_intra_model_comparison(self, metrics: list[str]):
-            """
-            3 cols each with two trends. As many rows as unique models
-            """
-            class_report_df = self._compute_classification_report(include_training=True)
-            models = class_report_df.T["modelName"].unique()
-            models = {model.split("_")[0] for model in models}
-            
-            num_metrics = len(metrics)
-            cols = num_metrics
-            rows = len(models)
-
-            fig, axes = plt.subplots(rows, cols, figsize=(cols * 6, rows * 5))
-            
-            for i, model in enumerate(models):
-                class_report_cols = class_report_df.columns
-                for j, metric in enumerate(metrics):
-                    assert metric in class_report_cols, f"Metric not present in {class_report_cols}"
-                    model_filter = class_report_df.T["modelName"].str.startswith(model)
-                    model_df = class_report_df.T[model_filter]
-                    ax = axes[i, j]
-                    metric_df = model_df.T[metric]
-                    df_numeric = metric_df.iloc[:-1].astype(float)  
-                    model_names = metric_df.iloc[-1].values
-
-                    # Plotting
-                    ax.plot(df_numeric.index, df_numeric.iloc[:, 0], marker='o', label=model_names[0])
-                    ax.plot(df_numeric.index, df_numeric.iloc[:, 1], marker='s', label=model_names[1])
-
-                    ax.set_title(f'{metric} - train vs no-train')
-                    ax.set_xlabel('Class Index')
-                    ax.set_ylabel(metric)
-                    ax.tick_params(axis='x', rotation=45)
-                    ax.legend()
-                    ax.grid(True)
-
-            # Hide any unused subplots
-            for j in range(i + 1, len(axes)):
-                  fig.delaxes(axes[j])
-
-            plt.tight_layout()
-            plt.tight_layout(rect=[0, 0, 1, 0.96])  
-            plt.suptitle(f"Intra-model Perfomance Comparison - {self.phase} phase")
-            plt.show()
+      
       
                 
             

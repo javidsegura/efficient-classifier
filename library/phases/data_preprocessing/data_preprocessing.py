@@ -9,7 +9,7 @@ from imblearn.over_sampling import SMOTE
 
 from library.phases.dataset.dataset import Dataset
 
-class Preprocessing:
+class DataPreprocessing:
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
     
@@ -89,4 +89,19 @@ class Preprocessing:
       self.dataset.X_train[columnsToScale] = scaler.fit_transform(self.dataset.X_train[columnsToScale])
       self.dataset.X_val[columnsToScale] = scaler.transform(self.dataset.X_val[columnsToScale])
       self.dataset.X_test[columnsToScale] = scaler.transform(self.dataset.X_test[columnsToScale])
+
+    def class_imbalance(self):
+      """
+      Checks if the dataset is imbalanced and returns the imbalance ratio
+      
+      Returns:
+      --------
+      str
+        Message indicating the number of columns deleted
+      """
+      self.imbalance_ratio = self.dataset.y_train.value_counts().min() / self.dataset.y_train.value_counts().max()
+      
+      smote = SMOTE(random_state=42)
+      self.dataset.X_train, self.dataset.y_train = smote.fit_resample(self.dataset.X_train, self.dataset.y_train)
+      return f"Succesfully balanced the classes in the dataset. There was a {self.imbalance_ratio} to 1 ratio before balancing, now it is 1 to 1"
 

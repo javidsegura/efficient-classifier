@@ -2,7 +2,7 @@
 from library.phases.dataset.dataset import Dataset
 from sklearn.preprocessing import PolynomialFeatures
 
-from library.phases.data_preprocessing.data_preprocessing import Preprocessing
+from library.phases.data_preprocessing.data_preprocessing import DataPreprocessing
 
 import pandas as pd
 

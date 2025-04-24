@@ -1,6 +1,6 @@
 from library.phases.dataset.dataset import Dataset
 from library.phases.EDA.EDA import EDA
-from library.phases.data_preprocessing.data_preprocessing import Preprocessing
+from library.phases.data_preprocessing.data_preprocessing import DataPreprocessing
 from library.phases.feature_analysis.feature_analysis import FeatureAnalysis
 from library.phases.model_selection.model_selection import ModelSelection
 
@@ -14,7 +14,7 @@ class Pipeline:
                    random_state: int = RANDOM_STATE):
             self.dataset = Dataset(dataset_path, model_type, random_state)
             self.EDA = EDA(self.dataset)
-            self.preprocessing = Preprocessing(self.dataset)
+            self.data_preprocessing = DataPreprocessing(self.dataset)
             self.feature_analysis = FeatureAnalysis(self.dataset)
             self.model_selection = ModelSelection(self.dataset, results_path)
       
