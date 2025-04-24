@@ -140,6 +140,7 @@ class PipelineManager:
             return best_model, best_score
       
       def fit_final_models(self):
+            """ Gotta add paralleilism hereeeeeee"""
             # Fit models 
             self.pipelines["not-baseline"][self.best_performing_model["pipelineName"]].model_selection.fit_models(current_phase="post", 
                                                                                                                   best_model_name=self.best_performing_model["modelName"],

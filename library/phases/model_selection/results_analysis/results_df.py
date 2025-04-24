@@ -55,8 +55,6 @@ class ResultsDF:
                         raise ValueError(f"The data to write does not match the columns of the results. \n Data to write: {sorted(list(metadata_cols))} \n Data header: {sorted(header_cols)}")
       
       def store_results(self, list_of_models: dict[str, Model], current_phase: str, comments: str, models_to_exclude: list[str] = None):
-            start_time = time.time()
-            sys.stdout.flush()
             assert current_phase and comments, "Either current_phase and comments must be provided"
             model_logs = []
             for modelName, modelObject in list_of_models.items():

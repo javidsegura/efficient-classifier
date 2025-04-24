@@ -37,10 +37,6 @@ class Model(ABC):
       def evaluate(self, modelName: str):
             pass
 
-      @abstractmethod
-      def evaluate_training(self, modelName: str):
-            pass
-
       def fit(self, modelName: str, current_phase: str, **kwargs):    
             assert current_phase in self.tuning_states.keys(), "Current phase must be one of the tuning states"
             print(f"=> Fitting {modelName} model")

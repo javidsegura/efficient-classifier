@@ -73,6 +73,4 @@ class Classifier(Model):
             # Storing results to assesment attribute
             for metric, value in results.items():
                   self.tuning_states[current_phase].assesment[metric] = value
-            
-      def evaluate_training(self, modelName: str):
-            raise NotImplementedError("Training evaluation not implemented for classifier")
+

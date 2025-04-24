@@ -361,15 +361,14 @@ class PipelinesAnalysis:
 
             # draw the scatterplot without legend
             sns.scatterplot(
-            data=metrics_df,
-            x=training_metric,
-            y=performance_metric,
-            hue="modelName",
-            legend=False,        
-            s=150,                
-            alpha=0.7,
-            ax=ax
-                              
+                  data=metrics_df,
+                  x=training_metric,
+                  y=performance_metric,
+                  hue="modelName",
+                  legend=False,        
+                  s=150,                
+                  alpha=0.7,
+                  ax=ax            
             )
 
             for _, row in metrics_df.iterrows():
