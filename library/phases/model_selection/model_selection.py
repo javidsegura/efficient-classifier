@@ -109,6 +109,7 @@ class ModelSelection:
             print("All models have been fitted and made predictions in parallel.")
 
       def _evaluate_model(self, modelName, modelObject, current_phase: str):
+            print(f"Evaluating model {modelName}")
             modelObject.evaluate(modelName=modelName, current_phase=current_phase)
             return modelName, modelObject
 

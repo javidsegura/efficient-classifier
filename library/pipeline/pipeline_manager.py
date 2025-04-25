@@ -94,6 +94,7 @@ class PipelineManager:
                       
                         for pipelineName, pipeline in self.pipelines[category].items():
                               if pipelineName in exclude_pipeline_names:
+                                    print(f"Skipping pipeline {pipelineName} in category {category} because it is in the exclude list")
                                     continue
 
                               if id(pipeline) not in processed_pipelines:

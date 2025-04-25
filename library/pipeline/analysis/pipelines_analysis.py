@@ -41,6 +41,8 @@ class PipelinesAnalysis:
             classification_reports = []
             for category in self.pipelines:
                   for pipeline in self.pipelines[category]:
+                              if self.phase == "pre" and pipeline == "stacking":
+                                    continue
                               for modelName in self.pipelines[category][pipeline].model_selection.list_of_models:
                                     # Only select the model that is the best if pipeline is post and and phase is post
                                     if category == "not-baseline" and self.phase == "post" and self.best_performing_model["modelName"] != modelName:
@@ -273,6 +275,8 @@ class PipelinesAnalysis:
             residuals = {}
             for category in self.pipelines:
                   for pipeline in self.pipelines[category]:
+                        if self.phase == "pre" and pipeline == "stacking":
+                              continue
                         for modelName in self.pipelines[category][pipeline].model_selection.list_of_models:
                               if modelName not in self.pipelines[category][pipeline].model_selection.models_to_exclude:
                                     if category == "not-baseline" and self.phase == "post" and modelName != self.best_performing_model["modelName"]:
