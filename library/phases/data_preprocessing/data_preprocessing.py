@@ -134,6 +134,7 @@ class Preprocessing:
         out_of_bounds = {}
         
         for i, column in enumerate(columnsToCheck):
+            print(f"\n--- {i + 1}. Checking column {column}")
             min_val, max_val = bounds[i]
             
             # Check if column exists in the dataset
@@ -147,8 +148,8 @@ class Preprocessing:
             
             if len(out_of_range) > 0:
                 out_of_bounds[column] = out_of_range
-                print(f"Found {len(out_of_range)} values outside bounds [{min_val}, {max_val}] in column '{column}'")
-                print(f"Percentage: {len(out_of_range) / len(self.dataset.df) * 100:.2f}% of data")
+                print(f"Found {len(out_of_range)} values outside bounds [{min_val}, {max_val}] in the column")
+                print(f"Percentage: {len(out_of_range) / len(self.dataset.df) * 100:.4f}% of data")
             else:
                 print(f"All values in column '{column}' are within bounds [{min_val}, {max_val}]")
         
@@ -280,6 +281,7 @@ class Preprocessing:
             plt.title(f"Before SMOTE (imbalance ratio {self.imbalance_ratio:.2f}:1)")
             plt.xlabel("Class")
             plt.ylabel("Count")
+            plt.xticks(rotation=45, ha="right")
             plt.tight_layout()
             plt.show()
 
@@ -302,6 +304,7 @@ class Preprocessing:
             plt.title("After SMOTE (balanced 1:1)")
             plt.xlabel("Class")
             plt.ylabel("Count")
+            plt.xticks(rotation=45, ha="right")
             plt.tight_layout()
             plt.show()
 
