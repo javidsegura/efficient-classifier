@@ -7,7 +7,8 @@ from typing import Any
 import os
 
 from library.pipeline.analysis.pipelines_analysis import PipelinesAnalysis
-import joblib
+from library.pipeline.serialization_and_deserialization.serializer import SerializationPickle, SerializationJoblib
+from library.pipeline.serialization_and_deserialization.deserializer import DeserializationPickle, DeserializationJoblib
 
 class PipelineManager:
       """
@@ -15,11 +16,22 @@ class PipelineManager:
       Evaluates all pipelines
       
       """
-      def __init__(self, pipelines: dict[str, dict[str, Pipeline]]):
+      def __init__(self, pipelines: dict[str, dict[str, Pipeline]], serializer_type: str="joblib"):
             self.pipelines = pipelines
-            self.pipelines_analysis = PipelinesAnalysis(pipelines)
             self._pipeline_state = None # Can only take upon "pre", "in", "post"
             self.best_performing_model = None
+            self.all_models = None
+
+            # Sub-objects
+            self.pipelines_analysis = PipelinesAnalysis(pipelines)
+            if serializer_type == "pickle":
+                  self.serializer = SerializationPickle()
+                  self.deserializer = DeserializationPickle()
+            elif serializer_type == "joblib":
+                  self.serializer = SerializationJoblib()
+                  self.deserializer = DeserializationJoblib()
+            else:
+                  raise ValueError(f"Invalid serializer type: {serializer_type}")
 
       @property
       def pipeline_state(self):
@@ -30,7 +42,8 @@ class PipelineManager:
             assert pipeline_state in ["pre", "in", "post"], "Pipeline state must be one of the following: pre, in, post"
             self._pipeline_state = pipeline_state
             self.pipelines_analysis.phase = pipeline_state
-      
+
+      # 1) General functions 
       def create_pipeline_divergence(self, category: str, pipelineName: str, print_results: bool = False):
             """
             Compares two pipelines and returns the difference in their metrics.
@@ -115,7 +128,8 @@ class PipelineManager:
                               raise future.exception()
 
             return results
-      
+
+      # 2) Final model functions
       def select_best_performing_model(self, metric: str):
             """
             Selects the best performing model based on the classification report
@@ -172,28 +186,26 @@ class PipelineManager:
                               comments=None,
                               best_model_name=None, 
                               baseline_model_name=model)
-                        
-      def store_best_performing_sklearn_model_object(self, fileName: str="best_performing_model.pkl", includeModelObject: bool = False):
-            """
-            Stores the best performing model object
-            """
-            assert self.best_performing_model is not None, "Best performing model not found"
-            assert self.best_performing_model["pipelineName"] is not None, "Pipeline name not found"
-            assert self.best_performing_model["modelName"] is not None, "Model name not found"
-            if includeModelObject:
-                  pipelineName = self.best_performing_model["pipelineName"]
-                  modelName = self.best_performing_model["modelName"]
-                  joblib.dump(self.pipelines["not-baseline"][pipelineName].model_selection.list_of_models[modelName], fileName) # stores the model object
-                  joblib.dump(self.best_performing_model["modelName"].tuning_states["post"].assesment["model_sklearn"], fileName) # store the sklearn model object
-            else:
-                  joblib.dump(self.best_performing_model["modelName"].tuning_states["post"].assesment["model_sklearn"], fileName)
+      
+      # 3) Serialization and deserialization
+      def serialize_pipelines(self, pipelines_to_serialize: list[str]):
+            self.serializer.serialize_pipelines(self.pipelines, pipelines_to_serialize)
+      
+      def serialize_models(self, models_to_serialize: list[str]):
+            if self.all_models is None:
+                  self.all_models = {}
+                  for category in self.pipelines:
+                        for pipeline_name in self.pipelines[category]:
+                              for model_name in self.pipelines[category][pipeline_name].model_selection.list_of_models:
+                                    self.all_models[model_name] = self.pipelines[category][pipeline_name].model_selection.list_of_models[model_name]
+            self.serializer.serialize_models(self.all_models, models_to_serialize)
+      
+      def deserialize_pipelines(self, pipelines_to_deserialize: dict[str, str]):
+            return self.deserializer.deserialize_pipelines(pipelines_to_deserialize)
+      
+      def deserialize_models(self, models_to_deserialize: dict[str, str]):
+            return self.deserializer.deserialize_models(models_to_deserialize)
+            
 
-      def store_pipelines(self, fileName: str="pipelines.pkl"):
-            """
-            Stores the pipelines
-            """
-            os.makedirs("stored_objects", exist_ok=True)
-
-            joblib.dump(self.pipelines, fileName)
 
 
