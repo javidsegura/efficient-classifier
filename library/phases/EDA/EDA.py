@@ -81,105 +81,90 @@ class EDA:
     plt.show()
 
   def plot_histograms(self, features: list[str], n_cols: int = 2, bins: int = 30, by_category: bool = False, category_column: str = "Category"):
-    """
-    Plots histograms for numerical features. Optionally, creates separate plots for each category.
+      """
+      Plots histograms for numerical features. Optionally, creates separate plots for each category.
 
-    Parameters:
-    - by_category: If True, creates separate histograms for each category.
-    - category_column: the column name for category
-    """
-    if by_category:
-        if category_column not in self.dataset.df.columns:
-            raise ValueError(f"Category column '{category_column}' not found in the dataset.")
+      Parameters:
+      - by_category: If True, creates separate histograms for each category.
+      - category_column: the column name for category
+      """
+      if by_category:
+          if category_column not in self.dataset.columns:
+              raise ValueError(f"Category column '{category_column}' not found in the dataset.")
 
-        categories = self.dataset.df[category_column].unique()
-        for category in categories:
-            subset = self.dataset.df[self.dataset.df[category_column] == category]
-            n_rows = math.ceil(len(features) / n_cols)
-            
-            # Special handling for single feature
-            if len(features) == 1:
-                fig, ax = plt.subplots(figsize=(10, 5))
-                sns.histplot(data=subset, x=features[0], bins=bins, ax=ax, color="pink")
-                ax.set_title(f"{features[0]} - {category}")
-                ax.set_xlabel(features[0])
-                ax.set_ylabel("Frequency")
-            else:
-                fig, axes = plt.subplots(n_rows, n_cols, figsize=(20, 5 * n_rows))
-                axes = axes.ravel() if isinstance(axes, np.ndarray) else np.array([axes])
-                
-                for i, feature in enumerate(features):
-                    if i < len(axes):
-                        sns.histplot(data=subset, x=feature, bins=bins, ax=axes[i], color="pink")
-                        axes[i].set_title(f"{feature} - {category}")
-                        axes[i].set_xlabel(feature)
-                        axes[i].set_ylabel("Frequency")
-                
-                # Hide any unused subplots
-                for j in range(len(features), len(axes)):
-                    axes[j].set_visible(False)
+          categories = self.dataset[category_column].unique()
+          for category in categories:
+              subset = self.dataset[self.dataset[category_column] == category]
+              n_rows = math.ceil(len(features) / n_cols)
+              fig, axes = plt.subplots(n_rows, n_cols, figsize=(20, 5 * n_rows))
+              if n_rows == 1 and n_cols == 1:
+                  axes = [axes]
+              elif n_rows == 1 or n_cols == 1:
+                  axes = np.array(axes).flatten()
 
-            plt.tight_layout()
-            plt.suptitle(f"Histograms for Category: {category}", y=1.02, fontsize=16)
-            plt.show()
-    else:
-        n_rows = math.ceil(len(features) / n_cols)
-        
-        # Special handling for single feature
-        if len(features) == 1:
-            fig, ax = plt.subplots(figsize=(10, 5))
-            sns.histplot(data=self.dataset.df, x=features[0], bins=bins, ax=ax, color="pink")
-            ax.set_title(f"{features[0]} - Histogram")
-            ax.set_xlabel(features[0])
-            ax.set_ylabel("Frequency")
-        else:
-            fig, axes = plt.subplots(n_rows, n_cols, figsize=(20, 5 * n_rows))
-            axes = axes.ravel() if isinstance(axes, np.ndarray) else np.array([axes])
-            
-            for i, feature in enumerate(features):
-                if i < len(axes):
-                    sns.histplot(data=self.dataset.df, x=feature, bins=bins, ax=axes[i], color="pink")
-                    axes[i].set_title(f"{feature} - Histogram")
-                    axes[i].set_xlabel(feature)
-                    axes[i].set_ylabel("Frequency")
-            
-            # Hide any unused subplots
-            for j in range(len(features), len(axes)):
-                axes[j].set_visible(False)
+              for i, feature in enumerate(features):
+                  ax_hist = axes[i]
+                  sns.histplot(subset[feature], bins=bins, ax=ax_hist, color="pink")
+                  ax_hist.set_title(f"{feature} - {category}")
+                  ax_hist.set_xlabel(feature)
+                  ax_hist.set_ylabel("Frequency")
 
-        plt.tight_layout()
-        plt.show()
+              for j in range(len(features), len(axes)):
+                  axes[j].set_visible(False)
+
+              plt.tight_layout()
+              plt.suptitle(f"Histograms for Category: {category}", y=1.02, fontsize=16)
+              plt.show()
+      else:
+          n_rows = math.ceil(len(features) / n_cols)
+          fig, axes = plt.subplots(n_rows, n_cols, figsize=(20, 5 * n_rows))
+          if n_rows == 1 and n_cols == 1:
+              axes = [axes]
+          elif n_rows == 1 or n_cols == 1:
+              axes = np.array(axes).flatten()
+
+          for i, feature in enumerate(features):
+              ax_hist = axes[i]
+              sns.histplot(self.dataset[feature], bins=bins, ax=ax_hist, color="pink")
+              ax_hist.set_title(f"{feature} - Histogram")
+              ax_hist.set_xlabel(feature)
+              ax_hist.set_ylabel("Frequency")
+
+          for j in range(len(features), len(axes)):
+              axes[j].set_visible(False)
+
+          plt.tight_layout()
+          plt.show()
   
   def count_boxplot_descriptive(self, features: list[str]):
-    """
-    Plots the count and boxplot of a feature
-    """
-    n_rows = len(features)
-    n_cols = 3
+      """
+      Plots the count and boxplot of a feature
+      """
+      n_rows = len(features)
+      n_cols = 3
 
-    fig, axes = plt.subplots(n_rows, n_cols, figsize=(20, 5*n_rows))
+      fig, axes = plt.subplots(n_rows, n_cols, figsize=(20, 5*n_rows))
 
-    for i, feature in enumerate(features):
-          ax_hist = axes[i, 0]
-          ax_box = axes[i, 1]
-          ax_text = axes[i, 2]
+      for i, feature in enumerate(features):
+            ax_hist = axes[i, 0]
+            ax_box = axes[i, 1]
+            ax_text = axes[i, 2]
 
-          self.dataset.df[feature].hist(ax=ax_hist)
-          ax_hist.set_title(f"{feature} - Distribution")
+            self.dataset.df[feature].hist(ax=ax_hist)
+            ax_hist.set_title(f"{feature} - Distribution")
 
-          self.dataset.df[feature].plot(kind="box", ax=ax_box)
-          ax_box.set_title(f"{feature} - Boxplot")
+            self.dataset.df[feature].plot(kind="box", ax=ax_box)
+            ax_box.set_title(f"{feature} - Boxplot")
 
-          # Generate summary statistics text using describe()
-          summary_text = self.dataset.df[feature].describe().to_string()
+            summary_text = self.dataset.df[feature].describe().to_string()
 
-          ax_text.axis('off')
-          # Place the text; using a monospaced font helps align the numbers
-          ax_text.text(0.5, 0.5, summary_text, ha='center', va='center', fontfamily='monospace', fontsize=10)
-          ax_text.set_title(f"{feature} - Summary Statistics")
+            ax_text.axis('off')
+            ax_text.text(0.5, 0.5, summary_text, ha='center', va='center', fontfamily='monospace', fontsize=10)
+            ax_text.set_title(f"{feature} - Summary Statistics")
 
-    plt.tight_layout()
-    plt.show()
+      plt.tight_layout()
+      plt.show()
+    
     
   def lineplot_bivariate(self, features: list[str], target: str, n_cols: int = 3):
       """
@@ -298,3 +283,89 @@ class EDA:
       plt.tight_layout()
       plt.show()
   
+  def plot_proportional_feature_frequency_by_category(self, feature, category_column, bins=20, by_reboot=False, reboot_column="Reboot"):
+      """
+      Generates line plots showing the proportional distribution of a specific feature
+      within each category. If by_reboot is True, it generates separate plots for
+      'before' and 'after' based on the reboot column.
+
+      Parameters:
+      - feature: Name of the feature column to analyze.
+      - category_column: Name of the column containing the categories.
+      - by_reboot: If True, generates separate plots for 'before' and 'after' in the reboot column.
+      - reboot_column: Name of the column indicating reboot state ('before' or 'after')
+      """
+      if by_reboot:
+          for reboot_state in self.dataset[reboot_column].unique():
+              subset = self.dataset[self.dataset[reboot_column] == reboot_state]
+              plt.figure(figsize=(12, 6))
+              bin_edges = np.linspace(subset[feature].min(), subset[feature].max(), bins)
+              
+              for category in subset[category_column].unique():
+                  category_subset = subset[subset[category_column] == category]
+                  freq, _ = np.histogram(category_subset[feature], bins=bin_edges)
+                  freq_proportional = freq / freq.sum() if freq.sum() > 0 else freq
+                  plt.plot(bin_edges[:-1], freq_proportional, marker='o', label=category)
+              
+              plt.title(f"Proportional distribution of {feature} by {category_column} ({reboot_state})", fontsize=14)
+              plt.xlabel(feature, fontsize=12)
+              plt.ylabel("Proportion", fontsize=12)
+              plt.legend(title=category_column, bbox_to_anchor=(1.05, 1), loc='upper left')
+              plt.tight_layout()
+              plt.show()
+      else:
+          plt.figure(figsize=(12, 6))
+          bin_edges = np.linspace(self.dataset[feature].min(), self.dataset[feature].max(), bins)
+          
+          for category in self.dataset[category_column].unique():
+              subset = self.dataset[self.dataset[category_column] == category]
+              freq, _ = np.histogram(subset[feature], bins=bin_edges)
+              freq_proportional = freq / freq.sum() if freq.sum() > 0 else freq
+              plt.plot(bin_edges[:-1], freq_proportional, marker='o', label=category)
+          
+          plt.title(f"Proportional distribution of {feature} by {category_column}", fontsize=14)
+          plt.xlabel(feature, fontsize=12)
+          plt.ylabel("Proportion", fontsize=12)
+          plt.legend(title=category_column, bbox_to_anchor=(1.05, 1), loc='upper left')
+          plt.tight_layout()
+          plt.show()
+
+
+  def count_boxplot_descriptive2(self, features: list[str]):
+      """
+      Plots the histogram, boxplot, and summary statistics for each feature.
+      Handles both single and multiple features cleanly.
+      """
+      n_rows = len(features)
+      n_cols = 3  # Histogram, Boxplot, Text
+
+      fig, axes = plt.subplots(n_rows, n_cols, figsize=(20, 5 * n_rows))
+
+      # Handle cases where axes are 1D (single feature)
+      if n_rows == 1:
+          axes = np.expand_dims(axes, axis=0)
+
+      df = self._get_df()  # Safe fetch for dataframe
+
+      for i, feature in enumerate(features):
+          ax_hist = axes[i, 0]
+          ax_box = axes[i, 1]
+          ax_text = axes[i, 2]
+
+          # Histogram
+          df[feature].hist(ax=ax_hist, color='skyblue')
+          ax_hist.set_title(f"{feature} - Distribution")
+
+          # Boxplot
+          df[feature].plot(kind="box", ax=ax_box, color='red')
+          ax_box.set_title(f"{feature} - Boxplot")
+
+          # Summary statistics
+          summary_text = df[feature].describe().to_string()
+
+          ax_text.axis('off')
+          ax_text.text(0.5, 0.5, summary_text, ha='center', va='center', fontfamily='monospace', fontsize=10)
+          ax_text.set_title(f"{feature} - Summary Statistics")
+
+      plt.tight_layout()
+      plt.show()
