@@ -142,50 +142,88 @@ class PipelineManager:
 
             weighted_avg = metric_df.loc['weighted avg']
             filtered = weighted_avg[~weighted_avg.index.str.endswith('_train')] # Remove training models
-            best_model = filtered.idxmax()
+            best_model_name = filtered.idxmax()
             best_score = filtered.max()
             self.best_performing_model = {
                   "pipelineName": None,
-                  "modelName": best_model,
+                  "modelName": best_model_name,
             }
             self.pipelines_analysis.best_performing_model = self.best_performing_model
-            print(f"Best performing model: {best_model} with {metric} {best_score:.4f}")
+            print(f"Best performing model: {best_model_name} with {metric} {best_score:.4f}")
 
             # Overwrite the sklearn_model for the post state 
             for pipeline in self.pipelines["not-baseline"]:
-                  for model in self.pipelines["not-baseline"][pipeline].model_selection.list_of_models:
-                        if model == best_model:
-                              self.pipelines["not-baseline"][pipeline].model_selection.list_of_models[model].tuning_states["post"].model_sklearn = self.pipelines["not-baseline"][pipeline].model_selection.list_of_models[model].tuning_states["in"].assesment["model_sklearn"]
+                  for modelName in self.pipelines["not-baseline"][pipeline].model_selection.list_of_models:
+                        if modelName == best_model_name:
+                              self.pipelines["not-baseline"][pipeline].model_selection.list_of_models[modelName].tuning_states["post"].model_sklearn = self.pipelines["not-baseline"][pipeline].model_selection.list_of_models[modelName].tuning_states["in"].assesment["model_sklearn"]
                               self.best_performing_model["pipelineName"] = pipeline
 
-            return best_model, best_score
+            return best_model_name, best_score
       
+
       def fit_final_models(self):
-            """ Gotta add paralleilism hereeeeeee"""
-            # Fit models 
-            self.pipelines["not-baseline"][self.best_performing_model["pipelineName"]].model_selection.fit_models(current_phase="post", 
-                                                                                                                  best_model_name=self.best_performing_model["modelName"],
-                                                                                                                  baseline_model_name=None)
+            # Best not-baseline model
+            self.pipelines["not-baseline"][self.best_performing_model["pipelineName"]].model_selection.fit_models(
+                  current_phase="post", 
+                  best_model_name=self.best_performing_model["modelName"],
+                  baseline_model_name=None
+            )
+
+            # All baseline models
+            tasks = []
             for pipeline in self.pipelines["baseline"]:
-                  for model in self.pipelines["baseline"][pipeline].model_selection.list_of_models:
-                        self.pipelines["baseline"][pipeline].model_selection.fit_models(current_phase="post", 
-                                                                                  best_model_name=None, 
-                                                                                  baseline_model_name=model)
+                  for modelName in self.pipelines["baseline"][pipeline].model_selection.list_of_models:
+                        if modelName not in self.pipelines["baseline"][pipeline].model_selection.models_to_exclude:
+                              tasks.append((
+                                    self.pipelines["baseline"][pipeline].model_selection.fit_models,
+                                    modelName
+                              ))
+
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                  futures = [
+                        executor.submit(
+                              fit_func,
+                              current_phase="post",
+                              best_model_name=None,
+                              baseline_model_name=modelName
+                        )
+                        for fit_func, modelName in tasks
+                  ]
+                  for future in futures:
+                        if future.exception():
+                              raise future.exception()
       
       def evaluate_store_final_models(self):
+            # Best not-baseline model
             self.pipelines["not-baseline"][self.best_performing_model["pipelineName"]].model_selection.evaluate_and_store_models(
                   current_phase="post", 
                   comments=None,
                   best_model_name=self.best_performing_model["modelName"], 
                   baseline_model_name=None)
             
+            # All baseline models
+            tasks = []
             for pipeline in self.pipelines["baseline"]:
-                  for model in self.pipelines["baseline"][pipeline].model_selection.list_of_models:
-                        self.pipelines["baseline"][pipeline].model_selection.evaluate_and_store_models(
-                              current_phase="post", 
+                  for modelName in self.pipelines["baseline"][pipeline].model_selection.list_of_models:
+                        if modelName not in self.pipelines["baseline"][pipeline].model_selection.models_to_exclude:
+                              tasks.append((
+                                    self.pipelines["baseline"][pipeline].model_selection.evaluate_and_store_models,
+                                    modelName
+                              ))
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                  futures = [
+                        executor.submit(
+                              evaluate_func,
+                              current_phase="post",
                               comments=None,
-                              best_model_name=None, 
-                              baseline_model_name=model)
+                              best_model_name=None,
+                              baseline_model_name=modelName
+                        )
+                        for evaluate_func, modelName in tasks
+                  ]
+                  for future in futures:
+                        if future.exception():
+                              raise future.exception()        
       
       # 3) Serialization and deserialization
       def serialize_pipelines(self, pipelines_to_serialize: list[str]):

@@ -78,6 +78,7 @@ class ModelSelection:
                         modelNameToOptimizer = kwargs.get("modelNameToOptimizer", None)
                         assert modelNameToOptimizer is not None, "modelNameToOptimizer must be provided"
                         future_to_model = []
+                        
                         for modelName, optimization_params in modelNameToOptimizer.items():
                               if modelName not in list(self.list_of_models.keys()):
                                     continue
