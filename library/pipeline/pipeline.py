@@ -11,13 +11,12 @@ class Pipeline:
       def __init__(self, dataset_path: str, 
                    results_path: str,
                    model_type: str, 
-                   metrics_to_evaluate: list[str],
                    random_state: int = RANDOM_STATE):
             self.dataset = Dataset(dataset_path, model_type, random_state)
             self.EDA = EDA(self.dataset)
             self.preprocessing = Preprocessing(self.dataset)
             self.feature_analysis = FeatureAnalysis(self.dataset)
-            self.model_selection = ModelSelection(self.dataset, results_path, metrics_to_evaluate)
+            self.model_selection = ModelSelection(self.dataset, results_path)
       
       def speak(self, message: str):
             print(f"{message} from {id(self)}")

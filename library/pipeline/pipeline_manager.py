@@ -4,8 +4,11 @@ from copy import deepcopy
 import concurrent.futures
 import threading
 from typing import Any
+import os
 
 from library.pipeline.analysis.pipelines_analysis import PipelinesAnalysis
+from library.pipeline.serialization_and_deserialization.serializer import SerializationPickle, SerializationJoblib
+from library.pipeline.serialization_and_deserialization.deserializer import DeserializationPickle, DeserializationJoblib
 
 class PipelineManager:
       """
@@ -13,10 +16,34 @@ class PipelineManager:
       Evaluates all pipelines
       
       """
-      def __init__(self, pipelines: dict[str, dict[str, Pipeline]]):
+      def __init__(self, pipelines: dict[str, dict[str, Pipeline]], serializer_type: str="joblib"):
             self.pipelines = pipelines
+            self._pipeline_state = None # Can only take upon "pre", "in", "post"
+            self.best_performing_model = None
+            self.all_models = None
+
+            # Sub-objects
             self.pipelines_analysis = PipelinesAnalysis(pipelines)
-      
+            if serializer_type == "pickle":
+                  self.serializer = SerializationPickle()
+                  self.deserializer = DeserializationPickle()
+            elif serializer_type == "joblib":
+                  self.serializer = SerializationJoblib()
+                  self.deserializer = DeserializationJoblib()
+            else:
+                  raise ValueError(f"Invalid serializer type: {serializer_type}")
+
+      @property
+      def pipeline_state(self):
+            return self._pipeline_state
+
+      @pipeline_state.setter
+      def pipeline_state(self, pipeline_state: str):
+            assert pipeline_state in ["pre", "in", "post"], "Pipeline state must be one of the following: pre, in, post"
+            self._pipeline_state = pipeline_state
+            self.pipelines_analysis.phase = pipeline_state
+
+      # 1) General functions 
       def create_pipeline_divergence(self, category: str, pipelineName: str, print_results: bool = False):
             """
             Compares two pipelines and returns the difference in their metrics.
@@ -31,7 +58,11 @@ class PipelineManager:
                   print(f"Pipeline {pipelineName} in category {category} has diverged\n Pipeline schema is now: {self.pipelines}")
             return newPipeline
       
-      def all_pipelines_execute(self, methodName: str, verbose: bool = False, **kwargs):
+      def all_pipelines_execute(self, methodName: str, 
+                                verbose: bool = False, 
+                                exclude_categories: list[str] = [], 
+                                exclude_pipeline_names: list[str] = [], 
+                                **kwargs):
             """
             Executes a method for all pipelines using threading for parallelization.
             Method name can include dot notation for nested attributes (e.g. "model.fit")
@@ -66,13 +97,19 @@ class PipelineManager:
             # Create thread pool
             with concurrent.futures.ThreadPoolExecutor() as executor:
                   futures = []
-                  
                   # Submit tasks for each unique pipeline
-                  for category in self.pipelines:
+                  for category in self.pipelines.keys():
+                        if category in exclude_categories:
+                              continue
+
                         if category not in results:
                               results[category] = {}
                       
                         for pipelineName, pipeline in self.pipelines[category].items():
+                              if pipelineName in exclude_pipeline_names:
+                                    print(f"Skipping pipeline {pipelineName} in category {category} because it is in the exclude list")
+                                    continue
+
                               if id(pipeline) not in processed_pipelines:
                                     processed_pipelines.add(id(pipeline))
                                     futures.append(
@@ -91,4 +128,84 @@ class PipelineManager:
                               raise future.exception()
 
             return results
+
+      # 2) Final model functions
+      def select_best_performing_model(self, metric: str):
+            """
+            Selects the best performing model based on the classification report
+            """
+            assert metric in self.pipelines_analysis.merged_report.columns, f"Metric not found. Columns are: {self.pipelines_analysis.merged_report.columns}"
+            metric_df = self.pipelines_analysis.merged_report[metric]
+            model_names = metric_df.loc["modelName"].tolist()  # Last row: model names
+            metric_df = metric_df.drop(index='modelName')     # Drop last row
+            metric_df.columns = model_names            # Rename columns to model names
+
+            weighted_avg = metric_df.loc['weighted avg']
+            filtered = weighted_avg[~weighted_avg.index.str.endswith('_train')] # Remove training models
+            best_model = filtered.idxmax()
+            best_score = filtered.max()
+            self.best_performing_model = {
+                  "pipelineName": None,
+                  "modelName": best_model,
+            }
+            self.pipelines_analysis.best_performing_model = self.best_performing_model
+            print(f"Best performing model: {best_model} with {metric} {best_score:.4f}")
+
+            # Overwrite the sklearn_model for the post state 
+            for pipeline in self.pipelines["not-baseline"]:
+                  for model in self.pipelines["not-baseline"][pipeline].model_selection.list_of_models:
+                        if model == best_model:
+                              self.pipelines["not-baseline"][pipeline].model_selection.list_of_models[model].tuning_states["post"].model_sklearn = self.pipelines["not-baseline"][pipeline].model_selection.list_of_models[model].tuning_states["in"].assesment["model_sklearn"]
+                              self.best_performing_model["pipelineName"] = pipeline
+
+            return best_model, best_score
+      
+      def fit_final_models(self):
+            """ Gotta add paralleilism hereeeeeee"""
+            # Fit models 
+            self.pipelines["not-baseline"][self.best_performing_model["pipelineName"]].model_selection.fit_models(current_phase="post", 
+                                                                                                                  best_model_name=self.best_performing_model["modelName"],
+                                                                                                                  baseline_model_name=None)
+            for pipeline in self.pipelines["baseline"]:
+                  for model in self.pipelines["baseline"][pipeline].model_selection.list_of_models:
+                        self.pipelines["baseline"][pipeline].model_selection.fit_models(current_phase="post", 
+                                                                                  best_model_name=None, 
+                                                                                  baseline_model_name=model)
+      
+      def evaluate_store_final_models(self):
+            self.pipelines["not-baseline"][self.best_performing_model["pipelineName"]].model_selection.evaluate_and_store_models(
+                  current_phase="post", 
+                  comments=None,
+                  best_model_name=self.best_performing_model["modelName"], 
+                  baseline_model_name=None)
+            
+            for pipeline in self.pipelines["baseline"]:
+                  for model in self.pipelines["baseline"][pipeline].model_selection.list_of_models:
+                        self.pipelines["baseline"][pipeline].model_selection.evaluate_and_store_models(
+                              current_phase="post", 
+                              comments=None,
+                              best_model_name=None, 
+                              baseline_model_name=model)
+      
+      # 3) Serialization and deserialization
+      def serialize_pipelines(self, pipelines_to_serialize: list[str]):
+            self.serializer.serialize_pipelines(self.pipelines, pipelines_to_serialize)
+      
+      def serialize_models(self, models_to_serialize: list[str]):
+            if self.all_models is None:
+                  self.all_models = {}
+                  for category in self.pipelines:
+                        for pipeline_name in self.pipelines[category]:
+                              for model_name in self.pipelines[category][pipeline_name].model_selection.list_of_models:
+                                    self.all_models[model_name] = self.pipelines[category][pipeline_name].model_selection.list_of_models[model_name]
+            self.serializer.serialize_models(self.all_models, models_to_serialize)
+      
+      def deserialize_pipelines(self, pipelines_to_deserialize: dict[str, str]):
+            return self.deserializer.deserialize_pipelines(pipelines_to_deserialize)
+      
+      def deserialize_models(self, models_to_deserialize: dict[str, str]):
+            return self.deserializer.deserialize_models(models_to_deserialize)
+            
+
+
 

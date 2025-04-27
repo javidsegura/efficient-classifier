@@ -39,21 +39,25 @@ class Classifier(Model):
             The classification report and the confusion matrix
           """
           class_report = classification_report(y_actual, y_pred, output_dict=True) # F1 score, precision, recall for each class
-          conf_matrix = confusion_matrix(y_actual, y_pred)
 
-          return class_report, conf_matrix
+          return class_report
       
       def evaluate(self, modelName: str, current_phase: str):
+            print(f"Evaluating {modelName} in {current_phase} phase")
             assert current_phase in ["pre", "in", "post"], "Current phase must be one of the tuning states"
             if current_phase == "pre" or current_phase == "in":
                   y_actual = self.dataset.y_val
+                  y_pred = self.tuning_states[current_phase].assesment["predictions_val"]
             elif current_phase == "post":
                   y_actual = self.dataset.y_test
+                  y_pred = self.tuning_states[current_phase].assesment["predictions_test"]
             else:
                   raise ValueError("Invalid phase")
-            y_pred = self.tuning_states[current_phase].assesment["predictions_val"]
+            
+            assert y_actual is not None, f"y_actual is None for model: {modelName}"
+            assert y_pred is not None, f"y_pred is None for model: {modelName}"
 
-            class_report, conf_matrix = self.__set_assesment__(y_actual, y_pred, modelName)
+            class_report = self.__set_assesment__(y_actual, y_pred, modelName)
 
             accuracy = class_report["accuracy"]
             f1_score = class_report["weighted avg"]["f1-score"]
@@ -66,7 +70,7 @@ class Classifier(Model):
                   "accuracy": accuracy
             }
             print(f"METRIC RESULTS FOR {modelName} => F1: {f1_score}, Precision: {precision}, Recall: {recall}, Accuracy: {accuracy}")
-            self.tuning_states[current_phase].store_assesment(results)
+            # Storing results to assesment attribute
+            for metric, value in results.items():
+                  self.tuning_states[current_phase].assesment[metric] = value
 
-      def evaluate_training(self, modelName: str):
-            raise NotImplementedError("Training evaluation not implemented for classifier")

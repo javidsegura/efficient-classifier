@@ -1,4 +1,7 @@
-
+/venv
 .venv
 __pycache__
 *.pyc
+.stored_objects/
+.DS_Store
+library/.DS_Store

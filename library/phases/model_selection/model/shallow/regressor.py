@@ -69,14 +69,4 @@ class Regressor(Model):
             
             return assesment
       
-      def evaluate_training(self, modelName: str):
-            """
-            Evaluates predictions on final training set after being trained on the whole dataset      
-            """
-            x, y_actual = self.postTuningState.get_fit_data()
-            self.postTuningState.predict_training()
-            y_pred = self.postTuningState.assesment["predictions_train"]
-            mae, mse, r2 = self.__set_assesment__(y_actual, y_pred, modelName)
-            print(f"METRIC RESULTS => MAE: {mae}, MSE: {mse}, R2: {r2}")
-            metric_results = {"mae": mae, "mse": mse, "r2": r2}
-            return metric_results
+
