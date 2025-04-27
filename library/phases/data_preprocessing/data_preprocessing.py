@@ -112,94 +112,125 @@ class Preprocessing:
             return None
           
     def bound_checking(self, columnsToCheck: list[str] = [], bounds: list[tuple] = []):
-        """
-        Checks if the values are within the bounds of the dataset
-        
-        Parameters:
-        -----------
-        columnsToCheck : list[str]
-            List of column names to check bounds for
-        bounds : list[tuple]
-            List of (min, max) tuples corresponding to each column in columnsToCheck
-            
-        Returns:
-        --------
-        dict
-            Dictionary with column names as keys and DataFrames of out-of-bounds values as values
-        """
-        assert len(columnsToCheck) > 0, "Columns to check must be provided"
-        assert len(bounds) > 0, "Bounds must be provided"
-        assert len(columnsToCheck) == len(bounds), "Number of columns and bounds must match"
-        
-        out_of_bounds = {}
-        
-        for i, column in enumerate(columnsToCheck):
-            print(f"\n--- {i + 1}. Checking column {column}")
-            min_val, max_val = bounds[i]
-            
-            # Check if column exists in the dataset
-            if column not in self.dataset.df.columns:
-                print(f"Warning: Column '{column}' not found in dataset")
-                continue
-                
-            # Find values outside the bounds
-            out_of_range = self.dataset.df[(self.dataset.df[column] < min_val) | 
-                                          (self.dataset.df[column] > max_val)]
-            
-            if len(out_of_range) > 0:
-                out_of_bounds[column] = out_of_range
-                print(f"Found {len(out_of_range)} values outside bounds [{min_val}, {max_val}] in the column")
-                print(f"Percentage: {len(out_of_range) / len(self.dataset.df) * 100:.4f}% of data")
-            else:
-                print(f"All values in column '{column}' are within bounds [{min_val}, {max_val}]")
-        
-        return out_of_bounds
-    
-    def get_outliers_df(self, plot: bool = False, threshold: float = 1.5, columnsToCheck: list[str] = []):
       """
-      Gets the outliers in the dataset and returns a DataFrame with the outliers
+      Checks if the values are within the bounds of the dataset and removes them if less than 0.5% of total data.
       
       Parameters:
       -----------
-      plot : bool
-        Whether to plot the outliers
-
-      Args:
-          plot (bool, optional): _description_. Defaults to False.
-          threshold (float, optional): _description_. Defaults to 1.5.
-          columnsToCheck (list[str], optional): _description_. Defaults to [].
-
+      columnsToCheck : list[str]
+          List of column names to check bounds for
+      bounds : list[tuple]
+          List of (min, max) tuples corresponding to each column in columnsToCheck
+          
       Returns:
-          _type_: _description_
+      --------
+      dict
+          Dictionary with column names as keys and DataFrames of out-of-bounds values as values
       """
-      outlier_df = pd.DataFrame(columns=["feature", "outlierCount","percentageOfOutliers", "descriptiveStatistics"])
-      only_numerical_features = self.dataset.X_train.select_dtypes(include=["number"]).columns
-      outliers = {}
+      assert len(columnsToCheck) > 0, "Columns to check must be provided"
+      assert len(bounds) > 0, "Bounds must be provided"
+      assert len(columnsToCheck) == len(bounds), "Number of columns and bounds must match"
+      
+      out_of_bounds = {}
+      
+      for i, column in enumerate(columnsToCheck):
+          print(f"\n--- {i + 1}. Checking column {column}")
+          min_val, max_val = bounds[i]
+          
+          # Check if column exists in the dataset
+          if column not in self.dataset.df.columns:
+              print(f"Warning: Column '{column}' not found in dataset")
+              continue
+          
+          # Find values outside the bounds
+          out_of_range = self.dataset.df[(self.dataset.df[column] < min_val) | 
+                                        (self.dataset.df[column] > max_val)]
+          
+          if len(out_of_range) > 0:
+              percentage = len(out_of_range) / len(self.dataset.df) * 100
+              out_of_bounds[column] = out_of_range
+              print(f"Found {len(out_of_range)} values outside bounds [{min_val}, {max_val}]")
+              print(f"Percentage: {percentage:.4f}% of data")
+              
+              if percentage < 0.5:
+                  print(f"→ Less than 0.5%. Deleting these rows...")
+                  self.dataset.df = self.dataset.df.drop(out_of_range.index)
+                  self.dataset.df.reset_index(drop=True, inplace=True)
+              else:
+                  print(f"→ More than 0.5%. Keeping them for manual review.")
+          else:
+              print(f"All values in column '{column}' are within bounds [{min_val}, {max_val}]")
+      
+      return out_of_bounds
 
-      for feature in only_numerical_features if not columnsToCheck else columnsToCheck:
-            original_values = self.dataset.X_train[feature].copy()
+    
+    def get_outliers_df(self, pipeline: str = "iqr", plot: bool = False, threshold: float = 1.5, columnsToCheck: list[str] = []):
+        """
+        Detects outliers, removes them from X_train, and returns a DataFrame with outlier statistics.
+
+        Parameters:
+        -----------
+        pipeline: str
+            To determine how to treat the outliers based on the pipeline
+        plot : bool
+            Whether to plot the outliers
+        threshold : float
+            Multiplier for the IQR to determine outliers
+        columnsToCheck : list[str]
+            Specific columns to check for outliers. If empty, all numerical columns are used.
+
+        Returns:
+        --------
+        Tuple[pd.DataFrame, dict]
+            DataFrame with outlier statistics and dictionary of outlier values
+        """
+        outlier_rows = []
+        only_numerical_features = self.dataset.X_train.select_dtypes(include=["number"]).columns
+        outliers = {}
+
+        for feature in only_numerical_features if not columnsToCheck else columnsToCheck:
+            original_values = self.dataset.X_train[feature]
             original_values_size = len(original_values)
-            IQR = self.dataset.X_train[feature].quantile(0.75) - self.dataset.X_train[feature].quantile(0.25)
-            lower_bound = self.dataset.X_train[feature].quantile(0.25) - threshold * IQR
-            upper_bound = self.dataset.X_train[feature].quantile(0.75) + threshold * IQR
-            outliersDataset = self.dataset.X_train[feature][(self.dataset.X_train[feature] < lower_bound) | (self.dataset.X_train[feature] > upper_bound)]
-            outliers_count = len(outliersDataset)
-            if (outliers_count > 0):
-                  outliers[feature] = outliersDataset
-                  outlier_df = pd.concat([outlier_df, 
-                                          pd.DataFrame({"feature": feature, 
-                                                        "outlierCount": len(outliersDataset), 
-                                                        "percentageOfOutliers": len(outliersDataset) / original_values_size * 100, 
-                                                        "descriptiveStatistics": [self.dataset.X_train[feature].describe()],
-                                                        "outliersValues": [outliersDataset.values]
-                                                    })])
-                  # Print distribution of feature
-                  if plot:
-                        plt.title(f"Distribution of '{feature}'")
-                        sns.histplot(self.dataset.X_train[feature], kde=True)
-                        plt.show()
-      print(f"There are {len(outlier_df)} features with outliers out of {len(only_numerical_features)} numerical features ({len(outlier_df) / len(only_numerical_features) * 100}%)")
-      return outlier_df, outliers
+            IQR = original_values.quantile(0.75) - original_values.quantile(0.25)
+            lower_bound = original_values.quantile(0.25) - threshold * IQR
+            upper_bound = original_values.quantile(0.75) + threshold * IQR
+            outlier_mask = (original_values < lower_bound) | (original_values > upper_bound)
+            outliersDataset = original_values[outlier_mask]
+            outliers_count = outlier_mask.sum()
+
+            if outliers_count > 0:
+                outliers[feature] = outliersDataset
+                outlier_rows.append({
+                    "feature": feature,
+                    "outlierCount": outliers_count,
+                    "percentageOfOutliers": outliers_count / original_values_size * 100,
+                    "descriptiveStatistics": original_values.describe(),
+                    "outliersValues": outliersDataset.values
+                })
+
+                if plot:
+                    plt.title(f"Distribution of '{feature}'")
+                    sns.histplot(original_values, kde=True)
+                    plt.show()
+
+                if pipeline == "iqr":
+                # Remove outliers from X_train
+                  self.dataset.X_train = self.dataset.X_train[~outlier_mask]
+                elif pipeline == "percentile":
+                  p1 = original_values.quantile(0.01)
+                  p99 = original_values.quantile(0.99)
+
+                  self.dataset.X_train[feature] = original_values.clip(lower=p1, upper=p99)
+                else:
+                  assert("Error: You must introduce a correct value for pipeline. Only 'iqr' and 'percentile' are accepted.")
+
+        # Reset index after removing rows
+        self.dataset.X_train.reset_index(drop=True, inplace=True)
+
+        outlier_df = pd.DataFrame(outlier_rows)
+
+        return f"There are {len(outlier_df)} features with outliers out of {len(only_numerical_features)} numerical features ({len(outlier_df) / len(only_numerical_features) * 100:.2f}%)"
+
     
     def scale_features(self, scaler: str, columnsToScale: list[str] = []):
       """
@@ -312,3 +343,4 @@ class Preprocessing:
             f"Successfully balanced classes via SMOTE. "
             f"Started with a {self.imbalance_ratio:.2f}:1 ratio; now 1:1."
         )
+        
