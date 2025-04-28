@@ -65,9 +65,9 @@ class Preprocessing:
             print(f"Dataset duplicates: \n {self.df[duplicates]}")
             print(f"There are {duplicates_sum} duplicates in the dataset")
             self.dataset.df.drop_duplicates(inplace=True)
-            print(f"Succesfully removed duplicates from the dataset")
+            return f"Succesfully removed duplicates from the dataset"
         else:
-            print("No duplicates found in the dataset")
+            return "No duplicates found in the dataset"
     
     def get_missing_values(self, plot: bool = False):
         """
@@ -80,7 +80,7 @@ class Preprocessing:
             
         Returns:
         --------
-        None
+        None or pd.DataFrame with the rows with missing values
         """
         missing_values_sum = self.dataset.df.isnull().sum().sum()
         
@@ -162,8 +162,7 @@ class Preprocessing:
               print(f"All values in column '{column}' are within bounds [{min_val}, {max_val}]")
       
       return out_of_bounds
-
-    
+ 
     def get_outliers_df(self, pipeline: str = "iqr", plot: bool = False, threshold: float = 1.5, columnsToCheck: list[str] = []):
         """
         Detects outliers, removes them from X_train, and returns a DataFrame with outlier statistics.
@@ -181,8 +180,8 @@ class Preprocessing:
 
         Returns:
         --------
-        Tuple[pd.DataFrame, dict]
-            DataFrame with outlier statistics and dictionary of outlier values
+        str
+            Summary of the outlier detection operation 
         """
         outlier_rows = []
         only_numerical_features = self.dataset.X_train.select_dtypes(include=["number"]).columns
@@ -214,9 +213,10 @@ class Preprocessing:
                     plt.show()
 
                 if pipeline == "iqr":
-                # Remove outliers from X_train
+                  # Remove outliers from X_train
                   self.dataset.X_train = self.dataset.X_train[~outlier_mask]
                 elif pipeline == "percentile":
+                  # Clip outliers on 1st and 99th percentile
                   p1 = original_values.quantile(0.01)
                   p99 = original_values.quantile(0.99)
 
@@ -230,8 +230,7 @@ class Preprocessing:
         outlier_df = pd.DataFrame(outlier_rows)
 
         return f"There are {len(outlier_df)} features with outliers out of {len(only_numerical_features)} numerical features ({len(outlier_df) / len(only_numerical_features) * 100:.2f}%)"
-
-    
+   
     def scale_features(self, scaler: str, columnsToScale: list[str] = []):
       """
       Scales the features in the dataset
