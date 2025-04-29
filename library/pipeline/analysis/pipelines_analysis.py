@@ -43,35 +43,35 @@ class PipelinesAnalysis:
                   for pipeline in self.pipelines[category]:
                               if self.phase == "pre" and pipeline == "stacking":
                                     continue
-                              for modelName in self.pipelines[category][pipeline].model_selection.list_of_models:
+                              for modelName in self.pipelines[category][pipeline].modelling.list_of_models:
                                     # Only select the model that is the best if pipeline is post and and phase is post
                                     if category == "not-baseline" and self.phase == "post" and self.best_performing_model["modelName"] != modelName:
                                           continue
-                                    if modelName not in self.pipelines[category][pipeline].model_selection.models_to_exclude:
+                                    if modelName not in self.pipelines[category][pipeline].modelling.models_to_exclude:
                                           if self.phase != "post":
                                                       if self.phase == "in" and category == "baseline":
                                                             continue
-                                                      y_pred = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_val"]
-                                                      y_true = self.pipelines[category][pipeline].model_selection.dataset.y_val
+                                                      y_pred = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_val"]
+                                                      y_true = self.pipelines[category][pipeline].modelling.dataset.y_val
                                                       not_training_report = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
                                                       not_training_report["modelName"] = modelName
                                                       classification_reports.append(pd.DataFrame(not_training_report))
                                                       if include_training:
-                                                            y_pred_train = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_train"]
-                                                            y_true_train = self.pipelines[category][pipeline].model_selection.dataset.y_train
+                                                            y_pred_train = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_train"]
+                                                            y_true_train = self.pipelines[category][pipeline].modelling.dataset.y_train
                                                             training_report = classification_report(y_true_train, y_pred_train, output_dict=True, zero_division=0)
                                                             training_report["modelName"] = modelName + "_train"
                                                             classification_reports.append(pd.DataFrame(training_report))
                                           else:
-                                                      y_pred = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_test"]
-                                                      y_true = self.pipelines[category][pipeline].model_selection.dataset.y_test
+                                                      y_pred = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_test"]
+                                                      y_true = self.pipelines[category][pipeline].modelling.dataset.y_test
                                                       not_training_report = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
                                                       not_training_report["modelName"] = modelName
                                                       classification_reports.append(pd.DataFrame(not_training_report))
                                                       if include_training:
-                                                            y_pred_train = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_train"]
-                                                            train = self.pipelines[category][pipeline].model_selection.dataset.y_train
-                                                            test = self.pipelines[category][pipeline].model_selection.dataset.y_test
+                                                            y_pred_train = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_train"]
+                                                            train = self.pipelines[category][pipeline].modelling.dataset.y_train
+                                                            test = self.pipelines[category][pipeline].modelling.dataset.y_test
                                                             y_true_train = np.concatenate([train, test])
                                                             training_report = classification_report(y_true_train, y_pred_train, output_dict=True, zero_division=0)
                                                             training_report["modelName"] = modelName + "_train"
@@ -204,7 +204,7 @@ class PipelinesAnalysis:
             dataframes = []
             for category in self.pipelines:
                   for pipeline in self.pipelines[category]:
-                        df = self.pipelines[category][pipeline].model_selection.results_analysis[self.phase].phase_results_df
+                        df = self.pipelines[category][pipeline].modelling.results_analysis[self.phase].phase_results_df
                         dataframes.append(df)
             metrics_df = pd.concat(dataframes)
             self.results_per_phase[self.phase]["metrics_df"] = metrics_df
@@ -246,11 +246,11 @@ class PipelinesAnalysis:
             for pipeline in self.pipelines["not-baseline"]:
                   if pipeline not in ["ensembled", "tree-based"]:
                         continue
-                  for modelName in self.pipelines["not-baseline"][pipeline].model_selection.list_of_models:
+                  for modelName in self.pipelines["not-baseline"][pipeline].modelling.list_of_models:
                         if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
                                           continue
-                        if modelName not in self.pipelines["not-baseline"][pipeline].model_selection.models_to_exclude:
-                              importances = self.pipelines["not-baseline"][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["model_sklearn"].feature_importances_
+                        if modelName not in self.pipelines["not-baseline"][pipeline].modelling.models_to_exclude:
+                              importances = self.pipelines["not-baseline"][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["model_sklearn"].feature_importances_
                               feature_importance_df = pd.DataFrame({
                                                                             'Feature': self.pipelines["not-baseline"][pipeline].dataset.X_train.columns,
                                                                             'Importance': importances
@@ -277,20 +277,20 @@ class PipelinesAnalysis:
                   for pipeline in self.pipelines[category]:
                         if self.phase == "pre" and pipeline == "stacking":
                               continue
-                        for modelName in self.pipelines[category][pipeline].model_selection.list_of_models:
-                              if modelName not in self.pipelines[category][pipeline].model_selection.models_to_exclude:
+                        for modelName in self.pipelines[category][pipeline].modelling.list_of_models:
+                              if modelName not in self.pipelines[category][pipeline].modelling.models_to_exclude:
                                     if category == "not-baseline" and self.phase == "post" and modelName != self.best_performing_model["modelName"]:
                                           continue
                                     if self.phase == "in" and category == "baseline":
                                           continue
                                     if self.phase != "post":
-                                          pred = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_val"]
-                                          actual = self.pipelines[category][pipeline].model_selection.dataset.y_val
-                                          residuals[pipeline] = self.pipelines[category][pipeline].model_selection.dataset.y_val[pred != actual]
+                                          pred = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_val"]
+                                          actual = self.pipelines[category][pipeline].modelling.dataset.y_val
+                                          residuals[pipeline] = self.pipelines[category][pipeline].modelling.dataset.y_val[pred != actual]
                                     else:
-                                          pred = self.pipelines[category][pipeline].model_selection.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_test"]
-                                          actual = self.pipelines[category][pipeline].model_selection.dataset.y_test
-                                          residuals[pipeline] = self.pipelines[category][pipeline].model_selection.dataset.y_test[pred != actual]
+                                          pred = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_test"]
+                                          actual = self.pipelines[category][pipeline].modelling.dataset.y_test
+                                          residuals[pipeline] = self.pipelines[category][pipeline].modelling.dataset.y_test[pred != actual]
 
                                     assert pred is not None, "Predictions are None"
                                     assert actual is not None, "Actual is None"

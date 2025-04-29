@@ -2,7 +2,7 @@ from library.phases.dataset.dataset import Dataset
 from library.phases.EDA.EDA import EDA
 from library.phases.data_preprocessing.data_preprocessing import DataPreprocessing
 from library.phases.feature_analysis.feature_analysis import FeatureAnalysis
-from library.phases.model_selection.model_selection import ModelSelection
+from library.phases.modelling.modelling import Modelling
 
 # Global variables
 RANDOM_STATE = 99
@@ -16,7 +16,7 @@ class Pipeline:
             self.EDA = EDA(self.dataset)
             self.data_preprocessing = DataPreprocessing(self.dataset)
             self.feature_analysis = FeatureAnalysis(self.dataset)
-            self.model_selection = ModelSelection(self.dataset, results_path)
+            self.modelling = Modelling(self.dataset, results_path)
       
       def speak(self, message: str):
             print(f"{message} from {id(self)}")

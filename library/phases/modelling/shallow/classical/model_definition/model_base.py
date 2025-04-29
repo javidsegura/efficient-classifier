@@ -5,9 +5,7 @@ from library.phases.dataset.dataset import Dataset
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from library.phases.model_selection.model_state import PreTuningState, PostTuningState, InTuningState
-from library.phases.model_selection.model_optimization.model_optimization import Optimizer
-
+from library.phases.modelling.shallow.classical.model_definition.model_states.model_state import PreTuningState, PostTuningState, InTuningState
 
 class Model(ABC):
       def __init__(self, modelName: str, model_sklearn: object, results_header: list[str], dataset: Dataset):

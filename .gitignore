@@ -3,4 +3,4 @@
 __pycache__
 *.pyc
 results/models/*
-results/pipeline_results/*
+results/pipelines/*

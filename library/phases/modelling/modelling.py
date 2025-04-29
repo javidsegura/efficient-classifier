@@ -1,16 +1,16 @@
-from library.phases.model_selection.results_analysis.results_df import ResultsDF
-from library.phases.model_selection.model.shallow.classifier import Classifier
-from library.phases.model_selection.model.shallow.regressor import Regressor
-from library.phases.model_selection.model.model import Model
+from library.phases.modelling.results_analysis.results_df import ResultsDF
+from library.phases.modelling.shallow.classical.model_definition.model_types.classifier import Classifier
+from library.phases.modelling.shallow.classical.model_definition.model_types.regressor import Regressor
+from library.phases.modelling.shallow.classical.model_definition.model_base import Model
 from library.phases.dataset.dataset import Dataset
 
-from library.phases.model_selection.results_analysis.result_analysis import PreTuningResultAnalysis, InTuningResultAnalysis, PostTuningResultAnalysis
+from library.phases.modelling.results_analysis.result_analysis import PreTuningResultAnalysis, InTuningResultAnalysis, PostTuningResultAnalysis
 
 import concurrent.futures
 import pandas as pd
 import time
 
-class ModelSelection:
+class Modelling:
       def __init__(self, dataset: Dataset, results_path: str):
             self.results_df = ResultsDF(results_path, dataset)
             self.list_of_models = {}
@@ -78,7 +78,7 @@ class ModelSelection:
                         modelNameToOptimizer = kwargs.get("modelNameToOptimizer", None)
                         assert modelNameToOptimizer is not None, "modelNameToOptimizer must be provided"
                         future_to_model = []
-                        optimized_models = {} # Stores modelName: modelSklearn
+                        optimized_models = {} # Stores 'modelName: modelSklearn'
                          
                         for modelName, optimization_params in modelNameToOptimizer.items():
                               if modelName not in list(self.list_of_models.keys()):

@@ -153,9 +153,9 @@ class PipelineManager:
 
             # Overwrite the sklearn_model for the post state 
             for pipeline in self.pipelines["not-baseline"]:
-                  for modelName in self.pipelines["not-baseline"][pipeline].model_selection.list_of_models:
+                  for modelName in self.pipelines["not-baseline"][pipeline].modelling.list_of_models:
                         if modelName == best_model_name:
-                              self.pipelines["not-baseline"][pipeline].model_selection.list_of_models[modelName].tuning_states["post"].model_sklearn = self.pipelines["not-baseline"][pipeline].model_selection.list_of_models[modelName].tuning_states["in"].assesment["model_sklearn"]
+                              self.pipelines["not-baseline"][pipeline].modelling.list_of_models[modelName].tuning_states["post"].model_sklearn = self.pipelines["not-baseline"][pipeline].modelling.list_of_models[modelName].tuning_states["in"].assesment["model_sklearn"]
                               self.best_performing_model["pipelineName"] = pipeline
 
             return best_model_name, best_score
@@ -163,7 +163,7 @@ class PipelineManager:
 
       def fit_final_models(self):
             # Best not-baseline model
-            self.pipelines["not-baseline"][self.best_performing_model["pipelineName"]].model_selection.fit_models(
+            self.pipelines["not-baseline"][self.best_performing_model["pipelineName"]].modelling.fit_models(
                   current_phase="post", 
                   best_model_name=self.best_performing_model["modelName"],
                   baseline_model_name=None
@@ -172,10 +172,10 @@ class PipelineManager:
             # All baseline models
             tasks = []
             for pipeline in self.pipelines["baseline"]:
-                  for modelName in self.pipelines["baseline"][pipeline].model_selection.list_of_models:
-                        if modelName not in self.pipelines["baseline"][pipeline].model_selection.models_to_exclude:
+                  for modelName in self.pipelines["baseline"][pipeline].modelling.list_of_models:
+                        if modelName not in self.pipelines["baseline"][pipeline].modelling.models_to_exclude:
                               tasks.append((
-                                    self.pipelines["baseline"][pipeline].model_selection.fit_models,
+                                    self.pipelines["baseline"][pipeline].modelling.fit_models,
                                     modelName
                               ))
 
@@ -195,7 +195,7 @@ class PipelineManager:
       
       def evaluate_store_final_models(self):
             # Best not-baseline model
-            self.pipelines["not-baseline"][self.best_performing_model["pipelineName"]].model_selection.evaluate_and_store_models(
+            self.pipelines["not-baseline"][self.best_performing_model["pipelineName"]].modelling.evaluate_and_store_models(
                   current_phase="post", 
                   comments=None,
                   best_model_name=self.best_performing_model["modelName"], 
@@ -204,10 +204,10 @@ class PipelineManager:
             # All baseline models
             tasks = []
             for pipeline in self.pipelines["baseline"]:
-                  for modelName in self.pipelines["baseline"][pipeline].model_selection.list_of_models:
-                        if modelName not in self.pipelines["baseline"][pipeline].model_selection.models_to_exclude:
+                  for modelName in self.pipelines["baseline"][pipeline].modelling.list_of_models:
+                        if modelName not in self.pipelines["baseline"][pipeline].modelling.models_to_exclude:
                               tasks.append((
-                                    self.pipelines["baseline"][pipeline].model_selection.evaluate_and_store_models,
+                                    self.pipelines["baseline"][pipeline].modelling.evaluate_and_store_models,
                                     modelName
                               ))
             with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -234,8 +234,8 @@ class PipelineManager:
                   self.all_models = {}
                   for category in self.pipelines:
                         for pipeline_name in self.pipelines[category]:
-                              for model_name in self.pipelines[category][pipeline_name].model_selection.list_of_models:
-                                    self.all_models[model_name] = self.pipelines[category][pipeline_name].model_selection.list_of_models[model_name]
+                              for model_name in self.pipelines[category][pipeline_name].modelling.list_of_models:
+                                    self.all_models[model_name] = self.pipelines[category][pipeline_name].modelling.list_of_models[model_name]
             self.serializer.serialize_models(self.all_models, models_to_serialize)
       
       def deserialize_pipelines(self, pipelines_to_deserialize: dict[str, str]):

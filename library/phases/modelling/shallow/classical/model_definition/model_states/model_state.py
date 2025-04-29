@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import time
 from library.phases.dataset.dataset import Dataset
-from library.phases.model_selection.model_optimization.model_optimization import Optimizer
+from library.phases.modelling.shallow.classical.model_optimization.model_optimization import Optimizer
 
 
 """

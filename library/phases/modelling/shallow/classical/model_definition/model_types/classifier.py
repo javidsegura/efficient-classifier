@@ -7,8 +7,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix
 import concurrent.futures
 
-
-from library.phases.model_selection.model.model import Model
+from library.phases.modelling.shallow.classical.model_definition.model_base import Model
 from library.phases.dataset.dataset import Dataset
 
 class Classifier(Model):
@@ -17,7 +16,7 @@ class Classifier(Model):
             super().__init__(modelName, model_sklearn, results_header, dataset)
       
 
-      def __set_assesment__(self, 
+      def __set_assesment(self, 
                         y_actual: pd.Series,
                         y_pred: pd.Series,
                         modelName: str):
@@ -57,7 +56,7 @@ class Classifier(Model):
             assert y_actual is not None, f"y_actual is None for model: {modelName}"
             assert y_pred is not None, f"y_pred is None for model: {modelName}"
 
-            class_report = self.__set_assesment__(y_actual, y_pred, modelName)
+            class_report = self.__set_assesment(y_actual, y_pred, modelName)
 
             accuracy = class_report["accuracy"]
             f1_score = class_report["weighted avg"]["f1-score"]
