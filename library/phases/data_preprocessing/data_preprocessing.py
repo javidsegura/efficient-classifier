@@ -6,10 +6,16 @@ import scipy.stats as stats
 from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
 from imblearn.over_sampling import SMOTE
 from library.phases.dataset.dataset import Dataset
+from library.phases.data_preprocessing.bounds_config import BOUNDS
 
 class Preprocessing:
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
+        self.bound_cols, self.bound_limits = zip(*BOUNDS.items())
+        self.outliers_dict = self.bound_checking(
+            columnsToCheck=list(self.bound_cols),
+            bounds=list(self.bound_limits)
+        )
     
     def analyze_duplicates(self, plot: bool = False):
         """
@@ -114,7 +120,7 @@ class Preprocessing:
             else:
                 print("No missing values found in the dataset")
             return None
-          
+      
     def bound_checking(self, columnsToCheck: list[str] = [], bounds: list[tuple] = []):
       """
       Checks if the values are within the bounds of the dataset and removes them if less than 0.5% of total data.
@@ -166,6 +172,138 @@ class Preprocessing:
               print(f"All values in column '{column}' are within bounds [{min_val}, {max_val}]")
       
       return out_of_bounds
+ 
+
+    def smart_outlier_handler(self,
+                              feature_groups: dict[str, list[str]] = None,
+                              iqr_k: float = 1.5,
+                              upper_clip: float = 0.995,
+                              log_feats: list[str] = None
+                            ) -> None:
+        """
+        Removes / caps outliers while **never touching the 0-values**.
+
+        Parameters
+        ----------
+        feature_groups  : {"group_name": [col1, col2]}   logical groupings (Memory, API…)
+        iqr_k           : whisker length for IQR rule    (used when value spread is moderate)
+        upper_clip      : percentile to clip heavy tails (used when spread is huge / quasi-Pareto)
+        log_feats       : columns that are strictly positive and benefit from log1p+IQR
+
+        Returns
+        -------
+        df (clean copy)
+
+        Logic
+        -----
+        • **Always keep 0**  → lower boundary = 0  
+        • Decide strategy per feature:
+
+            - *count-like* (API_*, Logcat_*,  Memory_*Count):  
+              ▸ use upper IQR; ignore lower tail (zeros)  
+              ▸ if >10 000 unique values → switch to percentile clip
+
+            - *size / bytes / KB* (Memory_Pss*, Heap*, Network_*Bytes):  
+              ▸ apply log1p, run IQR, then exponentiate back  
+              ▸ cap extreme positives, keep 0
+
+            - *ratios / percentages* (if any):  
+              ▸ cap to [0, 1] by simple clip
+
+        • Rows that hold <0.5 % of the dataset (your existing rule) are dropped,
+          otherwise values are *capped* (winsorised) to the bound.
+
+        Notes
+        -----
+        - With many zeroes the distribution is“spike-and-long-tail”; using the upper
+          bound only preserves the all-important zero information.
+        """
+        original_df = self.dataset.df.copy()
+        log_feats = log_feats or []
+        
+        # If no feature_groups provided, treat all columns as one group
+        if not feature_groups:
+          feature_groups = {'all_features': self.dataset.df.columns.tolist()}
+
+        # --- helpers -------------------------------------------------------------
+        def iqr_bounds(s):
+            q1, q3 = s.quantile([.25, .75])
+            iqr = q3 - q1
+            return q1 - iqr_k * iqr, q3 + iqr_k * iqr
+
+        # --- main loop -----------------------------------------------------------
+        # --- main loop -----------------------------------------------------------
+        for g, cols in feature_groups.items():
+            for col in cols:
+                if col not in self.dataset.df.columns:            # silent skip
+                    continue
+
+                series = self.dataset.df[col]
+
+                if not np.issubdtype(series.dtype, np.number):
+                    continue  # <<< 🚀 add this line to skip non-numeric columns
+
+                # choose strategy
+                if col in log_feats:
+                    series_log = np.log1p(series)          # keeps zeros at 0
+                    lb, ub = iqr_bounds(series_log)
+                    ub = np.expm1(ub)                      # back-transform
+                    lb = 0                                 # *never* drop / cap zeros
+                else:
+                    # decide between IQR or percentile based on cardinality
+                    if series.nunique() > 1e4:
+                        lb, ub = 0, series.quantile(upper_clip)
+                    else:
+                        lb_tmp, ub_tmp = iqr_bounds(series)
+                        lb, ub = 0, ub_tmp                 # protect zeros
+
+                mask_hi = series > ub
+                mask_lo = series < lb                      # will always be False (lb==0)
+
+                # drop if very few, otherwise cap
+                perc_hi = mask_hi.mean() * 100
+                if perc_hi < 0.5:
+                    self.dataset.df = self.dataset.df.loc[~mask_hi]
+                else:
+                    self.dataset.df.loc[mask_hi, col] = ub
+
+                
+        self.compare_distributions_grid(original_df, self.dataset.df)
+
+        return None
+
+ 
+    def compare_distributions_grid(self, original_df, cleaned_df, columns=None, bins=50, max_features=20):
+        """
+        Creates side-by-side histogram plots for multiple numeric features
+        to compare original and cleaned distributions.
+        Limits to max_features to avoid crashing.
+        """
+        numeric_cols = original_df.select_dtypes(include=np.number).columns.tolist()
+        
+        if columns is None:
+            columns = numeric_cols[:max_features]
+
+        n = len(columns)
+        cols = 2
+        rows = int(np.ceil(n / cols))
+
+        fig, axes = plt.subplots(rows, cols, figsize=(12, 4 * rows))
+        axes = axes.flatten()
+
+        for i, col in enumerate(columns):
+            axes[i].hist(original_df[col], bins=bins, alpha=0.5, label='Original', color='red')
+            axes[i].hist(cleaned_df[col], bins=bins, alpha=0.5, label='Cleaned', color='green')
+            axes[i].set_title(col)
+            axes[i].legend()
+
+        for j in range(i + 1, len(axes)):
+            fig.delaxes(axes[j])  # remove unused subplots
+
+        plt.tight_layout()
+        plt.show()
+
+
  
     def get_outliers_df(self, pipeline: str = "iqr", plot: bool = False, threshold: float = 1.5, columnsToCheck: list[str] = []):
         """
@@ -220,11 +358,9 @@ class Preprocessing:
                   # Remove outliers from X_train
                   self.dataset.X_train = self.dataset.X_train[~outlier_mask]
                 elif pipeline == "percentile":
-                  # Clip outliers on 1st and 99th percentile
-                  p1 = original_values.quantile(0.01)
+                  # Clip outliers on 99th percentile
                   p99 = original_values.quantile(0.99)
-
-                  self.dataset.X_train[feature] = original_values.clip(lower=p1, upper=p99)
+                  self.dataset.X_train[feature] = original_values.clip(upper=p99)
                 else:
                   assert("Error: You must introduce a correct value for pipeline. Only 'iqr' and 'percentile' are accepted.")
 
