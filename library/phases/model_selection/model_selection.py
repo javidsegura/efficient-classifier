@@ -78,7 +78,8 @@ class ModelSelection:
                         modelNameToOptimizer = kwargs.get("modelNameToOptimizer", None)
                         assert modelNameToOptimizer is not None, "modelNameToOptimizer must be provided"
                         future_to_model = []
-                        
+                        optimized_models = {} # Stores modelName: modelSklearn
+                         
                         for modelName, optimization_params in modelNameToOptimizer.items():
                               if modelName not in list(self.list_of_models.keys()):
                                     continue
@@ -91,6 +92,8 @@ class ModelSelection:
                         for future in concurrent.futures.as_completed(future_to_model):
                               modelName, modelObject = future.result()
                               self.list_of_models[modelName] = modelObject
+                              optimized_models[modelName] = modelObject.tuning_states["in"].assesment["model_sklearn"]
+                        return optimized_models
                   elif current_phase == "post":
                         best_model_name, baseline_model_name = kwargs.get("best_model_name", None), kwargs.get("baseline_model_name", None)
                         assert (best_model_name is not None) or (baseline_model_name is not None), "You must provide at least one of the best or baseline model"
