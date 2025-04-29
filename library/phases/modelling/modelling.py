@@ -1,7 +1,7 @@
 from library.phases.modelling.results_analysis.results_df import ResultsDF
-from library.phases.modelling.shallow.classical.model_definition.model_types.classifier import Classifier
-from library.phases.modelling.shallow.classical.model_definition.model_types.regressor import Regressor
-from library.phases.modelling.shallow.classical.model_definition.model_base import Model
+from library.phases.modelling.shallow.model_definition.model_types.classifier import Classifier
+from library.phases.modelling.shallow.model_definition.model_types.regressor import Regressor
+from library.phases.modelling.shallow.model_definition.model_base import Model
 from library.phases.dataset.dataset import Dataset
 
 from library.phases.modelling.results_analysis.result_analysis import PreTuningResultAnalysis, InTuningResultAnalysis, PostTuningResultAnalysis
@@ -33,12 +33,12 @@ class Modelling:
                   assert modelName in self.list_of_models, f"Model {modelName} not found in list of models"
             self._models_to_exclude = value
 
-      def add_model(self, model_name: str, model_sklearn: object):
+      def add_model(self, model_name: str, model_sklearn: object, model_type: str = "classical"):
             new_model = None
             if self.dataset.modelTask == "classification":
-                  new_model = Classifier(model_name, model_sklearn, results_header=self.results_df.header, dataset=self.dataset)
+                  new_model = Classifier(model_name, model_sklearn, model_type=model_type, results_header=self.results_df.header, dataset=self.dataset)
             elif self.dataset.modelTask == "regression":
-                  new_model = Regressor(model_name, model_sklearn, results_header=self.results_df.header, dataset=self.dataset)
+                  new_model = Regressor(model_name, model_sklearn, model_type=model_type, results_header=self.results_df.header, dataset=self.dataset)
 
             self.list_of_models[model_name] = new_model
       

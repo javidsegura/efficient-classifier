@@ -10,7 +10,7 @@ import matplotlib.dates as mdates
 import seaborn as sns
 import time, sys
 
-from library.phases.modelling.shallow.classical.model_definition.model_base import Model
+from library.phases.modelling.shallow.model_definition.model_base import Model
 from library.phases.dataset.dataset import Dataset
 
 

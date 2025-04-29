@@ -5,13 +5,16 @@ from library.phases.dataset.dataset import Dataset
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from library.phases.modelling.shallow.classical.model_definition.model_states.model_state import PreTuningState, PostTuningState, InTuningState
+from library.phases.modelling.shallow.model_definition.model_states.model_state import PreTuningState, PostTuningState, InTuningState
 
 class Model(ABC):
-      def __init__(self, modelName: str, model_sklearn: object, results_header: list[str], dataset: Dataset):
+      def __init__(self, modelName: str, model_sklearn: object, model_type: str, results_header: list[str], dataset: Dataset):
+            assert model_type in ["classical", "neuralNetwork"], "Model type must be one of the following: classical, neuralNetwork"
+            assert model_sklearn is not None, "Model sklearn must be provided"
             self.dataset = dataset
             self.modelName = modelName
             self.model_sklearn = model_sklearn
+            self.model_type = model_type
             # Remove from header the duplicate metrics
             cleaned_header = []
             for col in results_header:
@@ -24,9 +27,9 @@ class Model(ABC):
             self.results_header = cleaned_header + ["predictions_val", "predictions_train", "predictions_test", "model_sklearn"]
 
             self.tuning_states = {
-                  "pre": PreTuningState(model_sklearn, modelName, dataset, self.results_header),
-                  "in": InTuningState(model_sklearn, modelName, dataset, self.results_header),
-                  "post": PostTuningState(model_sklearn, modelName, dataset, self.results_header)
+                  "pre": PreTuningState(model_sklearn, modelName, model_type, dataset, self.results_header),
+                  "in": InTuningState(model_sklearn, modelName, model_type, dataset, self.results_header),
+                  "post": PostTuningState(model_sklearn, modelName, model_type, dataset, self.results_header)
             }
             self.optimizer_type = None
 

@@ -7,13 +7,13 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix
 import concurrent.futures
 
-from library.phases.modelling.shallow.classical.model_definition.model_base import Model
+from library.phases.modelling.shallow.model_definition.model_base import Model
 from library.phases.dataset.dataset import Dataset
 
 class Classifier(Model):
-      def __init__(self,  modelName: str, model_sklearn: object, results_header: list[str], dataset: Dataset):
+      def __init__(self,  modelName: str, model_sklearn: object, model_type: str, results_header: list[str], dataset: Dataset):
             self.dataset = dataset   
-            super().__init__(modelName, model_sklearn, results_header, dataset)
+            super().__init__(modelName, model_sklearn, model_type, results_header, dataset)
       
 
       def __set_assesment(self, 

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from library.phases.modelling.shallow.classical.model_definition.model_base import Model
+from library.phases.modelling.shallow.model_definition.model_base import Model
 from library.phases.dataset.dataset import Dataset
 
 import concurrent.futures 

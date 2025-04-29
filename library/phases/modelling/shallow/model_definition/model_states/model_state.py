@@ -2,7 +2,9 @@ from abc import ABC, abstractmethod
 import numpy as np
 import time
 from library.phases.dataset.dataset import Dataset
-from library.phases.modelling.shallow.classical.model_optimization.model_optimization import Optimizer
+from library.phases.modelling.shallow.model_optimization.model_optimization import Optimizer
+
+from library.utils.decorators.timer import timer
 
 
 """
@@ -25,14 +27,14 @@ Assesment currently has the following structure:
 - `precictions_train`: numpy.ndarray
 - `predictions_test`: numpy.ndarray
 - `model_sklearn`: sklearn
-
 """
 
 
 class ModelState(ABC):
-      def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str]):
+      def __init__(self, model_sklearn: object, modelName: str, model_type: str, dataset: Dataset, results_header: list[str]):
             self.model_sklearn = model_sklearn
             self.modelName = modelName
+            self.model_type = model_type
             self.dataset = dataset
             self.assesment = {column_name: None for column_name in results_header}
             self.assesment["modelName"] = modelName
@@ -56,11 +58,14 @@ class ModelState(ABC):
       
 
 class PreTuningState(ModelState):
-      def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str]):
-            super().__init__(model_sklearn, modelName, dataset, results_header)
+      def __init__(self, model_sklearn: object, modelName: str, model_type: str, dataset: Dataset, results_header: list[str]):
+            super().__init__(model_sklearn, modelName, model_type, dataset, results_header)
       
       def get_fit_data(self):
-            return self.dataset.X_train, self.dataset.y_train
+            if self.model_type == "neuralNetwork":
+                  return self.dataset.X_train, self.dataset.y_train, self.dataset.X_val, self.dataset.y_val
+            else:
+                  return self.dataset.X_train, self.dataset.y_train
 
       def get_predict_data(self):
             return {
@@ -72,9 +77,15 @@ class PreTuningState(ModelState):
                   print(f"Sklearn model: {self.model_sklearn}")
                   start_time = time.time()
                   print(f"!> Started fitting {self.modelName}")
-                  X_data, y_data = self.get_fit_data()
+                  if self.model_type == "neuralNetwork":
+                        X_data, y_data, X_val, y_val = self.get_fit_data()
+                  else:
+                        X_data, y_data = self.get_fit_data()
                   print(f"Lenght of X_data: {X_data.shape[0]}")
-                  self.assesment["model_sklearn"] = self.model_sklearn.fit(X_data, y_data)
+                  if self.model_type == "neuralNetwork":
+                        self.assesment["model_sklearn"], self.assesment["history"] = self.model_sklearn.fit(X_data, y_data, X_val, y_val)
+                  else:
+                        self.assesment["model_sklearn"] = self.model_sklearn.fit(X_data, y_data)
                   end_time = time.time()
                   time_taken = end_time - start_time
                   self.assesment["timeToFit"] = time_taken
@@ -100,8 +111,8 @@ class PreTuningState(ModelState):
       
 
 class InTuningState(ModelState):
-      def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str]):
-            super().__init__(model_sklearn, modelName, dataset, results_header)
+      def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str], model_type: str = "classical"):
+            super().__init__(model_sklearn, modelName, dataset, results_header, model_type)
       
       def get_fit_data(self):
             return self.dataset.X_train, self.dataset.y_train
@@ -152,8 +163,8 @@ class InTuningState(ModelState):
 
 
 class PostTuningState(ModelState):
-      def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str]):
-            super().__init__(model_sklearn, modelName, dataset, results_header)
+      def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str], model_type: str = "classical"):
+            super().__init__(model_sklearn, modelName, dataset, results_header, model_type)
             """ model object needs to be overwritten!!!"""
       
       def get_fit_data(self): 
@@ -167,6 +178,7 @@ class PostTuningState(ModelState):
                    "training": self.X_train_combined,
                    "not-training": self.dataset.X_test
                    }
+      
       
       def fit(self, **kwargs):
             print(f"Sklearn model: {self.model_sklearn}")
