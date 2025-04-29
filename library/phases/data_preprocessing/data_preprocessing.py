@@ -69,7 +69,7 @@ class Preprocessing:
         else:
             return "No duplicates found in the dataset"
     
-    def get_missing_values(self, plot: bool = False):
+    def get_missing_values(self, placeholders: list, plot: bool = False):
         """
         Gets the missing values in the dataset and returns rows with missing values if any
         
@@ -83,6 +83,10 @@ class Preprocessing:
         None or pd.DataFrame with the rows with missing values
         """
         missing_values_sum = self.dataset.df.isnull().sum().sum()
+        
+        if placeholders:
+          for placeholder in placeholders:
+            missing_values_sum += (self.dataset.df == placeholder).sum().sum()
         
         if missing_values_sum > 0:
             print(f"Dataset contains {missing_values_sum} missing values")
@@ -343,3 +347,4 @@ class Preprocessing:
             f"Started with a {self.imbalance_ratio:.2f}:1 ratio; now 1:1."
         )
         
+  
