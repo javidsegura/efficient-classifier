@@ -329,43 +329,4 @@ class EDA:
           plt.legend(title=category_column, bbox_to_anchor=(1.05, 1), loc='upper left')
           plt.tight_layout()
           plt.show()
-
-
-  def count_boxplot_descriptive2(self, features: list[str]):
-      """
-      Plots the histogram, boxplot, and summary statistics for each feature.
-      Handles both single and multiple features cleanly.
-      """
-      n_rows = len(features)
-      n_cols = 3  # Histogram, Boxplot, Text
-
-      fig, axes = plt.subplots(n_rows, n_cols, figsize=(20, 5 * n_rows))
-
-      # Handle cases where axes are 1D (single feature)
-      if n_rows == 1:
-          axes = np.expand_dims(axes, axis=0)
-
-      df = self._get_df()  # Safe fetch for dataframe
-
-      for i, feature in enumerate(features):
-          ax_hist = axes[i, 0]
-          ax_box = axes[i, 1]
-          ax_text = axes[i, 2]
-
-          # Histogram
-          df[feature].hist(ax=ax_hist, color='skyblue')
-          ax_hist.set_title(f"{feature} - Distribution")
-
-          # Boxplot
-          df[feature].plot(kind="box", ax=ax_box, color='red')
-          ax_box.set_title(f"{feature} - Boxplot")
-
-          # Summary statistics
-          summary_text = df[feature].describe().to_string()
-
-          ax_text.axis('off')
-          ax_text.text(0.5, 0.5, summary_text, ha='center', va='center', fontfamily='monospace', fontsize=10)
-          ax_text.set_title(f"{feature} - Summary Statistics")
-
-      plt.tight_layout()
-      plt.show()
+          
