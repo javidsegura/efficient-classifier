@@ -29,7 +29,7 @@ class FeedForwardNeuralNetwork():
             model.compile(
                   optimizer='adam',
                   loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy']  # Only built-in metrics unless you define custom ones
+                  metrics=['accuracy', "f1_score"]  # Only built-in metrics unless you define custom ones
             )
             assert model is not None, "Model is not built"
             return model
@@ -38,7 +38,8 @@ class FeedForwardNeuralNetwork():
 
             early_stop = EarlyStopping(
                   monitor='val_loss',     
-                  patience=3,             
+                  patience=3,  
+                  min_delta=0.01,           
                   restore_best_weights=True,  
                   verbose=3
             )
@@ -62,5 +63,12 @@ class FeedForwardNeuralNetwork():
             return self.hard_predictions
       
       def get_params(self):
-            return {}
+            return {
+                  "num_layers": len(self.model.layers),
+                  "num_neurons": [layer.units for layer in self.model.layers if isinstance(layer, Dense)],
+                  "activations": [layer.activation.__name__ for layer in self.model.layers if isinstance(layer, Dense)],
+                  "optimizer": type(self.model.optimizer).__name__,
+                  "loss": self.model.loss,
+                  "metrics": [m.name if hasattr(m, 'name') else m for m in self.model.metrics]
+            }
       
