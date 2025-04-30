@@ -7,15 +7,11 @@ from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
 from imblearn.over_sampling import SMOTE
 from library.phases.dataset.dataset import Dataset
 from library.phases.data_preprocessing.bounds_config import BOUNDS
+import random
 
 class Preprocessing:
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
-        self.bound_cols, self.bound_limits = zip(*BOUNDS.items())
-        self.outliers_dict = self.bound_checking(
-            columnsToCheck=list(self.bound_cols),
-            bounds=list(self.bound_limits)
-        )
     
     def analyze_duplicates(self, plot: bool = False):
         """
@@ -121,7 +117,15 @@ class Preprocessing:
                 print("No missing values found in the dataset")
             return None
       
-    def bound_checking(self, columnsToCheck: list[str] = [], bounds: list[tuple] = []):
+    def bound_checking(self):
+        self.bound_cols, self.bound_limits = zip(*BOUNDS.items())
+        self.outliers_dict = self._bound_checking_helper(
+            columnsToCheck=list(self.bound_cols),
+            bounds=list(self.bound_limits)
+        )
+        return None
+    
+    def _bound_checking_helper(self, columnsToCheck: list[str] = [], bounds: list[tuple] = []):
       """
       Checks if the values are within the bounds of the dataset and removes them if less than 0.5% of total data.
       
@@ -303,7 +307,6 @@ class Preprocessing:
         plt.tight_layout()
         plt.show()
 
-
  
     def get_outliers_df(self, pipeline: str = "iqr", plot: bool = False, threshold: float = 1.5, columnsToCheck: list[str] = []):
         """
@@ -371,37 +374,59 @@ class Preprocessing:
 
         return f"There are {len(outlier_df)} features with outliers out of {len(only_numerical_features)} numerical features ({len(outlier_df) / len(only_numerical_features) * 100:.2f}%)"
    
-    def scale_features(self, scaler: str, columnsToScale: list[str] = []):
+    def scale_features(self, scaler: str, columnsToScale: list[str] = [], plot: bool = False):
       """
       Scales the features in the dataset
-      
+
       Parameters:
       -----------
       scaler : str
-        The scaler to use
+          The scaler to use ('minmax', 'robust', 'standard')
       columnsToScale : list[str]
-        The columns to scale
-        
+          The columns to scale
+      plot : bool
+          Whether to plot distributions before and after scaling
+
       Returns:
       --------
       str
-        Message indicating the number of features scaled  
+          Message indicating the number of features scaled  
       """
       assert len(columnsToScale) > 0, "Columns to scale must be provided"
+
       if scaler == "minmax":
-        scaler = MinMaxScaler()
+          scaler_obj = MinMaxScaler()
       elif scaler == "robust":
-        scaler = RobustScaler()
+          scaler_obj = RobustScaler()
       elif scaler == "standard":
-        scaler = StandardScaler()
+          scaler_obj = StandardScaler()
       else:
-        raise ValueError(f"Invalid scaler: {scaler}")
-      
-      self.dataset.X_train[columnsToScale] = scaler.fit_transform(self.dataset.X_train[columnsToScale])
-      self.dataset.X_val[columnsToScale] = scaler.transform(self.dataset.X_val[columnsToScale])
-      self.dataset.X_test[columnsToScale] = scaler.transform(self.dataset.X_test[columnsToScale])
-      
-      return f"Succesfully scaled {len(columnsToScale)} features, to check the results run: \n baseline_pipeline.dataset.X_train.head()"
+          raise ValueError(f"Invalid scaler: {scaler}")
+
+      # Optionally store original data for plotting
+      if plot:
+          original_data = self.dataset.X_train[columnsToScale].copy()
+
+      # Apply transformation
+      self.dataset.X_train[columnsToScale] = scaler_obj.fit_transform(self.dataset.X_train[columnsToScale])
+      self.dataset.X_val[columnsToScale] = scaler_obj.transform(self.dataset.X_val[columnsToScale])
+      self.dataset.X_test[columnsToScale] = scaler_obj.transform(self.dataset.X_test[columnsToScale])
+
+      # Plot only the first 10 columns if requested
+      if plot:
+          max_plots = 10
+          plot_columns = columnsToScale[:max_plots]
+          for col in plot_columns:
+              fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharey=True)
+              sns.histplot(original_data[col], kde=True, ax=axes[0])
+              axes[0].set_title(f"{col} - Before Scaling")
+              sns.histplot(self.dataset.X_train[col], kde=True, ax=axes[1])
+              axes[1].set_title(f"{col} - After Scaling")
+              plt.tight_layout()
+              plt.show()
+
+      return f"Succesfully scaled {len(columnsToScale)} features. Plotted distributions for the first {min(10, len(columnsToScale))} features." \
+            f"\nTo check the results run: \n your_pipeline.dataset.X_train.head()"
 
     def delete_columns(self, columnsToDelete: list[str]):
       """ 
@@ -482,5 +507,5 @@ class Preprocessing:
             f"Successfully balanced classes via SMOTE. "
             f"Started with a {self.imbalance_ratio:.2f}:1 ratio; now 1:1."
         )
-        
+    
   
