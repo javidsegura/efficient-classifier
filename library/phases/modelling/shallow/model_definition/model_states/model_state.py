@@ -85,7 +85,7 @@ class PreTuningState(ModelState):
                               X_data, y_data = self.get_fit_data()
                   print(f"Lenght of X_data: {X_data.shape[0]}")
                   if self.model_type == "neuralNetwork":
-                              self.assesment["model_sklearn"], self.assesment["history"] = self.model_sklearn.fit(X_data, y_data, X_val, y_val)
+                              self.assesment["model_sklearn"] = self.model_sklearn.fit(X_data, y_data, X_val=X_val, y_val=y_val)
                   else:
                               self.assesment["model_sklearn"] = self.model_sklearn.fit(X_data, y_data)
                   end_time = time.time()
@@ -135,20 +135,39 @@ class InTuningState(ModelState):
                   max_iter = kwargs.get("max_iter", None)
                   optimizer_type = kwargs.get("optimizer_type", None)
                   model_object = kwargs.get("model_object", None)
+                  if model_object.model_type == "neuralNetwork":
+                        epochs = kwargs.get("epochs", None)
+                  else:
+                        epochs = None
                   assert optimizer_type in ["grid", "random", "bayes", "bayes_nn"], "Optimizer type must be one of the following: grid, random, bayes, bayes_nn"
                   assert max_iter is not None, "Max iter must be provided"
                   assert model_object is not None, "Model object must be provided"
                   print(f"Model object: {model_object}")
 
-                  self.optimizer = Optimizer(
-                                             model_sklearn=self.model_sklearn,
-                                             modelName=self.modelName, 
-                                             model_object=model_object,
-                                             dataset=self.dataset,
-                                             optimizer_type=optimizer_type, 
-                                             param_grid=param_grid,
-                                             max_iter=max_iter)
+                  if model_object.model_type == "neuralNetwork":
+                        self.optimizer = Optimizer(
+                                                model_sklearn=self.model_sklearn,
+                                                modelName=self.modelName, 
+                                                model_object=model_object,
+                                                dataset=self.dataset,
+                                                optimizer_type=optimizer_type, 
+                                                param_grid=param_grid,
+                                                max_iter=max_iter,
+                                                epochs=epochs)
+                  else:
+                        self.optimizer = Optimizer(
+                                                model_sklearn=self.model_sklearn,
+                                                modelName=self.modelName, 
+                                                model_object=model_object,
+                                                dataset=self.dataset,
+                                                optimizer_type=optimizer_type, 
+                                                param_grid=param_grid,
+                                                max_iter=max_iter)
+                  time_start = time.time()
                   self.optimizer.fit()
+                  time_end = time.time()
+                  time_taken = time_end - time_start
+                  self.assesment["timeToFit"] = time_taken
                   if optimizer_type != "bayes_nn":
                         self.model_sklearn = self.optimizer.optimizer.best_estimator_
                         self.assesment["model_sklearn"] = self.model_sklearn
@@ -205,7 +224,6 @@ class PostTuningState(ModelState):
                    "not-training": self.dataset.X_test
                    }
       
-      
       def fit(self, **kwargs):
             print(f"Sklearn model: {self.model_sklearn}")
             start_time = time.time()
@@ -225,19 +243,11 @@ class PostTuningState(ModelState):
 
             # Predict training data
             training_data = data["training"]
-            if self.model_type == "neuralNetwork":
-                  continuous_predictions = self.model_sklearn.predict(training_data)
-                  self.assesment["predictions_train"] = np.argmax(continuous_predictions, axis=1)
-            else:
-                  self.assesment["predictions_train"] = self.model_sklearn.predict(training_data)
+            self.assesment["predictions_train"] = self.model_sklearn.predict(training_data)
 
             # Predict not training data
             not_training_data = data["not-training"]
-            if self.model_type == "neuralNetwork":
-                  continuous_predictions = self.model_sklearn.predict(not_training_data)
-                  self.assesment["predictions_test"] = np.argmax(continuous_predictions, axis=1)
-            else:
-                  self.assesment["predictions_test"] = self.model_sklearn.predict(not_training_data)
+            self.assesment["predictions_test"] = self.model_sklearn.predict(not_training_data)
 
             end_time = time.time()
             time_taken = end_time - start_time

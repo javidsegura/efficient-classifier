@@ -7,7 +7,11 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Input
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import AdamW
+from tensorflow.keras.metrics import Precision, Recall, AUC
+from tensorflow.keras.layers import Dropout
+
+
 
 import numpy as np
 class FeedForwardNeuralNetwork():
@@ -29,15 +33,16 @@ class FeedForwardNeuralNetwork():
 
       def _compile_model(self):
             model = Sequential([
-                  tf.keras.Input(shape=(self.num_features,)),  # Explicit Input layer
-                  Dense(64, activation='relu', kernel_initializer='glorot_uniform'),
-                  Dense(64, activation='relu', kernel_initializer='glorot_uniform'),
-                  Dense(self.num_classes, activation='softmax', kernel_initializer='glorot_uniform')  # Softmax for multiclass classification
+                  tf.keras.Input(shape=(self.num_features,)),  
+                  Dense(512, activation='relu', kernel_initializer='glorot_uniform'),
+                  Dense(512, activation='relu', kernel_initializer='glorot_uniform'),
+                  Dense(512, activation='relu', kernel_initializer='glorot_uniform'),
+                  Dense(self.num_classes, activation='softmax', kernel_initializer='glorot_uniform') 
             ])
             model.compile(
-                  optimizer='adam',
+                  optimizer=AdamW(learning_rate=0.001, weight_decay=1e-4),
                   loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy', "f1_score"]  # Only built-in metrics unless you define custom ones
+                  metrics=['accuracy']  # Only built-in metrics unless you define custom ones
             )
             assert model is not None, "Model is not built"
             return model
@@ -57,28 +62,36 @@ class FeedForwardNeuralNetwork():
                   # 3) Learning rate: log-uniform from 1e-4 to 1e-2
                   lr = hp.Float('learning_rate', 1e-4, 1e-2, sampling='log')
                   model.compile(
-                        optimizer=Adam(learning_rate=lr),
+                        optimizer=AdamW(learning_rate=lr, weight_decay=1e-4),
                         loss='sparse_categorical_crossentropy',
                         metrics=['accuracy']
                   )
                   return model
             return _compiled_model_optimized
       
-      def fit(self, X_data, y_data, X_val, y_val):
+      def fit(self, X_data, y_data, **kwargs):
+            X_val = kwargs.get("X_val", None)
+            y_val = kwargs.get("y_val", None)
+            if X_val is not None and y_val is not None:
+                  self.history = self.model.fit(
+                              X_data, 
+                              y_data, 
+                              epochs=30,
+                              batch_size=128, 
+                              validation_data=(X_val, y_val),
+                              callbacks=[get_early_stopping()])
+            else:
+                  self.history = self.model.fit(
+                              X_data, 
+                              y_data, 
+                              epochs=30,
+                              batch_size=128, 
+                              callbacks=[get_early_stopping()])
             
-            history = self.model.fit(
-                           X_data, 
-                           y_data, 
-                           epochs=10,
-                           batch_size=36, 
-                           validation_data=(X_val, y_val),
-                           callbacks=[get_early_stopping()])
 
-            self.history = history
-            return self, history
+            return self
       
       def predict(self, X_data):
-            print("Gonna start predicting lololo")
             self.soft_predictions = self.model.predict(X_data)
             print(f"Soft predictions done")
             self.hard_predictions = np.argmax(self.soft_predictions, axis=1)

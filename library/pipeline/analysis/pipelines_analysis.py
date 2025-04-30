@@ -1,6 +1,7 @@
 from library.pipeline.pipeline import Pipeline
-from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
+from library.pipeline.analysis.neuralNets.neuralNetsPlots import NeuralNetsPlots
 
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 from sklearn.metrics import classification_report
 
 import matplotlib.pyplot as plt
@@ -14,6 +15,7 @@ class PipelinesAnalysis:
             self.encoded_map = None
             self.phase = None
             self.best_performing_model = None
+            self.neural_nets_plots = None
             self.merged_report_per_phase = {
                    "pre": None,
                    "in": None,
@@ -36,6 +38,7 @@ class PipelinesAnalysis:
                           "metrics_df": None
                    }
             }
+            
 
       def _create_report_dataframe(self, report: dict, modelName: str, include_training: bool = False):
             """
@@ -142,8 +145,12 @@ class PipelinesAnalysis:
                         ax.plot(df_numeric.index, df_numeric.iloc[:], marker='o', label=model_names[0])
                   else:
                         model_names = model_names.values
-                        for i, model_name in enumerate(model_names):
-                              ax.plot(df_numeric.index, df_numeric.iloc[:, i], marker='o', label=model_name)
+                        if metric_key == "accuracy":
+                              bars = ax.bar(model_names, df_numeric.iloc[0, :])
+                              ax.bar_label(bars, fmt='%.4f')
+                        else:
+                              for i, model_name in enumerate(model_names):
+                                    ax.plot(df_numeric.index, df_numeric.iloc[:, i], marker='o', label=model_name)
                         
                   ax.set_title(f'{metric_key} by Model')
                   ax.set_xlabel('Class Index')
@@ -192,15 +199,19 @@ class PipelinesAnalysis:
                     df_numeric = metric_df.iloc[:-1].astype(float)
                     model_names = metric_df.loc["modelName"].values
 
-                    
-                    ax.plot(df_numeric.index, df_numeric.iloc[:, 0], marker="o", label=model_names[0], color=color_train)
-                    ax.plot(df_numeric.index, df_numeric.iloc[:, 1], marker="s", label=model_names[1], color=color_no_train)
+                    if metric == "accuracy":
+                        bars = ax.bar(model_names, df_numeric.iloc[0, :])
+                        ax.bar_label(bars, fmt='%.4f')
+                    else:     
+                        ax.plot(df_numeric.index, df_numeric.iloc[:, 0], marker="o", label=model_names[0], color=color_train)
+                        ax.plot(df_numeric.index, df_numeric.iloc[:, 1], marker="s", label=model_names[1], color=color_no_train)
 
                     ax.set_title(f'{metric} - {model}')
                     ax.set_xlabel('Class Index')
                     ax.set_ylabel(metric)
                     ax.tick_params(axis='x', rotation=45)
-                    ax.legend()
+                    if metric != "accuracy":
+                        ax.legend()
                     ax.grid(True)
 
 
@@ -408,6 +419,11 @@ class PipelinesAnalysis:
             plt.grid(True)
             plt.xscale("log")
             plt.show()
+
+      def plot_per_epoch_progress(self, metrics: list[str]):
+            self.neural_nets_plots = NeuralNetsPlots(self.pipelines["not-baseline"]["feedForwardNN"].modelling.list_of_models["Feed Forward NN"].tuning_states[self.phase].assesment["model_sklearn"])
+            self.neural_nets_plots.plot_per_epoch_progress(metrics)
+
                         
 
              

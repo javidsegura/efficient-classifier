@@ -15,7 +15,7 @@ from skopt.plots import plot_convergence
 
 
 class Optimizer():
-      def __init__(self, model_sklearn: object, modelName: str, model_object: object, dataset: Dataset, optimizer_type: str, param_grid: dict, max_iter: int = 20):
+      def __init__(self, model_sklearn: object, modelName: str, model_object: object, dataset: Dataset, optimizer_type: str, param_grid: dict, max_iter: int = 20, **kwargs):
             assert model_object is not None, "Model object must be provided"
             self.model_sklearn = model_sklearn
             self.modelName = modelName
@@ -23,7 +23,9 @@ class Optimizer():
             self.modelObject = model_object
             self.optimizer_type = optimizer_type
             self.optimizer = self._set_up_optimizer(optimizer_type, param_grid, max_iter)
-           
+            if model_object.model_type == "neuralNetwork":
+                  self.epochs = kwargs.get("epochs", None)
+
       def _set_up_optimizer(self, type: str, param_grid: dict, max_iter: int = 100):
             if type == "grid":
                   optimizer = GridSearchCV(
@@ -67,8 +69,9 @@ class Optimizer():
                         hypermodel=build_model,
                         objective="val_accuracy",
                         max_trials=max_iter,
+                        executions_per_trial=1, # put to three when full-test
                         seed=42,
-                        directory="bayes_opt_results",
+                        directory="results/bayes_opt_results",
                         project_name=f"{self.modelName}_bayes_opt",
                         overwrite=True
                   )
@@ -82,8 +85,8 @@ class Optimizer():
                   self.optimizer.search(self.dataset.X_train, 
                                        self.dataset.y_train, 
                                        validation_data=(self.dataset.X_val, self.dataset.y_val),
-                                       epochs=1,
-                                       batch_size=kt.engine.hyperparameters.HyperParameters().Int("batch_size", 32, 128, step=32),
+                                       epochs=self.epochs,
+                                       batch_size=32,
                                        callbacks=[get_early_stopping()]
                                        )
             else:

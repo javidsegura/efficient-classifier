@@ -55,15 +55,26 @@ class Modelling:
                           optimization_params: dict):
             assert current_phase == "in", "Optimize model can only be used in the 'in' phase"
             modelObject.optimizer_type = optimization_params["optimizer_type"]
-      
-            modelObject.fit(modelName=modelName, current_phase=current_phase,
-                            param_grid=optimization_params["param_grid"],
-                            max_iter=optimization_params["max_iter"],
-                            optimizer_type=optimization_params["optimizer_type"],
-                            model_object=modelObject
-                            )
+
+            if modelObject.model_type == "neuralNetwork":
+                  epochs = optimization_params.get("epochs", None)
+                  modelObject.fit(modelName=modelName, current_phase=current_phase,
+                              param_grid=optimization_params["param_grid"],
+                              max_iter=optimization_params["max_iter"],
+                              optimizer_type=optimization_params["optimizer_type"],
+                              model_object=modelObject,
+                              epochs=epochs
+                              )
+            else:
+                  modelObject.fit(modelName=modelName, current_phase=current_phase,
+                              param_grid=optimization_params["param_grid"],
+                              max_iter=optimization_params["max_iter"],
+                              optimizer_type=optimization_params["optimizer_type"],
+                              model_object=modelObject
+                              )
             modelObject.predict(modelName=modelName, current_phase=current_phase)
             print(f"Optimized model {modelName}")
+            # Setting the final model to be the tuned one
             modelObject.tuning_states["post"].assesment["model_sklearn"] = modelObject.tuning_states["in"].assesment["model_sklearn"]
             return modelName, modelObject
 
@@ -120,13 +131,18 @@ class Modelling:
 
                         return optimized_models
                   elif current_phase == "post":
+                        # Exclude neural-nets fro conccurent
                         best_model_name, baseline_model_name = kwargs.get("best_model_name", None), kwargs.get("baseline_model_name", None)
                         assert (best_model_name is not None) or (baseline_model_name is not None), "You must provide at least one of the best or baseline model"
                         future_to_model = []
 
                         if best_model_name:
-                              future = executor.submit(self._fit_and_predict, best_model_name, self.list_of_models[best_model_name], current_phase)
-                              future_to_model.append(future)
+                              if self.list_of_models[best_model_name].optimizer_type == "bayes_nn":
+                                    modelName, modelObject = self._fit_and_predict(best_model_name, self.list_of_models[best_model_name], current_phase)
+                                    self.list_of_models[best_model_name] = modelObject
+                              else:
+                                    future = executor.submit(self._fit_and_predict, best_model_name, self.list_of_models[best_model_name], current_phase)
+                                    future_to_model.append(future)
                         if baseline_model_name:
                               future = executor.submit(self._fit_and_predict, baseline_model_name, self.list_of_models[baseline_model_name], current_phase)
                               future_to_model.append(future)
