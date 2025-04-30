@@ -14,7 +14,11 @@ class PipelinesAnalysis:
             self.encoded_map = None
             self.phase = None
             self.best_performing_model = None
-            self.merged_report = None
+            self.merged_report_per_phase = {
+                   "pre": None,
+                   "in": None,
+                   "post": None
+            }
             self.results_per_phase = {
                    "pre": {
                           "classification_report": None,
@@ -32,6 +36,18 @@ class PipelinesAnalysis:
                           "metrics_df": None
                    }
             }
+
+      def _create_report_dataframe(self, report: dict, modelName: str, include_training: bool = False):
+            """
+            Creates a dataframe from a classification report
+            """
+            accuracy = report.pop('accuracy')
+            report['modelName'] = modelName + ("_train" if include_training else "")
+            df = pd.DataFrame(report)
+            df.loc['accuracy'] = accuracy
+            df.loc['accuracy', 'modelName'] = modelName + ("_train" if include_training else "")
+
+            return df
       
       def _compute_classification_report(self, include_training: bool = False):
             """
@@ -54,43 +70,44 @@ class PipelinesAnalysis:
                                                       y_pred = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_val"]
                                                       y_true = self.pipelines[category][pipeline].modelling.dataset.y_val
                                                       not_training_report = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
-                                                      not_training_report["modelName"] = modelName
-                                                      classification_reports.append(pd.DataFrame(not_training_report))
+                                                      df_not_training_report = self._create_report_dataframe(not_training_report, modelName)
+                                                      classification_reports.append(df_not_training_report)
+
                                                       if include_training:
                                                             y_pred_train = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_train"]
                                                             y_true_train = self.pipelines[category][pipeline].modelling.dataset.y_train
                                                             training_report = classification_report(y_true_train, y_pred_train, output_dict=True, zero_division=0)
-                                                            training_report["modelName"] = modelName + "_train"
-                                                            classification_reports.append(pd.DataFrame(training_report))
+                                                            df_training_report = self._create_report_dataframe(training_report, modelName, include_training=True)
+                                                            classification_reports.append(df_training_report)
                                           else:
                                                       y_pred = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_test"]
                                                       y_true = self.pipelines[category][pipeline].modelling.dataset.y_test
                                                       not_training_report = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
-                                                      not_training_report["modelName"] = modelName
-                                                      classification_reports.append(pd.DataFrame(not_training_report))
+                                                      df_not_training_report = self._create_report_dataframe(not_training_report, modelName)
+                                                      classification_reports.append(df_not_training_report)
                                                       if include_training:
                                                             y_pred_train = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_train"]
                                                             train = self.pipelines[category][pipeline].modelling.dataset.y_train
                                                             test = self.pipelines[category][pipeline].modelling.dataset.y_test
                                                             y_true_train = np.concatenate([train, test])
                                                             training_report = classification_report(y_true_train, y_pred_train, output_dict=True, zero_division=0)
-                                                            training_report["modelName"] = modelName + "_train"
-                                                            classification_reports.append(pd.DataFrame(training_report))
+                                                            df_training_report = self._create_report_dataframe(training_report, modelName, include_training=True)
+                                                            classification_reports.append(df_training_report)
 
-            self.merged_report = pd.concat(classification_reports).T
+            self.merged_report_per_phase[self.phase] = pd.concat(classification_reports).T
             
             if self.encoded_map is not None:
                   reverse_map = {str(v): k for k, v in self.encoded_map.items()} #{number:name}
-                  index = self.merged_report.index.tolist()
+                  index = self.merged_report_per_phase[self.phase].index.tolist()
                   new_index = []
                   for idx in index:
                         if idx in reverse_map:  
                               new_index.append(reverse_map[idx])
                         else:  
                               new_index.append(idx)
-                  self.merged_report.index = new_index
+                  self.merged_report_per_phase[self.phase].index = new_index
             
-            return self.merged_report
+            return self.merged_report_per_phase[self.phase]
       
       def plot_cross_model_comparison(self, metric: list[str], cols: int = 2):
             """
@@ -104,10 +121,13 @@ class PipelinesAnalysis:
             num_metrics = len(metric)
             rows = math.ceil(num_metrics / cols)
 
+            print(f"There going to be {rows} rows and {cols} columns")
+
             fig, axes = plt.subplots(rows, cols, figsize=(cols * 8, rows * 7))
             axes = axes.flatten()  
 
             for i, metric_key in enumerate(metric):
+                  print(f"Plotting: {metric_key}")
                   class_report_cols = class_report_df.columns
                   assert metric_key in class_report_cols, f"Metric not present in {class_report_cols}"
                   ax = axes[i]
@@ -131,9 +151,6 @@ class PipelinesAnalysis:
                   ax.tick_params(axis='x', rotation=45)
                   ax.legend()
                   ax.grid(True)
-
-            for j in range(i + 1, len(axes)):
-                  fig.delaxes(axes[j])
 
             plt.tight_layout()
             plt.suptitle(f"Cross-model Performance Comparison - {self.phase} phase")
@@ -186,9 +203,6 @@ class PipelinesAnalysis:
                     ax.legend()
                     ax.grid(True)
 
-            # Hide any unused subplots
-            for j in range(i + 1, len(axes)):
-                  fig.delaxes(axes[j])
 
             plt.tight_layout()
             plt.tight_layout(rect=[0, 0, 1, 0.96])  

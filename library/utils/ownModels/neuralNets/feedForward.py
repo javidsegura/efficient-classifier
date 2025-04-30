@@ -1,8 +1,13 @@
+from library.utils.ownModels.neuralNets.utils.earlyStopping import get_early_stopping
+
+
 import tensorflow as tf
+
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, Input
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.optimizers import Adam
 
 import numpy as np
 class FeedForwardNeuralNetwork():
@@ -14,17 +19,20 @@ class FeedForwardNeuralNetwork():
       input_shape : tuple
             The shape of the input data
       """
-      def __init__(self, X_shape: tuple, y_shape: tuple) -> None:
-            self.X_shape = X_shape
-            self.y_shape = y_shape
-            self.model = self._build_model()
+      def __init__(self, num_features: int, num_classes: int, model_keras: object = None) -> None:
+            self.num_features = num_features
+            self.num_classes = num_classes
+            if model_keras is None:
+                  self.model = self._compile_model()
+            else:
+                  self.model = model_keras
 
-      def _build_model(self):
+      def _compile_model(self):
             model = Sequential([
-                  tf.keras.Input(shape=(self.X_shape[1],)),  # Explicit Input layer
-                  Dense(1, activation='relu', kernel_initializer='glorot_uniform'),
-                  Dense(1, activation='relu', kernel_initializer='glorot_uniform'),
-                  Dense(self.y_shape[0], activation='softmax', kernel_initializer='glorot_uniform')  # Softmax for multiclass classification
+                  tf.keras.Input(shape=(self.num_features,)),  # Explicit Input layer
+                  Dense(64, activation='relu', kernel_initializer='glorot_uniform'),
+                  Dense(64, activation='relu', kernel_initializer='glorot_uniform'),
+                  Dense(self.num_classes, activation='softmax', kernel_initializer='glorot_uniform')  # Softmax for multiclass classification
             ])
             model.compile(
                   optimizer='adam',
@@ -34,28 +42,43 @@ class FeedForwardNeuralNetwork():
             assert model is not None, "Model is not built"
             return model
       
-      def fit(self, X_data, y_data, X_val, y_val):
+      def _get_compiled_model_optimized(self, num_features, num_classes):
+            def _compiled_model_optimized(hp):
+                  model = Sequential()
+                  model.add(Input(shape=(num_features, )))
 
-            early_stop = EarlyStopping(
-                  monitor='val_loss',     
-                  patience=3,  
-                  min_delta=0.01,           
-                  restore_best_weights=True,  
-                  verbose=3
-            )
+                  for i in range(hp.Int('num_layers', 1, 5)):
+                        neurons = hp.Choice(f'units_{i}', [32, 64, 128, 256, 512])
+                        model.add(Dense(neurons, activation='relu'))
+
+                  # Output
+                  model.add(Dense(num_classes, activation='softmax'))
+
+                  # 3) Learning rate: log-uniform from 1e-4 to 1e-2
+                  lr = hp.Float('learning_rate', 1e-4, 1e-2, sampling='log')
+                  model.compile(
+                        optimizer=Adam(learning_rate=lr),
+                        loss='sparse_categorical_crossentropy',
+                        metrics=['accuracy']
+                  )
+                  return model
+            return _compiled_model_optimized
+      
+      def fit(self, X_data, y_data, X_val, y_val):
             
-            history = self.model.fit(X_data, 
+            history = self.model.fit(
+                           X_data, 
                            y_data, 
-                           epochs=2,
-                           batch_size=5, 
+                           epochs=10,
+                           batch_size=36, 
                            validation_data=(X_val, y_val),
-                           callbacks=[early_stop])
-            
+                           callbacks=[get_early_stopping()])
 
             self.history = history
             return self, history
       
       def predict(self, X_data):
+            print("Gonna start predicting lololo")
             self.soft_predictions = self.model.predict(X_data)
             print(f"Soft predictions done")
             self.hard_predictions = np.argmax(self.soft_predictions, axis=1)

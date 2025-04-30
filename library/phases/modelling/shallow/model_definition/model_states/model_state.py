@@ -4,6 +4,8 @@ import time
 from library.phases.dataset.dataset import Dataset
 from library.phases.modelling.shallow.model_optimization.model_optimization import Optimizer
 
+from library.utils.ownModels.neuralNets.feedForward import FeedForwardNeuralNetwork
+
 from library.utils.decorators.timer import timer
 
 
@@ -73,41 +75,46 @@ class PreTuningState(ModelState):
                    "not-training": self.dataset.X_val
                    }
       
-      def fit(self, **kwargs):
+      def fit(self):
                   print(f"Sklearn model: {self.model_sklearn}")
                   start_time = time.time()
                   print(f"!> Started fitting {self.modelName}")
                   if self.model_type == "neuralNetwork":
-                        X_data, y_data, X_val, y_val = self.get_fit_data()
+                              X_data, y_data, X_val, y_val = self.get_fit_data()
                   else:
-                        X_data, y_data = self.get_fit_data()
+                              X_data, y_data = self.get_fit_data()
                   print(f"Lenght of X_data: {X_data.shape[0]}")
                   if self.model_type == "neuralNetwork":
-                        self.assesment["model_sklearn"], self.assesment["history"] = self.model_sklearn.fit(X_data, y_data, X_val, y_val)
+                              self.assesment["model_sklearn"], self.assesment["history"] = self.model_sklearn.fit(X_data, y_data, X_val, y_val)
                   else:
-                        self.assesment["model_sklearn"] = self.model_sklearn.fit(X_data, y_data)
+                              self.assesment["model_sklearn"] = self.model_sklearn.fit(X_data, y_data)
                   end_time = time.time()
                   time_taken = end_time - start_time
                   self.assesment["timeToFit"] = time_taken
                   print(f"\t\t => Fitted {self.modelName}. Took {time_taken} seconds")
+  
       
       def predict(self):
+                  data = self.get_predict_data()
+
                   start_time = time.time()
                   print(f"!> Started predicting {self.modelName}")
-                  data = self.get_predict_data()
 
                   # Predict training data
                   training_data = data["training"]
+                  print(f"Training data: {training_data.shape}")
                   self.assesment["predictions_train"] = self.model_sklearn.predict(training_data)
 
                   # Predict not training data
                   not_training_data = data["not-training"]
+                  print(f"Not training data: {not_training_data.shape}")
                   self.assesment["predictions_val"] = self.model_sklearn.predict(not_training_data)
 
                   end_time = time.time()
                   time_taken = end_time - start_time
                   self.assesment["timeToPredict"] = time_taken
                   print(f"\t\t => Predicted {self.modelName}. Took {time_taken} seconds")
+
       
 
 class InTuningState(ModelState):
@@ -127,16 +134,31 @@ class InTuningState(ModelState):
                   param_grid = kwargs.get("param_grid", None)
                   max_iter = kwargs.get("max_iter", None)
                   optimizer_type = kwargs.get("optimizer_type", None)
-                  assert optimizer_type in ["grid", "random", "bayes"], "Optimizer type must be one of the following: grid, random, bayes"
-                  assert param_grid is not None, "Param grid must be provided"
+                  model_object = kwargs.get("model_object", None)
+                  assert optimizer_type in ["grid", "random", "bayes", "bayes_nn"], "Optimizer type must be one of the following: grid, random, bayes, bayes_nn"
                   assert max_iter is not None, "Max iter must be provided"
+                  assert model_object is not None, "Model object must be provided"
+                  print(f"Model object: {model_object}")
 
-                  optimizer = Optimizer(self.model_sklearn, self.modelName, self.dataset, optimizer_type, param_grid, max_iter)
-                  optimizer.fit()
-                  self.optimizer = optimizer
-                  self.cv_tuner = optimizer.cv_tuner
-                  self.model_sklearn = optimizer.cv_tuner.best_estimator_
-                  self.assesment["model_sklearn"] = self.model_sklearn
+                  self.optimizer = Optimizer(
+                                             model_sklearn=self.model_sklearn,
+                                             modelName=self.modelName, 
+                                             model_object=model_object,
+                                             dataset=self.dataset,
+                                             optimizer_type=optimizer_type, 
+                                             param_grid=param_grid,
+                                             max_iter=max_iter)
+                  self.optimizer.fit()
+                  if optimizer_type != "bayes_nn":
+                        self.model_sklearn = self.optimizer.optimizer.best_estimator_
+                        self.assesment["model_sklearn"] = self.model_sklearn
+                  else:
+                        model_keras = self.optimizer.optimizer.get_best_models(num_models=1)[0]
+                        self.model_sklearn = FeedForwardNeuralNetwork(num_features=self.dataset.X_train.shape[1], 
+                                                               num_classes=self.dataset.y_train.value_counts().shape[0], 
+                                                               model_keras=model_keras)
+                                                               
+                        self.assesment["model_sklearn"] = self.model_sklearn
       
       def predict(self):
                   start_time = time.time()
@@ -144,10 +166,14 @@ class InTuningState(ModelState):
                   data = self.get_predict_data()
 
                   # Predict training data
+                  print(f"Predicting training data")
+                  print(f"model_sklearn: {self.model_sklearn}")
+                  print(f"dir of model_sklearn: {dir(self.model_sklearn)}")
                   training_data = data["training"]
                   self.assesment["predictions_train"] = self.model_sklearn.predict(training_data)
 
                   # Predict not training data
+                  print(f"Predicting not training data")
                   not_training_data = data["not-training"]
                   self.assesment["predictions_val"] = self.model_sklearn.predict(not_training_data)
 
@@ -199,11 +225,19 @@ class PostTuningState(ModelState):
 
             # Predict training data
             training_data = data["training"]
-            self.assesment["predictions_train"] = self.model_sklearn.predict(training_data)
+            if self.model_type == "neuralNetwork":
+                  continuous_predictions = self.model_sklearn.predict(training_data)
+                  self.assesment["predictions_train"] = np.argmax(continuous_predictions, axis=1)
+            else:
+                  self.assesment["predictions_train"] = self.model_sklearn.predict(training_data)
 
             # Predict not training data
             not_training_data = data["not-training"]
-            self.assesment["predictions_test"] = self.model_sklearn.predict(not_training_data)
+            if self.model_type == "neuralNetwork":
+                  continuous_predictions = self.model_sklearn.predict(not_training_data)
+                  self.assesment["predictions_test"] = np.argmax(continuous_predictions, axis=1)
+            else:
+                  self.assesment["predictions_test"] = self.model_sklearn.predict(not_training_data)
 
             end_time = time.time()
             time_taken = end_time - start_time

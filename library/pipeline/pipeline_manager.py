@@ -134,8 +134,8 @@ class PipelineManager:
             """
             Selects the best performing model based on the classification report
             """
-            assert metric in self.pipelines_analysis.merged_report.columns, f"Metric not found. Columns are: {self.pipelines_analysis.merged_report.columns}"
-            metric_df = self.pipelines_analysis.merged_report[metric]
+            assert metric in self.pipelines_analysis.merged_report_per_phase[self.pipeline_state].columns, f"Metric not found. Columns are: {self.pipelines_analysis.merged_report_per_phase[self.pipeline_state].columns}"
+            metric_df = self.pipelines_analysis.merged_report_per_phase[self.pipeline_state][metric]
             model_names = metric_df.loc["modelName"].tolist()  # Last row: model names
             metric_df = metric_df.drop(index='modelName')     # Drop last row
             metric_df.columns = model_names            # Rename columns to model names
