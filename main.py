@@ -19,5 +19,3 @@ pipeline_runner = PipelineRunner(
 
 pipeline_runner.run()
 
-
-
