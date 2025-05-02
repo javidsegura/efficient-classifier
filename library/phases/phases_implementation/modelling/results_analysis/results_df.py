@@ -16,14 +16,14 @@ from library.phases.phases_implementation.dataset.dataset import Dataset
 
 
 class ResultsDF:
-      def __init__(self, results_path: str, dataset: Dataset):
+      def __init__(self, model_results_path: str, dataset: Dataset):
             if dataset.modelTask == "classification":
                   metrics_to_evaluate = ["accuracy", "precision", "recall", "f1-score"]
             else:
                   metrics_to_evaluate = ["r2", "mae", "mse"]
             assert len(metrics_to_evaluate) > 0, "The metrics to evaluate must be a non-empty list"
             self.metrics_to_evaluate = metrics_to_evaluate
-            self.results_path = results_path
+            self.model_results_path = model_results_path
             self.dataset = dataset
             header = ["id", "timeStamp", "comments", "modelName", "currentPhase", "features_used", "hyperParameters", "timeToFit", "timeToPredict"]
             if dataset.modelTask == "classification":
@@ -34,14 +34,14 @@ class ResultsDF:
             columns_to_check_duplicates = ["modelName", "features_used", "hyperParameters", "comments", "currentPhase"]
             self.columns_to_check_duplicates = columns_to_check_duplicates
             self._create_results_file()
-            self.results_df = pd.read_csv(self.results_path)
+            self.results_df = pd.read_csv(self.model_results_path)
       
       def _create_results_file(self):
-            if os.path.exists(self.results_path):
+            if os.path.exists(self.model_results_path):
                   return
             else: 
-                  os.makedirs(os.path.dirname(self.results_path), exist_ok=True)
-                  with open(self.results_path, "w", newline='') as f:
+                  os.makedirs(os.path.dirname(self.model_results_path), exist_ok=True)
+                  with open(self.model_results_path, "w", newline='') as f:
                         writer = csv.writer(f)
                         writer.writerow(self.header)
       
@@ -104,7 +104,7 @@ class ResultsDF:
                   isNewModel = hash_value not in self.results_df["id"].values
                   model_log["id"] = hash_value
                   if isNewModel:
-                        with open(self.results_path, "a", newline='') as f: 
+                        with open(self.model_results_path, "a", newline='') as f: 
                               writer = csv.writer(f)
                               writer.writerow([str(model_log[col]) for col in self.header])
                   else:
@@ -138,7 +138,7 @@ class ResultsDF:
                   The metric to plot
             """
             assert metric in self.metrics_to_evaluate, f"Metric {metric} not found in the metrics stored. \n Available metrics: {self.metrics_to_evaluate}"
-            results_df = pd.read_csv(self.results_path)
+            results_df = pd.read_csv(self.model_results_path)
             results_df = results_df.sort_values(by="timeStamp")
             assert (results_df[metric].shape[0] > 0), f"No results found for metric {metric}"
             

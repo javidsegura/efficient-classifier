@@ -4,6 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+
+from library.utils.pythonObjects.save_or_store_plot import save_or_store_plot
 """
 
 """
@@ -49,12 +51,4 @@ class Split(ABC):
                   
                   plt.tight_layout()
 
-                  if save_plots:
-                        path = save_path + "/split/after_split_distribution"
-                        os.makedirs(path, exist_ok=True)
-                        plot_path = os.path.join(path, f"{feature}_distribution.png")
-                        plt.savefig(plot_path)
-                  else:
-                        plt.show()
-      
-      
+                  save_or_store_plot(fig, save_plots, save_path + "/split/after_split_distribution", f"{feature}_distribution.png")

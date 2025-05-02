@@ -1,13 +1,15 @@
-from library.phases.phases_implementation.dataset.dataset import Dataset
 import pandas as pd
+import os
+from abc import ABC, abstractmethod
 
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.feature_selection import mutual_info_regression
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 
+from library.phases.phases_implementation.dataset.dataset import Dataset
 from library.phases.phases_implementation.EDA.EDA import EDA
-from abc import ABC, abstractmethod
+from library.utils.pythonObjects.save_or_store_plot import save_or_store_plot
 
 class ManualFeatureSelection():
       """
@@ -21,15 +23,16 @@ class ManualFeatureSelection():
                   "PCA": PCAFeatureReduction
             }
 
-      def fit(self, type: str, threshold: float, delete_features: bool, plot: bool):
-            return self.options[type](self.dataset).fit(threshold, delete_features, plot)
+      def fit(self, type: str, threshold: float, delete_features: bool, save_plots: bool, save_path: str):
+            print(f"Running {type} feature selection")
+            return self.options[type](self.dataset).fit(threshold, delete_features, save_plots, save_path)
   
 
 class ManualFeatureSelectionFactory(ABC):
       def __init__(self, dataset: Dataset):
             self.dataset = dataset
       @abstractmethod
-      def fit(self, threshold: float, delete_features: bool, plot: bool, ):
+      def fit(self, threshold: float, delete_features: bool, save_plots: bool, save_path: str):
             pass
 
 class VIFElimination(ManualFeatureSelectionFactory):
@@ -51,7 +54,7 @@ class VIFElimination(ManualFeatureSelectionFactory):
             vif_data["VIF"] = [variance_inflation_factor(only_numerical_features.values, i) for i in range(len(only_numerical_features.columns))]
             return vif_data
     
-        def fit(self, threshold=10, delete_features: bool = True, plot: bool = False):
+        def fit(self, threshold=10, delete_features: bool = True, save_plots: bool = False, save_path: str = ""):
             """
             Starts the VIF elimination process. Eliminates in all sets.
             Note: this is computationally expensive for high-feature datasets.
@@ -66,10 +69,10 @@ class VIFElimination(ManualFeatureSelectionFactory):
             None
             """
             number_of_iterations = 0
-            if plot:
+            if save_plots:
                 fig, axes = plt.subplots(1, 2, figsize=(12, 6))
                 eda = EDA(self.dataset)
-                eda.plot_correlation_matrix(size="l", splitted_sets=True, title="Prior-Elimination")
+                eda.plot_correlation_matrix(size="l", splitted_sets=True, title="Prior-Elimination", save_plots=save_plots, save_path=save_path)
             while True:
                 number_of_iterations += 1
                 vif_data = self.__calculate_vif()
@@ -86,8 +89,8 @@ class VIFElimination(ManualFeatureSelectionFactory):
                 else:
                     print(f"Feature with highest VIF: '{feature_to_drop}' with VIF: {max_vif}")
                     break
-            if plot:
-                eda.plot_correlation_matrix(size="l", splitted_sets=True)
+            if save_plots:
+                eda.plot_correlation_matrix(size="l", splitted_sets=True, title="Post-Elimination", save_plots=save_plots, save_path=save_path)
 
 
 
@@ -109,7 +112,7 @@ class LowVariancesFeatureReduction(ManualFeatureSelectionFactory):
             else:
                 print("No zero-variance features found.")
 
-        def fit(self, threshold: float = 0.01, delete_features: bool = True, plot: bool = True):
+        def fit(self, threshold: float = 0.01, delete_features: bool = True, save_plots: bool = False, save_path: str = ""):
             """
             Removes the features with low variance.
             """
@@ -121,13 +124,13 @@ class LowVariancesFeatureReduction(ManualFeatureSelectionFactory):
                 "feature": self.dataset.X_train.columns,
                 "spreadness": self.dataset.X_train.std()
             }).reset_index(drop=True)
-            if plot:
-                plt.figure(figsize=(12, 8))
-                plt.hist(spreadness_df["spreadness"], bins=30, edgecolor='black')
-                plt.title('Distribution of Standard Deviations for Numeric Features')
-                plt.xlabel('Standard Deviation')
-                plt.ylabel('Frequency')
-                plt.show()
+            if save_plots:
+                fig, ax = plt.subplots(figsize=(12, 8))
+                ax.hist(spreadness_df["spreadness"], bins=30, edgecolor='black')
+                ax.set_title('Distribution of Standard Deviations for Numeric Features')
+                ax.set_xlabel('Standard Deviation')
+                ax.set_ylabel('Frequency')
+                save_or_store_plot(fig, save_plots, save_path + "/feature_selection/manual/low_variances", "low_variances.png")
             columns_to_drop = spreadness_df[spreadness_df["spreadness"] < threshold]["feature"].tolist()
             if delete_features:
                 self.dataset.X_train.drop(columns=columns_to_drop, inplace=True)
@@ -145,7 +148,7 @@ class MutualInformationFeatureReduction(ManualFeatureSelectionFactory):
             mutual_info_train = mutual_info_regression(self.dataset.X_train[[feature]], self.dataset.y_train)
             return mutual_info_train[0]
       
-        def fit(self, threshold: float, delete_features: bool, plot: bool, ):
+        def fit(self, threshold: float, delete_features: bool, save_plots: bool = False, save_path: str = ""):
             relevance_scores = {
                 col: self._compute_feature_relevance(col)
                 for col in self.dataset.X_train.columns
@@ -157,14 +160,13 @@ class MutualInformationFeatureReduction(ManualFeatureSelectionFactory):
             irrelevant_features = relevance_df[relevance_df["Relevance"] < threshold]["Feature"].tolist()
             print(f"Number of irrelevant features: {len(irrelevant_features)}. They are: {irrelevant_features}")
 
-            if plot:
-                plt.figure(figsize=(10, min(0.3 * len(relevance_df), 20)))  # Dynamic height
-                plt.barh(relevance_df['Feature'], relevance_df['Relevance'], color='skyblue')
-                plt.xlabel('Feature Relevance')
-                plt.title('Feature Relevance Scores')
-                plt.gca().invert_yaxis()  # Highest relevance on top
-                plt.tight_layout()
-                plt.show()
+            if save_plots:
+                fig, ax = plt.subplots(figsize=(10, min(0.3 * len(relevance_df), 20)))
+                ax.barh(relevance_df['Feature'], relevance_df['Relevance'], color='skyblue')
+                ax.set_xlabel('Feature Relevance')
+                ax.set_title('Feature Relevance Scores')
+                ax.invert_yaxis()  # Highest relevance on top
+                save_or_store_plot(fig, save_plots, save_path + "/feature_selection/manual/mutual_information", "mutual_information.png")
 
             if delete_features:
                 self.dataset.X_train.drop(columns=irrelevant_features, inplace=True)
@@ -177,7 +179,7 @@ class PCAFeatureReduction(ManualFeatureSelectionFactory):
         def __init__(self, dataset: Dataset):
             super().__init__(dataset)
 
-        def fit(self, threshold: float = 0.95, delete_features: bool = True, plot: bool = True):
+        def fit(self, threshold: float = 0.95, delete_features: bool = True, save_plots: bool = False, save_path: str = ""):
             """
             Reduces the number of features using PCA.
             """
@@ -211,8 +213,7 @@ class PCAFeatureReduction(ManualFeatureSelectionFactory):
                     columns=columns,
                     index=self.dataset.X_test.index
                 )
-            if plot:
-                raise NotImplementedError("Plotting not implemented for PCA")
+
 
     
       

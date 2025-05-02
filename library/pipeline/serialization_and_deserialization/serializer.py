@@ -1,7 +1,7 @@
 
 
 from library.pipeline.pipeline import Pipeline
-from library.phases.modelling.shallow.model_definition.model_base import Model
+from library.phases.phases_implementation.modelling.shallow.model_definition.model_base import Model
 
 from library.utils.decorators.timer import timer
 

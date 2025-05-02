@@ -1,5 +1,5 @@
 import math
-
+import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -7,6 +7,7 @@ import pandas as pd
 
 from library.phases.phases_implementation.dataset.dataset import Dataset
 
+from library.utils.pythonObjects.save_or_store_plot import save_or_store_plot
 
 
 class EDA:
@@ -18,7 +19,7 @@ class EDA:
     self.dataset = dataset
     
 
-  def plot_correlation_matrix(self, size: str = "small", splitted_sets: bool = False, title: str = "", **kwargs):
+  def plot_correlation_matrix(self, size: str = "small", splitted_sets: bool = False, title: str = "", save_plots: bool = False, save_path: str = "", **kwargs):
     """
     Plots the correlation matrix of the dataframe
 
@@ -47,7 +48,7 @@ class EDA:
     sns.heatmap(corr, mask=mask, cmap=cmap, center=0,
               square=True, linewidths=.5, cbar_kws={"shrink": .8}, vmin=vmin, vmax=vmax, **kwargs)
     plt.title(f"{title}")
-    plt.show()
+    save_or_store_plot(f, save_plots, save_path + "/feature_selection/manual/multicollinearity", f"{title}.png")
 
   def plot_categorical_distributions(self, features: list[str], n_cols: int = 2):
     """

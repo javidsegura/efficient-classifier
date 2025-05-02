@@ -11,8 +11,8 @@ import pandas as pd
 import time
 
 class Modelling:
-      def __init__(self, dataset: Dataset, results_path: str):
-            self.results_df = ResultsDF(results_path, dataset)
+      def __init__(self, dataset: Dataset, model_results_path: str):
+            self.results_df = ResultsDF(model_results_path, dataset)
             self.list_of_models = {}
             self.dataset = dataset
             self._models_to_exclude = []

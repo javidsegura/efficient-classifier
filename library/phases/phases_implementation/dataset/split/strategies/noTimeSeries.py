@@ -12,7 +12,7 @@ import pandas as pd
 import os
 
 from library.phases.phases_implementation.dataset.split.strategies.base import Split
-
+from library.utils.pythonObjects.save_or_store_plot import save_or_store_plot
 
 class NoTimeSeries(Split):
       def __init__(self, dataset) -> None:
@@ -66,6 +66,7 @@ class NoTimeSeries(Split):
             self.dataset.X_train, self.dataset.X_val, self.dataset.X_test, self.dataset.y_train, self.dataset.y_val, self.dataset.y_test = X_train, X_val, X_test, y_train, y_val, y_test
             if save_plots:
                   super().plot_per_set_distribution(X.columns, save_plots, save_path)
+            return self.dataset.X_train.head().to_dict()
 
 
       def asses_split_classifier(self, p: float, step: float, upper_bound: float = .50, save_plots: bool = False, save_path: str = None) -> pd.DataFrame:
@@ -147,12 +148,8 @@ class NoTimeSeries(Split):
 
 
                   plt.title('Holdout Split Trade-Off: Training Set vs SE')
-                  if save_path:
-                        path = save_path + "/split/split_trade_off"
-                        os.makedirs(path, exist_ok=True)
-                        plt.savefig(path + "/split_trade_off.png")
-                  else:
-                        plt.show()
+                  save_or_store_plot(fig, save_plots, save_path + "/split/split_trade_off", "split_trade_off.png")
+                  
             self.df_split_assesment = df_split_assesment
             return df_split_assesment 
       

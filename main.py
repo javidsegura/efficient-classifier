@@ -2,20 +2,26 @@
 
 
 from library.pipeline.pipeline_runner import PipelineRunner
+import matplotlib
+
+include_plots = True
+if include_plots:
+      matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 
-
+# Setting up the pipeline runner
 pipeline_runner = PipelineRunner(
       dataset_path="./dataset/dynamic_dataset.csv",
-      results_path="results/model_evaluation/results.csv",
       model_task="classification",
-      include_plots=True,
+      include_plots=include_plots,
       pipelines_names={
-            "not-baseline": ["enembled", "tree-based", "support-vector-machine",
-                             "naive-bayes", "feed-forward-neural-network", "stacking"],
+            "not-baseline": ["ensembled", "tree_based", "support_vector_machine",
+                             "naive_bayes", "feed_forward_neural_network", "stacking"],
             "baseline": ["baselines"],
       }
 )
 
+# Running the pipeline
 pipeline_runner.run()
 

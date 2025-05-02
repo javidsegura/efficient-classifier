@@ -16,8 +16,9 @@ class AutomaticFeatureSelection():
                   "Boruta": BorutaAutomaticFeatureSelection
             }
       
-      def fit(self, type: str, max_iter: int, print_results: bool, delete_features: bool):
-            return self.options[type](self.dataset).fit(max_iter, print_results, delete_features)
+      def fit(self, type: str, max_iter: int, delete_features: bool, save_plots: bool = False, save_path: str = ""):
+            print(f"Running {type} feature selection")
+            return self.options[type](self.dataset).fit(max_iter, delete_features, save_plots, save_path)
       
       def speak(self, message: str):
             print(f"{message} from {id(self)}. You are at automatic feature selection!")
@@ -28,7 +29,7 @@ class AutomaticFeatureSelectionFactory(ABC):
             self.dataset = dataset
 
       @abstractmethod
-      def fit(self, max_iter: int, print_results: bool, delete_features: bool, **kwargs):
+      def fit(self, max_iter: int, delete_features: bool, save_plots: bool = False, save_path: str = ""):
             pass
 
 
@@ -36,7 +37,7 @@ class L1AutomaticFeatureSelection(AutomaticFeatureSelectionFactory):
       def __init__(self, dataset: Dataset):
             super().__init__(dataset)
 
-      def fit(self, max_iter: int = 1000, print_results: bool = True, delete_features: bool = True):
+      def fit(self, max_iter: int = 1000, delete_features: bool = True, save_plots: bool = False, save_path: str = ""):
             """
             Automatically selects the features that are most predictive of the target variable using the L1 regularization method
 
@@ -58,16 +59,15 @@ class L1AutomaticFeatureSelection(AutomaticFeatureSelectionFactory):
                   model = LogisticRegression(n_jobs=-1, max_iter=max_iter)
 
             model.fit(self.dataset.X_train, self.dataset.y_train)
-            coefficients = model.coef_
+            coefficients = model.coef_ # FOR MULTICLASS RETURNS A LIST OF COEFFICEINTS. CURRENTLY NOT SUPPORTED.
 
             predictivePowerFeatures = set()
             for i in range(len(coefficients)):
                   if abs(coefficients[i]) > 0:
                         predictivePowerFeatures.add(self.dataset.X_train.columns[i])
                         excludedFeatures = set(self.dataset.X_train.columns) - predictivePowerFeatures
-            if print_results:
-                  print(f"Number of predictive power variables: {len(predictivePowerFeatures)}")
-                  print(f"Number of excluded variables: {len(excludedFeatures)}")
+            print(f"Number of predictive power variables: {len(predictivePowerFeatures)}")
+            print(f"Number of excluded variables: {len(excludedFeatures)}")
             if delete_features:
                         self.dataset.X_train.drop(columns=excludedFeatures, inplace=True)
                         self.dataset.X_val.drop(columns=excludedFeatures, inplace=True)
@@ -78,7 +78,7 @@ class BorutaAutomaticFeatureSelection(AutomaticFeatureSelectionFactory):
       def __init__(self, dataset: Dataset):
             super().__init__(dataset)     
 
-      def fit(self, max_iter: int = 100, print_results: bool = True, delete_features: bool = True):
+      def fit(self, max_iter: int = 100, delete_features: bool = True, save_plots: bool = False, save_path: str = ""):
             """
             Automatically selects the features that are most predictive of the target variable using the Boruta method
 
@@ -86,8 +86,6 @@ class BorutaAutomaticFeatureSelection(AutomaticFeatureSelectionFactory):
             ----------
             boruta_model : BorutaPy
                   The Boruta model
-            print_results : bool
-                  Whether to print the results
 
             Returns
             -------
@@ -120,9 +118,8 @@ class BorutaAutomaticFeatureSelection(AutomaticFeatureSelectionFactory):
             selected_mask = boruta_model.support_
             selected_features = set(self.dataset.X_train.columns[selected_mask])
             excludedFeatures = set(self.dataset.X_train.columns) - selected_features
-            if print_results:
-                  print(f"Number of predictive power variables: {len(selected_features)}")
-                  print(f"Number of excluded variables: {len(excludedFeatures)}") 
+            print(f"Number of predictive power variables: {len(selected_features)}")
+            print(f"Number of excluded variables: {len(excludedFeatures)}") 
             if delete_features:     
                   self.dataset.X_train.drop(columns=excludedFeatures, inplace=True)
                   self.dataset.X_val.drop(columns=excludedFeatures, inplace=True)
