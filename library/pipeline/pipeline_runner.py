@@ -8,15 +8,19 @@ import logging
 import time
 import os
 
+
 from library.pipeline.pipeline import Pipeline
 from library.pipeline.pipeline_manager import PipelineManager
-from library.utils.decorators.timer import timer
 
 # Runners
 from library.phases.runners.dataset_runner import DatasetRunner
 from library.phases.runners.featureAnalysis_runner import FeatureAnalysisRunner
 from library.phases.runners.dataPreprocessing_runner import DataPreprocessingRunner
 from library.phases.runners.modelling.modelling_runner import ModellingRunner
+
+# Utils
+from library.utils.decorators.timer import timer
+from library.utils.slackBot.bot import SlackBot
 
 """ Phases are: 
 - Splitting
@@ -54,6 +58,7 @@ class PipelineRunner:
                                                 save_path=self.plots_path + "modelling/")
                   
             }
+            self.slack_bot = SlackBot()
 
       
       def _set_up_pipelines(self, pipelines_names: dict[str, list[str]]) -> None:
@@ -104,4 +109,9 @@ class PipelineRunner:
                         self.logger.info(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}")
                         if phase_result is not None:
                               self.logger.info(f"'{phase_name}' returned: {phase_result}")
+                              time.sleep(1)
+                              self.slack_bot.send_message(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}\
+                                                          Result: {str(phase_result)}",
+                                                          channel="#general")
+
                   run_phase()
