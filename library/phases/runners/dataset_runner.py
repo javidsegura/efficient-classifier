@@ -9,12 +9,13 @@ class DatasetRunner(PhaseRunner):
       
       def _run_feature_engineering(self) -> None:
             # FEDE (expand here)
+            # pre split
             ...
 
       def run(self) -> None:
             # Select the first pipeline.
             print(self.pipeline_manager.pipelines)
-            pipelines = list(self.pipeline_manager.pipelines["not-baseline"].values())
+            pipelines = list(self.pipeline_manager.pipelines["not_baseline"].values())
             default_pipeline = pipelines[0]
 
             feature_engineering_results = self._run_feature_engineering()

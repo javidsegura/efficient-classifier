@@ -34,9 +34,7 @@ class FeedForwardNeuralNetwork():
       def _compile_model(self):
             model = Sequential([
                   tf.keras.Input(shape=(self.num_features,)),  
-                  Dense(512, activation='relu', kernel_initializer='glorot_uniform'),
-                  Dense(512, activation='relu', kernel_initializer='glorot_uniform'),
-                  Dense(512, activation='relu', kernel_initializer='glorot_uniform'),
+                  Dense(128, activation='relu', kernel_initializer='glorot_uniform'),
                   Dense(self.num_classes, activation='softmax', kernel_initializer='glorot_uniform') 
             ])
             model.compile(
@@ -73,18 +71,20 @@ class FeedForwardNeuralNetwork():
             X_val = kwargs.get("X_val", None)
             y_val = kwargs.get("y_val", None)
             if X_val is not None and y_val is not None:
+                  print(f"Fitting model with validation data")
                   self.history = self.model.fit(
                               X_data, 
                               y_data, 
-                              epochs=30,
+                              epochs=5,
                               batch_size=128, 
                               validation_data=(X_val, y_val),
                               callbacks=[get_early_stopping()])
             else:
+                  print(f"Fitting model without validation data")
                   self.history = self.model.fit(
                               X_data, 
                               y_data, 
-                              epochs=30,
+                              epochs=5,
                               batch_size=128, 
                               callbacks=[get_early_stopping()])
             

@@ -19,7 +19,7 @@ class EDA:
     self.dataset = dataset
     
 
-  def plot_correlation_matrix(self, size: str = "small", splitted_sets: bool = False, title: str = "", save_plots: bool = False, save_path: str = "", **kwargs):
+  def plot_correlation_matrix(self, size: str = "small", splitted_sets: bool = False, title: str = "", save_plots: bool = False, save_path: str = "", **kwargs) -> None:
     """
     Plots the correlation matrix of the dataframe
 
@@ -27,6 +27,10 @@ class EDA:
     ----------
       size : str
         The size of the plot. Taken on ["s", "m", "l", "auto"]
+
+    Returns
+    -------
+      None
     """
     if splitted_sets:
       only_numerical_df = self.dataset.X_train.select_dtypes(include=["number"])

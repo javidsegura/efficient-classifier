@@ -23,7 +23,7 @@ class Optimizer():
             self.modelObject = model_object
             self.optimizer_type = optimizer_type
             self.optimizer = self._set_up_optimizer(optimizer_type, param_grid, max_iter)
-            if model_object.model_type == "neuralNetwork":
+            if model_object.model_type == "neural_network":
                   self.epochs = kwargs.get("epochs", None)
 
       def _set_up_optimizer(self, type: str, param_grid: dict, max_iter: int = 100):

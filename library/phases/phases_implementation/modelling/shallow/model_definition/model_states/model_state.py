@@ -64,7 +64,7 @@ class PreTuningState(ModelState):
             super().__init__(model_sklearn, modelName, model_type, dataset, results_header)
       
       def get_fit_data(self):
-            if self.model_type == "neuralNetwork":
+            if self.model_type == "neural_network":
                   return self.dataset.X_train, self.dataset.y_train, self.dataset.X_val, self.dataset.y_val
             else:
                   return self.dataset.X_train, self.dataset.y_train
@@ -79,12 +79,12 @@ class PreTuningState(ModelState):
                   print(f"Sklearn model: {self.model_sklearn}")
                   start_time = time.time()
                   print(f"!> Started fitting {self.modelName}")
-                  if self.model_type == "neuralNetwork":
+                  if self.model_type == "neural_network":
                               X_data, y_data, X_val, y_val = self.get_fit_data()
                   else:
                               X_data, y_data = self.get_fit_data()
                   print(f"Lenght of X_data: {X_data.shape[0]}")
-                  if self.model_type == "neuralNetwork":
+                  if self.model_type == "neural_network":
                               self.assesment["model_sklearn"] = self.model_sklearn.fit(X_data, y_data, X_val=X_val, y_val=y_val)
                   else:
                               self.assesment["model_sklearn"] = self.model_sklearn.fit(X_data, y_data)
@@ -135,7 +135,7 @@ class InTuningState(ModelState):
                   max_iter = kwargs.get("max_iter", None)
                   optimizer_type = kwargs.get("optimizer_type", None)
                   model_object = kwargs.get("model_object", None)
-                  if model_object.model_type == "neuralNetwork":
+                  if model_object.model_type == "neural_network":
                         epochs = kwargs.get("epochs", None)
                   else:
                         epochs = None
@@ -144,7 +144,7 @@ class InTuningState(ModelState):
                   assert model_object is not None, "Model object must be provided"
                   print(f"Model object: {model_object}")
 
-                  if model_object.model_type == "neuralNetwork":
+                  if model_object.model_type == "neural_network":
                         self.optimizer = Optimizer(
                                                 model_sklearn=self.model_sklearn,
                                                 modelName=self.modelName, 

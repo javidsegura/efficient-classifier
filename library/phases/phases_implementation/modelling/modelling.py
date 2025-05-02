@@ -33,7 +33,8 @@ class Modelling:
                   assert modelName in self.list_of_models, f"Model {modelName} not found in list of models"
             self._models_to_exclude = value
 
-      def add_model(self, model_name: str, model_sklearn: object, model_type: str = "classical"):
+      def add_model(self, model_name: str, model_sklearn: object, model_type: str = "classical"): 
+            assert model_type in ["classical", "neural_network", "stacking"]
             new_model = None
             if self.dataset.modelTask == "classification":
                   new_model = Classifier(model_name, model_sklearn, model_type=model_type, results_header=self.results_df.header, dataset=self.dataset)
@@ -56,7 +57,7 @@ class Modelling:
             assert current_phase == "in", "Optimize model can only be used in the 'in' phase"
             modelObject.optimizer_type = optimization_params["optimizer_type"]
 
-            if modelObject.model_type == "neuralNetwork":
+            if modelObject.model_type == "neural_network":
                   epochs = optimization_params.get("epochs", None)
                   modelObject.fit(modelName=modelName, current_phase=current_phase,
                               param_grid=optimization_params["param_grid"],
@@ -80,6 +81,7 @@ class Modelling:
 
       def fit_models(self, current_phase: str, **kwargs):
             assert current_phase in ["pre", "in", "post"], "Current phase must be one of the tuning states"
+            print(f"Gonna start fitting models in {current_phase} phase")
             with concurrent.futures.ProcessPoolExecutor() as executor:
                   # Submit all model fitting tasks to the executor
                   if current_phase == "pre":

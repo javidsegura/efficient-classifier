@@ -16,7 +16,7 @@ from library.utils.decorators.timer import timer
 from library.phases.runners.dataset_runner import DatasetRunner
 from library.phases.runners.featureAnalysis_runner import FeatureAnalysisRunner
 from library.phases.runners.dataPreprocessing_runner import DataPreprocessingRunner
-
+from library.phases.runners.modelling.modelling_runner import ModellingRunner
 
 """ Phases are: 
 - Splitting
@@ -31,6 +31,9 @@ class PipelineRunner:
                    pipelines_names: dict[str, list[str]],
                    include_plots: bool = True
                    ) -> None:
+            """
+            This is some gerat class
+            """
             self.dataset_path = dataset_path
             self.model_task = model_task
             self._set_up_folders()
@@ -46,7 +49,11 @@ class PipelineRunner:
                                                             save_path=self.plots_path + "data_preprocessing/"),
                   "feature_analysis": FeatureAnalysisRunner(self.pipeline_manager,
                                                             include_plots=include_plots,
-                                                            save_path=self.plots_path + "feature_analysis/")
+                                                            save_path=self.plots_path + "feature_analysis/"),
+                  # "modelling": ModellingRunner(self.pipeline_manager,
+                  #                               include_plots=include_plots,
+                  #                               save_path=self.plots_path + "modelling/")
+                  
             }
 
       
@@ -54,6 +61,7 @@ class PipelineRunner:
             print(f"Setting up pipelines for {self.model_task} model task")
             combined_pipelines = {}
             default_pipeline = Pipeline(self.dataset_path, self.model_results_path, self.model_task)
+            # DO GENERAL PIPELINE-WIDE SET-UP (e.g: remove zero day, no category, etc)
             default_pipeline.dataset.df.drop(columns=["Family", "Hash"], inplace=True) # We have decided to use only category as target variable; Hash is temporary while im debugging (it will be deleted in EDA)
             for category_name, pipelines in pipelines_names.items():
                   combined_pipelines[category_name] = {}
@@ -97,4 +105,5 @@ class PipelineRunner:
                         self.logger.info(f"Phase {phase_name} completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}")
                         if phase_result is not None:
                               self.logger.info(f"{phase_name} returned: {phase_result}")
+                              self.bot.send_message(f"{phase_name} returned: {phase_result}")
                   run_phase()

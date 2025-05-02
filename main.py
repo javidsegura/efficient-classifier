@@ -1,6 +1,4 @@
 
-
-
 from library.pipeline.pipeline_runner import PipelineRunner
 import matplotlib
 
@@ -16,7 +14,7 @@ pipeline_runner = PipelineRunner(
       model_task="classification",
       include_plots=include_plots,
       pipelines_names={
-            "not-baseline": ["ensembled", "tree_based", "support_vector_machine",
+            "not_baseline": ["ensembled", "tree_based", "support_vector_machine",
                              "naive_bayes", "feed_forward_neural_network", "stacking"],
             "baseline": ["baselines"],
       }
