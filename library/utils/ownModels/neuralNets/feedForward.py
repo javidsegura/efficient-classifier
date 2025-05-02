@@ -93,9 +93,7 @@ class FeedForwardNeuralNetwork():
       
       def predict(self, X_data):
             self.soft_predictions = self.model.predict(X_data)
-            print(f"Soft predictions done")
             self.hard_predictions = np.argmax(self.soft_predictions, axis=1)
-            print(f"Hard predictions done")
             return self.hard_predictions
       
       def get_params(self):

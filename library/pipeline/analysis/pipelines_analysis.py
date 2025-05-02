@@ -1,6 +1,9 @@
 from library.pipeline.pipeline import Pipeline
 from library.pipeline.analysis.neuralNets.neuralNetsPlots import NeuralNetsPlots
 
+
+from library.utils.pythonObjects.save_or_store_plot import save_or_store_plot
+
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 from sklearn.metrics import classification_report
 
@@ -64,7 +67,7 @@ class PipelinesAnalysis:
                                     continue
                               for modelName in self.pipelines[category][pipeline].modelling.list_of_models:
                                     # Only select the model that is the best if pipeline is post and and phase is post
-                                    if category == "not-baseline" and self.phase == "post" and self.best_performing_model["modelName"] != modelName:
+                                    if category == "not_baseline" and self.phase == "post" and self.best_performing_model["modelName"] != modelName:
                                           continue
                                     if modelName not in self.pipelines[category][pipeline].modelling.models_to_exclude:
                                           if self.phase != "post":
@@ -112,7 +115,7 @@ class PipelinesAnalysis:
             
             return self.merged_report_per_phase[self.phase]
       
-      def plot_cross_model_comparison(self, metric: list[str], cols: int = 2):
+      def plot_cross_model_comparison(self, metric: list[str], cols: int = 2, save_plots: bool = False, save_path: str = None):
             """
             Plots the classification report of a given model
             """
@@ -162,10 +165,9 @@ class PipelinesAnalysis:
             plt.tight_layout()
             plt.suptitle(f"Cross-model Performance Comparison - {self.phase} phase")
             plt.tight_layout(rect=[0, 0, 1, 0.96])
-            plt.show()
-
+            save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"cross_model_comparison_{self.phase}.png")
       
-      def plot_intra_model_comparison(self,metrics: list[str]):
+      def plot_intra_model_comparison(self, metrics: list[str], save_plots: bool = False, save_path: str = None):
             """
             3 cols each with two trends. As many rows as unique models
             """
@@ -218,10 +220,11 @@ class PipelinesAnalysis:
             plt.tight_layout()
             plt.tight_layout(rect=[0, 0, 1, 0.96])  
             plt.suptitle(f"Intra-model Perfomance Comparison - {self.phase} phase")
-            plt.show()
+            save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"intra_model_comparison_{self.phase}.png")
 
 
-      def plot_results_df(self, metrics: list[str]):
+
+      def plot_results_df(self, metrics: list[str], save_plots: bool = False, save_path: str = None):
             """
             For all the metrics it plots all the trained models 
             """
@@ -258,40 +261,45 @@ class PipelinesAnalysis:
                   fig.delaxes(axes[j])
 
             plt.tight_layout()
-            plt.show()
-
+            plt.suptitle(f"Model Performance - {self.phase} phase")
+            plt.tight_layout(rect=[0, 0, 1, 0.96])
+            save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"time_based_model_performance_{self.phase}.png")
             return metrics_df
       
-      def plot_feature_importance(self):
+      def plot_feature_importance(self, save_plots: bool = False, save_path: str = None):
             """
             Plots the feature importance of a given model
             """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             importances_dfs = {}
-            for pipeline in self.pipelines["not-baseline"]:
-                  if pipeline not in ["ensembled", "tree-based"]:
+            for pipeline in self.pipelines["not_baseline"]:
+                  if pipeline not in ["ensembled", "tree_based"]:
                         continue
-                  for modelName in self.pipelines["not-baseline"][pipeline].modelling.list_of_models:
+                  for modelName in self.pipelines["not_baseline"][pipeline].modelling.list_of_models:
                         if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
                                           continue
-                        if modelName not in self.pipelines["not-baseline"][pipeline].modelling.models_to_exclude:
-                              importances = self.pipelines["not-baseline"][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["model_sklearn"].feature_importances_
+                        if modelName not in self.pipelines["not_baseline"][pipeline].modelling.models_to_exclude:
+                              importances = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["model_sklearn"].feature_importances_
                               feature_importance_df = pd.DataFrame({
-                                                                            'Feature': self.pipelines["not-baseline"][pipeline].dataset.X_train.columns,
+                                                                            'Feature': self.pipelines["not_baseline"][pipeline].dataset.X_train.columns,
                                                                             'Importance': importances
                                                                             }).sort_values(by='Importance', ascending=False)
                               importances_dfs[pipeline] = feature_importance_df
             for pipeline in importances_dfs:
+                  fig, ax = plt.subplots(figsize=(10, 10))
                   sns.barplot(
                         x="Importance",
                         y="Feature",
-                        data=importances_dfs[pipeline]
+                        data=importances_dfs[pipeline],
+                        ax=ax
                         )
-                  plt.title(f"Feature Importances for {pipeline} model")
-                  plt.show()
+                  ax.set_title(f"Feature Importances for {pipeline} model")
+                  plt.tight_layout()
+                  plt.tight_layout(rect=[0, 0, 1, 0.96])
+                  save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/feature_importance", filename=f"feature_importance_{self.phase}.png")
             return importances_dfs
 
-      def plot_confusion_matrix(self):
+      def plot_confusion_matrix(self, save_plots: bool = False, save_path: str = None):
             """
             Plots the confusion matrix of a given model
             """
@@ -304,7 +312,7 @@ class PipelinesAnalysis:
                               continue
                         for modelName in self.pipelines[category][pipeline].modelling.list_of_models:
                               if modelName not in self.pipelines[category][pipeline].modelling.models_to_exclude:
-                                    if category == "not-baseline" and self.phase == "post" and modelName != self.best_performing_model["modelName"]:
+                                    if category == "not_baseline" and self.phase == "post" and modelName != self.best_performing_model["modelName"]:
                                           continue
                                     if self.phase == "in" and category == "baseline":
                                           continue
@@ -335,7 +343,7 @@ class PipelinesAnalysis:
             labels = None
             if self.encoded_map is not None:
                   # Sort by encoded value to ensure correct order
-                  labels = [k for k, v in sorted(self.encoded_map.items(), key=lambda x: x[1])]
+                  labels = [label for label in self.encoded_map]
             assert labels is not None, "Labels are None"
             
             for i, (modelName, cm_data) in enumerate(confusion_matrices.items()):
@@ -367,12 +375,11 @@ class PipelinesAnalysis:
             plt.tight_layout()
             plt.suptitle(f"Confusion Matrix - {self.phase} phase")
             plt.tight_layout(rect=[0, 0, 1, 0.96])
-            plt.show()
-            self.residuals = residuals
-            
+            save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"confusion_matrices_{self.phase}.png")
+
             return residuals, confusion_matrices
       
-      def plot_results_summary(self, training_metric: str, performance_metric: str):
+      def plot_results_summary(self, training_metric: str, performance_metric: str, save_plots: bool = False, save_path: str = None):
             """
             Scatterplot: x-axis is either timeToFit or timeToPredict and y-axis is a performance metric
             """
@@ -418,11 +425,11 @@ class PipelinesAnalysis:
             plt.ylim(0, 1)
             plt.grid(True)
             plt.xscale("log")
-            plt.show()
+            save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"results_summary_{self.phase}.png")
 
-      def plot_per_epoch_progress(self, metrics: list[str]):
-            self.neural_nets_plots = NeuralNetsPlots(self.pipelines["not-baseline"]["feedForwardNN"].modelling.list_of_models["Feed Forward NN"].tuning_states[self.phase].assesment["model_sklearn"])
-            self.neural_nets_plots.plot_per_epoch_progress(metrics)
+      def plot_per_epoch_progress(self, metrics: list[str], save_plots: bool = False, save_path: str = None):
+            self.neural_nets_plots = NeuralNetsPlots(self.pipelines["not_baseline"]["feed_forward_neural_network"].modelling.list_of_models["Feed Forward Neural Network"].tuning_states[self.phase].assesment["model_sklearn"])
+            self.neural_nets_plots.plot_per_epoch_progress(metrics, phase=self.phase, save_plots=save_plots, save_path=save_path)
 
                         
 

@@ -150,6 +150,6 @@ class NoTimeSeries(Split):
                   plt.title('Holdout Split Trade-Off: Training Set vs SE')
                   save_or_store_plot(fig, save_plots, save_path + "/split/split_trade_off", "split_trade_off.png")
                   
-            self.df_split_assesment = df_split_assesment
+            self.df_split_assesment = df_split_assesment.to_dict()
             return df_split_assesment 
       

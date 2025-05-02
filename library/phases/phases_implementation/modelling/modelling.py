@@ -153,8 +153,6 @@ class Modelling:
                               modelName, modelObject = future.result()
                               self.list_of_models[modelName] = modelObject
 
-            print("All models have been fitted and made predictions in parallel.")
-
       def _evaluate_model(self, modelName, modelObject, current_phase: str):
             print(f"Evaluating model {modelName}")
             modelObject.evaluate(modelName=modelName, current_phase=current_phase)
@@ -225,9 +223,12 @@ class Modelling:
                   comments=self.comments,
                   models_to_exclude=self.models_to_exclude
             )
-            self.results_analysis[current_phase].phase_results_df = pd.DataFrame(model_logs)
-
-            return self.results_analysis[current_phase].phase_results_df
+            if model_logs is not None:
+                  model_logs = pd.DataFrame(model_logs)
+                  self.results_analysis[current_phase].phase_results_df = model_logs
+                  return model_logs
+            else:
+                  return None
       
 
       def plot_convergence(self):

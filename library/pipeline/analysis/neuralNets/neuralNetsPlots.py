@@ -1,12 +1,14 @@
 import matplotlib.pyplot as plt
 import math
 
+from library.utils.pythonObjects.save_or_store_plot import save_or_store_plot
+
 class NeuralNetsPlots:
       def __init__(self, model_sklearn: object):
             self.model_sklearn = model_sklearn
             self.history = None
 
-      def plot_per_epoch_progress(self, metrics: list[str], n_cols: int = 2):
+      def plot_per_epoch_progress(self, metrics: list[str], phase: str, n_cols: int = 2, save_plots: bool = False, save_path: str = None):
             if self.history is None:
                   self.history = self.model_sklearn.history.history
             assert all(metric in self.history.keys() for metric in metrics), f"Metric must be in {self.history.keys()}"
@@ -31,4 +33,4 @@ class NeuralNetsPlots:
                   ax[i].legend()
             for i in range(len(metrics), len(ax)):
                   fig.delaxes(ax[i])
-            plt.show()
+            save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{phase}/model_performance", filename=f"per_epoch_progress_{phase}.png")

@@ -13,6 +13,7 @@ class FeatureAnalysisRunner(PhaseRunner):
                                                                                     verbose=True, 
                                                                                     features=features_to_encode,
                                                                                     encode_y=True)
+            self.pipeline_manager.pipelines_analysis.encoded_map = encoded_maps_per_pipeline
             return encoded_maps_per_pipeline
       
       def _run_manual_feature_selection(self) -> None:
@@ -82,11 +83,11 @@ class FeatureAnalysisRunner(PhaseRunner):
 
       def run(self) -> None:
             feature_transformation_results = self._run_feature_transformation()
-            self._run_manual_feature_selection()
-            automatic_feature_selection_results = self._run_automatic_feature_selection()
+            #self._run_manual_feature_selection()
+            #automatic_feature_selection_results = self._run_automatic_feature_selection()
             self._run_feature_engineering()
             return {
                   "feature_transformation_results": feature_transformation_results,
-                  "automatic_feature_selection_results": automatic_feature_selection_results
+                  "automatic_feature_selection_results": None
                   }
 
