@@ -13,7 +13,8 @@ class FeatureAnalysisRunner(PhaseRunner):
                                                                                     verbose=True, 
                                                                                     features=features_to_encode,
                                                                                     encode_y=True)
-            self.pipeline_manager.pipelines_analysis.encoded_map = encoded_maps_per_pipeline
+            print(f"ENCODED MAP PIPELINS IS: {encoded_maps_per_pipeline}")
+            self.pipeline_manager.pipelines_analysis.encoded_map = encoded_maps_per_pipeline["not_baseline"]["ensembled"]
             return encoded_maps_per_pipeline
       
       def _run_manual_feature_selection(self) -> None:

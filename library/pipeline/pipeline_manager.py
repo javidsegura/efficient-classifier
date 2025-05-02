@@ -60,7 +60,7 @@ class PipelineManager:
       
       def all_pipelines_execute(self, methodName: str, 
                                 verbose: bool = False, 
-                                exclude_categories: list[str] = [], 
+                                exclude_category: str = "", 
                                 exclude_pipeline_names: list[str] = [], 
                                 **kwargs):
             """
@@ -70,6 +70,8 @@ class PipelineManager:
             Note for verbose:
             - If u dont see a given pipeline in the results, it is because it has already been processed (its a copy of another pipeline)
             """
+            if exclude_category:
+                  assert exclude_category in self.pipelines.keys(), f"Exclude category must be one of the following: {self.pipelines.keys()}"
             results = {}
             processed_pipelines = set()
             results_lock = threading.Lock()  # Thread-safe lock for updating shared results
@@ -99,7 +101,7 @@ class PipelineManager:
                   futures = []
                   # Submit tasks for each unique pipeline
                   for category in self.pipelines.keys():
-                        if category in exclude_categories:
+                        if category == exclude_category:
                               continue
 
                         if category not in results:
@@ -134,6 +136,8 @@ class PipelineManager:
             """
             Selects the best performing model based on the classification report
             """
+            print(f"METRICS ARE: {self.pipelines_analysis.merged_report_per_phase[self.pipeline_state].columns}")
+            print(f"Merged report per phase is: {self.pipelines_analysis.merged_report_per_phase[self.pipeline_state]}")
             assert metric in self.pipelines_analysis.merged_report_per_phase[self.pipeline_state].columns, f"Metric not found. Columns are: {self.pipelines_analysis.merged_report_per_phase[self.pipeline_state].columns}"
             metric_df = self.pipelines_analysis.merged_report_per_phase[self.pipeline_state][metric]
             model_names = metric_df.loc["modelName"].tolist()  # Last row: model names
@@ -152,18 +156,18 @@ class PipelineManager:
             print(f"Best performing model: {best_model_name} with {metric} {best_score:.4f}")
 
             # Overwrite the sklearn_model for the post state 
-            for pipeline in self.pipelines["not-baseline"]:
-                  for modelName in self.pipelines["not-baseline"][pipeline].modelling.list_of_models:
+            for pipeline in self.pipelines["not_baseline"]:
+                  for modelName in self.pipelines["not_baseline"][pipeline].modelling.list_of_models:
                         if modelName == best_model_name:
-                              self.pipelines["not-baseline"][pipeline].modelling.list_of_models[modelName].tuning_states["post"].model_sklearn = self.pipelines["not-baseline"][pipeline].modelling.list_of_models[modelName].tuning_states["in"].assesment["model_sklearn"]
+                              self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName].tuning_states["post"].model_sklearn = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName].tuning_states["in"].assesment["model_sklearn"]
                               self.best_performing_model["pipelineName"] = pipeline
 
             return best_model_name, best_score
       
 
       def fit_final_models(self):
-            # Best not-baseline model
-            self.pipelines["not-baseline"][self.best_performing_model["pipelineName"]].modelling.fit_models(
+            # Best not_baseline model
+            self.pipelines["not_baseline"][self.best_performing_model["pipelineName"]].modelling.fit_models(
                   current_phase="post", 
                   best_model_name=self.best_performing_model["modelName"],
                   baseline_model_name=None
@@ -194,8 +198,8 @@ class PipelineManager:
                               raise future.exception()
       
       def evaluate_store_final_models(self):
-            # Best not-baseline model
-            self.pipelines["not-baseline"][self.best_performing_model["pipelineName"]].modelling.evaluate_and_store_models(
+            # Best not_baseline model
+            self.pipelines["not_baseline"][self.best_performing_model["pipelineName"]].modelling.evaluate_and_store_models(
                   current_phase="post", 
                   comments=None,
                   best_model_name=self.best_performing_model["modelName"], 

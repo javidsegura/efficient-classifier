@@ -7,14 +7,7 @@ class PreTuningRunner(ModellingRunnerStates):
       def __init__(self, pipeline_manager: PipelineManager, save_plots: bool = False, save_path: str = None):
             super().__init__(pipeline_manager, save_plots, save_path)
 
-      def run(self):
-            self.pipeline_manager.pipeline_state = "pre"
-            print("Pre tuning runner about to start")
-            # Fitting models
-            self.pipeline_manager.all_pipelines_execute(methodName="modelling.fit_models",
-                                       verbose=False, 
-                                       exclude_pipeline_names=["stacking"], # debugging
-                                       current_phase="pre")
+      def _general_analysis(self):
             # Evaluating and storing models
             comments = "Cate will definetely not like this?"
             self.pipeline_manager.all_pipelines_execute(methodName="modelling.evaluate_and_store_models", 
@@ -22,6 +15,7 @@ class PreTuningRunner(ModellingRunnerStates):
                                                        exclude_pipeline_names=["stacking"],
                                                        comments=comments, 
                                                        current_phase="pre")
+            
             
             # Cross model comparison
             self.pipeline_manager.pipelines_analysis.plot_cross_model_comparison(
@@ -33,7 +27,7 @@ class PreTuningRunner(ModellingRunnerStates):
             metrics_df = self.pipeline_manager.pipelines_analysis.plot_results_df(metrics=["timeToFit", "timeToPredict"],
                                                                                  save_plots=self.save_plots,
                                                                                  save_path=self.save_path)
-            
+
             # Results summary
             self.pipeline_manager.pipelines_analysis.plot_results_summary(training_metric="timeToFit",
                                                                          performance_metric="accuracy",
@@ -53,12 +47,23 @@ class PreTuningRunner(ModellingRunnerStates):
             residuals, confusion_matrices = self.pipeline_manager.pipelines_analysis.plot_confusion_matrix(save_plots=self.save_plots,
                                                                                                           save_path=self.save_path)
             
+   
             # Feature importance
             importances_dfs = self.pipeline_manager.pipelines_analysis.plot_feature_importance(save_plots=self.save_plots,
                                                                                                 save_path=self.save_path)
-            
 
             return metrics_df.to_dict(), residuals, confusion_matrices, importances_dfs
 
+      def run(self):
+            self.pipeline_manager.pipeline_state = "pre"
+            print("Pre tuning runner about to start")
+            # Fitting models
+            self.pipeline_manager.all_pipelines_execute(methodName="modelling.fit_models",
+                                       verbose=False, 
+                                       exclude_pipeline_names=["stacking"], # debugging
+                                       current_phase="pre")
+            
+            general_analysis_results = self._general_analysis()
+            return general_analysis_results
 
             

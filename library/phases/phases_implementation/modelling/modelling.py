@@ -228,6 +228,7 @@ class Modelling:
                   self.results_analysis[current_phase].phase_results_df = model_logs
                   return model_logs
             else:
+                  print(f"NO MODEL LOGS TO STORE FOR {current_phase} PHASE")
                   return None
       
 

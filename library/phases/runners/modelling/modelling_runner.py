@@ -97,12 +97,24 @@ class ModellingRunner(PhaseRunner):
                                                 save_path=self.save_path)
             pre_results = pre_tuning_runner.run()
 
-            # in_tuning_runner = InTuningRunner(self.pipeline_manager)
-            # in_tuning_runner.run()
+            print("-"*30)
+            print("STARTING IN TUNING")
+            print("-"*30)
 
-            # post_tuning_runner = PostTuningRunner(self.pipeline_manager)
-            # post_tuning_runner.run()
+            in_tuning_runner = InTuningRunner(self.pipeline_manager,
+                                              save_plots=self.include_plots,
+                                              save_path=self.save_path)
+            in_results = in_tuning_runner.run()
+
+            print("-"*30)
+            print("STARTING POST TUNING")
+            print("-"*30)
+
+            post_tuning_runner = PostTuningRunner(self.pipeline_manager,
+                                                  save_plots=self.include_plots,
+                                                  save_path=self.save_path)
+            post_results = post_tuning_runner.run()
 
             return {"pre_tuning_runner": pre_results,
-                    "in_tuning_runner": None,
-                    "post_tuning_runner": None}
+                    "in_tuning_runner": in_results,
+                    "post_tuning_runner": post_results}

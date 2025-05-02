@@ -75,6 +75,8 @@ class PipelinesAnalysis:
                                                             continue
                                                       y_pred = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_val"]
                                                       y_true = self.pipelines[category][pipeline].modelling.dataset.y_val
+                                                      assert y_pred is not None, f"Predictions are None for model: {modelName}. Phase: {self.phase}, Category: {category}, Pipeline: {pipeline}"
+                                                      assert y_true is not None, f"Actual is None for model: {modelName}"
                                                       not_training_report = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
                                                       df_not_training_report = self._create_report_dataframe(not_training_report, modelName)
                                                       classification_reports.append(df_not_training_report)
@@ -120,6 +122,8 @@ class PipelinesAnalysis:
             Plots the classification report of a given model
             """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
+
+            print(f"PLOTTING CROSS MODEL COMPARISON FOR {self.phase} PHASE")
             
             # Compute the classification report DataFrame.
             class_report_df = self._compute_classification_report()
@@ -161,6 +165,8 @@ class PipelinesAnalysis:
                   ax.tick_params(axis='x', rotation=45)
                   ax.legend()
                   ax.grid(True)
+            assert self.phase is not None, "Phase is None"
+            assert save_path is not None, "Save path is None"
 
             plt.tight_layout()
             plt.suptitle(f"Cross-model Performance Comparison - {self.phase} phase")
@@ -236,6 +242,7 @@ class PipelinesAnalysis:
                         dataframes.append(df)
             metrics_df = pd.concat(dataframes)
             self.results_per_phase[self.phase]["metrics_df"] = metrics_df
+            print(f"Metrics df: {metrics_df.head(1)}")
 
             num_metrics = len(metrics)
             cols = 2
