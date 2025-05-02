@@ -165,8 +165,6 @@ class PipelinesAnalysis:
                   ax.tick_params(axis='x', rotation=45)
                   ax.legend()
                   ax.grid(True)
-            assert self.phase is not None, "Phase is None"
-            assert save_path is not None, "Save path is None"
 
             plt.tight_layout()
             plt.suptitle(f"Cross-model Performance Comparison - {self.phase} phase")
