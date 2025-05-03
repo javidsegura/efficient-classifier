@@ -210,6 +210,7 @@ class InTuningState(ModelState):
                                                                   learning_rate=learning_rate)
                               self.model_sklearn.model = best_model
                               self.assesment["model_sklearn"] = self.model_sklearn
+                              self.model_sklearn.is_fitted_ = True
       
       def predict(self):
                   
