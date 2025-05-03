@@ -84,8 +84,8 @@ class FeatureAnalysisRunner(PhaseRunner):
 
       def run(self) -> None:
             feature_transformation_results = self._run_feature_transformation()
-            #self._run_manual_feature_selection()
-            #automatic_feature_selection_results = self._run_automatic_feature_selection()
+            self._run_manual_feature_selection()
+            automatic_feature_selection_results = self._run_automatic_feature_selection()
             self._run_feature_engineering()
             return {
                   "feature_transformation_results": feature_transformation_results,

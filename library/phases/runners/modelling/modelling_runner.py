@@ -48,8 +48,11 @@ class ModellingRunner(PhaseRunner):
                                                                                              GaussianNB())
             # Neural Network model
             self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"].modelling.add_model("Feed Forward Neural Network",
-                                                                                             FeedForwardNeuralNetwork(num_features=default_pipeline.dataset.X_train.shape[1], 
-                                                                                             num_classes=default_pipeline.dataset.y_train.value_counts().shape[0]),
+                                                                                             FeedForwardNeuralNetwork(
+                                                                                                num_features=default_pipeline.dataset.X_train.shape[1], 
+                                                                                                num_classes=default_pipeline.dataset.y_train.value_counts().shape[0],
+                                                                                                epochs=10
+                                                                                                ),
                                                                                              model_type="neural_network")
             # Baseline models
             self.pipeline_manager.pipelines["baseline"]["baselines"].modelling.add_model("Logistic Regression (baseline)",
@@ -61,7 +64,7 @@ class ModellingRunner(PhaseRunner):
       def _exclude_models(self):
 
             # Ensembled models
-            self.pipeline_manager.pipelines["not_baseline"]["ensembled"].modelling.models_to_exclude = ["Gradient Boosting", "Random Forest"]
+            self.pipeline_manager.pipelines["not_baseline"]["ensembled"].modelling.models_to_exclude = ["Gradient Boosting"]
 
             # Tree-based models
             self.pipeline_manager.pipelines["not_baseline"]["tree_based"].modelling.models_to_exclude = []
@@ -76,7 +79,7 @@ class ModellingRunner(PhaseRunner):
             self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"].modelling.models_to_exclude = []
 
             # Baseline models
-            self.pipeline_manager.pipelines["baseline"]["baselines"].modelling.models_to_exclude = ["Logistic Regression (baseline)", ]
+            self.pipeline_manager.pipelines["baseline"]["baselines"].modelling.models_to_exclude = [ ]
       
       def _create_pipelines_divergences(self):
             self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="ensembled")

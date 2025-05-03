@@ -3,6 +3,9 @@ from library.phases.runners.modelling.utils.states.modelling_runner_states_base 
 from library.pipeline.pipeline_manager import PipelineManager
 from skopt.space import Real
 
+from sklearn.ensemble import StackingClassifier
+from sklearn.tree import DecisionTreeClassifier
+
 
 class InTuningRunner(ModellingRunnerStates):
       def __init__(self, pipeline_manager: PipelineManager, save_plots: bool = False, save_path: str = None):
@@ -77,33 +80,73 @@ class InTuningRunner(ModellingRunnerStates):
                   "Random Forest": {
                         "optimizer_type": "bayes",
                         "param_grid": rf_grid,
-                        "max_iter": 1
+                        "max_iter": 5
                   },
                   "Decision Tree": {
                         "optimizer_type": "bayes",
                         "param_grid": dt_grid,
-                        "max_iter": 1
+                        "max_iter": 5
                   },
                   "Naive Bayes": {
                         "optimizer_type": "bayes",
                         "param_grid": gnb_grid,
-                        "max_iter": 1
+                        "max_iter": 5
                   },
                   "Feed Forward Neural Network": {
                         "optimizer_type": "bayes_nn",
                         "param_grid": None, # its hardcoded
-                        "max_iter": 2,
-                        "epochs": 2
+                        "max_iter": 5,
+                        "epochs": 10
                   }
             }
             return modelNameToOptimizer
+      
+      def _set_up_stacking_model(self, optimized_models):
+            estimators = []
+
+            for pipelineName, results in optimized_models["not_baseline"].items():
+                  if isinstance(results, dict):
+                        for modelName, modelObject in results.items():
+                              estimators.append((modelName, modelObject))
+            
+            #Stacking model
+            stackingModel = StackingClassifier(
+                  estimators=estimators,
+                  final_estimator=DecisionTreeClassifier(),
+                  cv="prefit",
+                  verbose=3
+            )
+
+            self.pipeline_manager.pipelines["not_baseline"]["stacking"].modelling.list_of_models["Stacking"].tuning_states["in"].assesment["model_sklearn"] = stackingModel
+            self.pipeline_manager.pipelines["not_baseline"]["stacking"].modelling.list_of_models["Stacking"].tuning_states["post"].assesment["model_sklearn"] = stackingModel
+
+            self.pipeline_manager.pipelines["not_baseline"]["stacking"].modelling.list_of_models["Stacking"].tuning_states["in"].model_sklearn = stackingModel
+            self.pipeline_manager.pipelines["not_baseline"]["stacking"].modelling.list_of_models["Stacking"].tuning_states["post"].model_sklearn = stackingModel
+
+            all_pipelines_to_exclude = []
+
+            for pipelineName, pipelineObject in self.pipeline_manager.pipelines["not_baseline"].items():
+                  if pipelineName == "stacking":
+                        continue
+                  all_pipelines_to_exclude.append(pipelineName)
+            
+            self.pipeline_manager.all_pipelines_execute(methodName="modelling.fit_models", 
+                                       current_phase=self.pipeline_manager.pipeline_state,
+                                       exclude_category="baseline",
+                                       exclude_pipeline_names=all_pipelines_to_exclude
+                                       )
+
+            
+
       def run(self):
             self.pipeline_manager.pipeline_state = "in"
             print("In tuning runner")
             # Fitting models
             modelNameToOptimizer = self._get_grid_search_params()
             optimized_models = self.pipeline_manager.all_pipelines_execute(methodName="modelling.fit_models", 
+                                                                           exclude_pipeline_names=["stacking"],
                                                                            current_phase=self.pipeline_manager.pipeline_state,
                                                                            modelNameToOptimizer=modelNameToOptimizer)
+            self._set_up_stacking_model(optimized_models)
             general_analysis_results = self._general_analysis()
             return general_analysis_results

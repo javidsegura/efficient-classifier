@@ -223,6 +223,61 @@ class PipelinesAnalysis:
             plt.tight_layout(rect=[0, 0, 1, 0.96])  
             plt.suptitle(f"Intra-model Perfomance Comparison - {self.phase} phase")
             save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"intra_model_comparison_{self.phase}.png")
+      
+      def plot_intra_model_comparison(self, metrics: list[str], save_plots: bool = False, save_path: str = None):
+            """
+            3 cols each with two trends. As many rows as unique models
+            """
+            class_report_df = self._compute_classification_report(include_training=True)
+            self.results_per_phase[self.phase]["classification_report_train"] = class_report_df
+            models = class_report_df.T["modelName"].unique()
+            models = {model.split("_")[0] for model in models}
+            
+            num_metrics = len(metrics)
+            cols = num_metrics
+            rows = len(models)
+
+            fig, axes = plt.subplots(rows, cols, figsize=(cols * 6, rows * 5))
+
+            print(f"There going to be {rows} rows and {cols} columns")
+            colors = ["red", "blue", "green", "purple", "orange", "brown", "pink", "gray", "cyan", "magenta"]
+            colors_length = len(colors)
+            
+            for i, model in enumerate(models):
+                color_train = colors[i % colors_length]
+                color_no_train = colors[(i + 1) % colors_length]
+                for j, metric in enumerate(metrics):
+                    class_report_cols = class_report_df.columns
+                    assert metric in class_report_cols, f"Metric not present in {class_report_cols}"
+                    model_filter = class_report_df.T["modelName"].str.startswith(model)
+                    model_df = class_report_df.T[model_filter]
+
+                    ax = axes[i, j]
+                    metric_df = model_df.T[metric]
+
+                    df_numeric = metric_df.iloc[:-1].astype(float)
+                    model_names = metric_df.loc["modelName"].values
+
+                    if metric == "accuracy":
+                        bars = ax.bar(model_names, df_numeric.iloc[0, :])
+                        ax.bar_label(bars, fmt='%.4f')
+                    else:     
+                        ax.plot(df_numeric.index, df_numeric.iloc[:, 0], marker="o", label=model_names[0], color=color_train)
+                        ax.plot(df_numeric.index, df_numeric.iloc[:, 1], marker="s", label=model_names[1], color=color_no_train)
+
+                    ax.set_title(f'{metric} - {model}')
+                    ax.set_xlabel('Class Index')
+                    ax.set_ylabel(metric)
+                    ax.tick_params(axis='x', rotation=45)
+                    if metric != "accuracy":
+                        ax.legend()
+                    ax.grid(True)
+
+
+            plt.tight_layout()
+            plt.tight_layout(rect=[0, 0, 1, 0.96])  
+            plt.suptitle(f"Intra-model Perfomance Comparison - {self.phase} phase")
+            save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"intra_model_comparison_{self.phase}.png")
 
 
 

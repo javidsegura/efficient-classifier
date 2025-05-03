@@ -6,6 +6,7 @@ def save_or_store_plot(fig, save_plots: bool, directory_path: str, filename: str
       if save_plots and directory_path and filename:
             if not os.path.exists(directory_path):
                   os.makedirs(directory_path)
+            # Delete prior file if it exists
             fig.savefig(os.path.join(directory_path, filename))
             plt.close(fig)
       else:

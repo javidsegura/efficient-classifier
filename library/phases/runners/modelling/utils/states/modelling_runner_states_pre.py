@@ -2,6 +2,8 @@
 from library.phases.runners.modelling.utils.states.modelling_runner_states_base import ModellingRunnerStates
 from library.pipeline.pipeline_manager import PipelineManager
 
+from sklearn.ensemble import StackingClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 class PreTuningRunner(ModellingRunnerStates):
       def __init__(self, pipeline_manager: PipelineManager, save_plots: bool = False, save_path: str = None):
@@ -9,10 +11,9 @@ class PreTuningRunner(ModellingRunnerStates):
 
       def _general_analysis(self):
             # Evaluating and storing models
-            comments = "Cate will definetely not like this?"
+            comments = "I know cate will not like this comment"
             self.pipeline_manager.all_pipelines_execute(methodName="modelling.evaluate_and_store_models", 
                                                        verbose=False,
-                                                       exclude_pipeline_names=["stacking"],
                                                        comments=comments, 
                                                        current_phase="pre")
             
@@ -54,16 +55,48 @@ class PreTuningRunner(ModellingRunnerStates):
 
             return metrics_df.to_dict(), residuals, confusion_matrices, importances_dfs
 
+      def _set_up_stacking_model(self):
+            estimators = []
+            for pipelineName, pipelineObject in self.pipeline_manager.pipelines["not_baseline"].items():
+                  for modelName, modelObject in pipelineObject.modelling.list_of_models.items():
+                        if modelName in pipelineObject.modelling.models_to_exclude:
+                              continue
+                        modelSklearn = modelObject.tuning_states["pre"].assesment["model_sklearn"]
+                        estimators.append((modelName, modelSklearn))
+            
+            #Stacking model
+            stackingModel = StackingClassifier(
+                  estimators=estimators,
+                  final_estimator=DecisionTreeClassifier(), # to be manually tuned
+                  cv="prefit",
+                  verbose=3
+            )
+
+            self.pipeline_manager.pipelines["not_baseline"]["stacking"].modelling.add_model("Stacking", stackingModel, model_type="stacking")
+
+            all_pipelines_to_exclude = []
+
+            for pipelineName, pipelineObject in self.pipeline_manager.pipelines["not_baseline"].items():
+                  if pipelineName == "stacking":
+                        continue
+                  all_pipelines_to_exclude.append(pipelineName)
+
+            self.pipeline_manager.all_pipelines_execute(methodName="modelling.fit_models", 
+                                       current_phase="pre",
+                                       exclude_category="baseline",
+                                       exclude_pipeline_names=all_pipelines_to_exclude
+                                       )
       def run(self):
             self.pipeline_manager.pipeline_state = "pre"
             print("Pre tuning runner about to start")
             # Fitting models
-            self.pipeline_manager.all_pipelines_execute(methodName="modelling.fit_models",
-                                       verbose=False, 
+            self.pipeline_manager.all_pipelines_execute(
+                  methodName="modelling.fit_models",
                                        exclude_pipeline_names=["stacking"], # debugging
                                        current_phase="pre")
-            
+            self._set_up_stacking_model()
             general_analysis_results = self._general_analysis()
+
             return general_analysis_results
 
             
