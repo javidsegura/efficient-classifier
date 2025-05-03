@@ -91,67 +91,75 @@ class Modelling:
                               modelName, model = future.result() 
                               self.list_of_models[modelName] = model # update results
                   elif current_phase == "in":
-                        modelNameToOptimizer = kwargs.get("modelNameToOptimizer", None)
-                        assert modelNameToOptimizer is not None, "modelNameToOptimizer must be provided"
-                        future_to_model = []
-                        optimized_models = {}
+                        isStackingPipeline = False
+                        for modelName, modelObject in self.list_of_models.items():
+                              if modelObject.model_type == "stacking":
+                                    isStackingPipeline = True
+                                    modelObject.fit(modelName=modelName, current_phase="in")
+                                    modelObject.predict(modelName=modelName, current_phase="in")
 
-                        # Separate models
-                        bayes_nn_models = []
-                        other_models = []
+                        if not isStackingPipeline:
+                              modelNameToOptimizer = kwargs.get("modelNameToOptimizer", None)
+                              assert modelNameToOptimizer is not None, "modelNameToOptimizer must be provided"
+                              future_to_model = []
+                              optimized_models = {}
 
-                        for modelName, optimization_params in modelNameToOptimizer.items():
-                              if modelName not in list(self.list_of_models.keys()):
-                                    continue
-                              if modelName in self.models_to_exclude:
-                                    continue
-                              if optimization_params.get("optimizer_type") == "bayes_nn":
-                                    bayes_nn_models.append((modelName, optimization_params))
-                              else:
-                                    other_models.append((modelName, optimization_params))
+                              # Separate models
+                              bayes_nn_models = []
+                              other_models = []
 
-                        # Run non-bayes_nn models in process pool
-                        for modelName, optimization_params in other_models:
-                              print(f"Optimizing model {modelName}")
-                              modelObject = self.list_of_models[modelName]
-                              future = executor.submit(self._optimize_model, modelName, modelObject, current_phase, optimization_params)
-                              future_to_model.append(future)
+                              for modelName, optimization_params in modelNameToOptimizer.items():
+                                    if modelName not in list(self.list_of_models.keys()):
+                                          continue
+                                    if modelName in self.models_to_exclude:
+                                          continue
+                                    if optimization_params.get("optimizer_type") == "bayes_nn":
+                                          bayes_nn_models.append((modelName, optimization_params))
+                                    else:
+                                          other_models.append((modelName, optimization_params))
 
-                        for future in concurrent.futures.as_completed(future_to_model):
-                              modelName, modelObject = future.result()
-                              self.list_of_models[modelName] = modelObject
-                              optimized_models[modelName] = modelObject.tuning_states["in"].assesment["model_sklearn"]
-
-                        # Run bayes_nn models sequentially (outside process pool)
-                        for modelName, optimization_params in bayes_nn_models:
-                              print(f"Optimizing bayes_nn model {modelName}")
-                              modelObject = self.list_of_models[modelName]
-                              # Direct call, not via executor
-                              modelName, modelObject = self._optimize_model(modelName, modelObject, current_phase, optimization_params)
-                              self.list_of_models[modelName] = modelObject
-                              optimized_models[modelName] = modelObject.tuning_states["in"].assesment["model_sklearn"]
-
-                        return optimized_models
-                  elif current_phase == "post":
-                        # Exclude neural-nets fro conccurent
-                        best_model_name, baseline_model_name = kwargs.get("best_model_name", None), kwargs.get("baseline_model_name", None)
-                        assert (best_model_name is not None) or (baseline_model_name is not None), "You must provide at least one of the best or baseline model"
-                        future_to_model = []
-
-                        if best_model_name:
-                              if self.list_of_models[best_model_name].optimizer_type == "bayes_nn":
-                                    modelName, modelObject = self._fit_and_predict(best_model_name, self.list_of_models[best_model_name], current_phase)
-                                    self.list_of_models[best_model_name] = modelObject
-                              else:
-                                    future = executor.submit(self._fit_and_predict, best_model_name, self.list_of_models[best_model_name], current_phase)
+                              # Run non-bayes_nn models in process pool
+                              for modelName, optimization_params in other_models:
+                                    print(f"Optimizing model {modelName}")
+                                    modelObject = self.list_of_models[modelName]
+                                    future = executor.submit(self._optimize_model, modelName, modelObject, current_phase, optimization_params)
                                     future_to_model.append(future)
-                        if baseline_model_name:
-                              future = executor.submit(self._fit_and_predict, baseline_model_name, self.list_of_models[baseline_model_name], current_phase)
-                              future_to_model.append(future)
 
-                        for future in concurrent.futures.as_completed(future_to_model):
-                              modelName, modelObject = future.result()
-                              self.list_of_models[modelName] = modelObject
+                              for future in concurrent.futures.as_completed(future_to_model):
+                                    modelName, modelObject = future.result()
+                                    self.list_of_models[modelName] = modelObject
+                                    optimized_models[modelName] = modelObject.tuning_states["in"].assesment["model_sklearn"]
+
+                              # Run bayes_nn models sequentially (outside process pool)
+                              for modelName, optimization_params in bayes_nn_models:
+                                    print(f"Optimizing bayes_nn model {modelName}")
+                                    modelObject = self.list_of_models[modelName]
+                                    # Direct call, not via executor
+                                    modelName, modelObject = self._optimize_model(modelName, modelObject, current_phase, optimization_params)
+                                    self.list_of_models[modelName] = modelObject
+                                    optimized_models[modelName] = modelObject.tuning_states["in"].assesment["model_sklearn"]
+
+                              return optimized_models
+                  elif current_phase == "post":
+                              # Exclude neural-nets fro conccurent
+                              best_model_name, baseline_model_name = kwargs.get("best_model_name", None), kwargs.get("baseline_model_name", None)
+                              assert (best_model_name is not None) or (baseline_model_name is not None), "You must provide at least one of the best or baseline model"
+                              future_to_model = []
+
+                              if best_model_name:
+                                    if self.list_of_models[best_model_name].optimizer_type == "bayes_nn":
+                                          modelName, modelObject = self._fit_and_predict(best_model_name, self.list_of_models[best_model_name], current_phase)
+                                          self.list_of_models[best_model_name] = modelObject
+                                    else:
+                                          future = executor.submit(self._fit_and_predict, best_model_name, self.list_of_models[best_model_name], current_phase)
+                                          future_to_model.append(future)
+                              if baseline_model_name:
+                                    future = executor.submit(self._fit_and_predict, baseline_model_name, self.list_of_models[baseline_model_name], current_phase)
+                                    future_to_model.append(future)
+
+                              for future in concurrent.futures.as_completed(future_to_model):
+                                    modelName, modelObject = future.result()
+                                    self.list_of_models[modelName] = modelObject
 
       def _evaluate_model(self, modelName, modelObject, current_phase: str):
             print(f"Evaluating model {modelName}")

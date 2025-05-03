@@ -63,8 +63,6 @@ class PipelinesAnalysis:
             classification_reports = []
             for category in self.pipelines:
                   for pipeline in self.pipelines[category]:
-                              if self.phase == "pre" and pipeline == "stacking":
-                                    continue
                               for modelName in self.pipelines[category][pipeline].modelling.list_of_models:
                                     # Only select the model that is the best if pipeline is post and and phase is post
                                     if category == "not_baseline" and self.phase == "post" and self.best_performing_model["modelName"] != modelName:
@@ -72,7 +70,7 @@ class PipelinesAnalysis:
                                     if modelName not in self.pipelines[category][pipeline].modelling.models_to_exclude:
                                           if self.phase != "post":
                                                       if self.phase == "in" and category == "baseline":
-                                                            continue
+                                                            continue                                                            
                                                       y_pred = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_val"]
                                                       y_true = self.pipelines[category][pipeline].modelling.dataset.y_val
                                                       assert y_pred is not None, f"Predictions are None for model: {modelName}. Phase: {self.phase}, Category: {category}, Pipeline: {pipeline}"
@@ -313,8 +311,6 @@ class PipelinesAnalysis:
             residuals = {}
             for category in self.pipelines:
                   for pipeline in self.pipelines[category]:
-                        if self.phase == "pre" and pipeline == "stacking":
-                              continue
                         for modelName in self.pipelines[category][pipeline].modelling.list_of_models:
                               if modelName not in self.pipelines[category][pipeline].modelling.models_to_exclude:
                                     if category == "not_baseline" and self.phase == "post" and modelName != self.best_performing_model["modelName"]:
