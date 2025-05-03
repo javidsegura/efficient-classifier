@@ -95,8 +95,7 @@ class Modelling:
                         for modelName, modelObject in self.list_of_models.items():
                               if modelObject.model_type == "stacking":
                                     isStackingPipeline = True
-                                    modelObject.fit(modelName=modelName, current_phase="in")
-                                    modelObject.predict(modelName=modelName, current_phase="in")
+                                    self._fit_and_predict(modelName, modelObject, current_phase)
 
                         if not isStackingPipeline:
                               modelNameToOptimizer = kwargs.get("modelNameToOptimizer", None)

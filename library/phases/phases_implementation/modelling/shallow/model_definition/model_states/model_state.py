@@ -141,7 +141,7 @@ class InTuningState(ModelState):
 
                   assert self.model_type is not None, f"Model object must have a model_type. {self.modelName}. Model object: {model_object}"
                   if self.model_type == "stacking":
-                        print(f"Sklearn model: {self.model_sklearn}")
+                        print(f"Sklearn model for stacking has predictors: {self.model_sklearn.estimators}")
                         start_time = time.time()
                         print(f"!> Started fitting {self.modelName}")
                         X_data, y_data = self.get_fit_data()
@@ -189,15 +189,33 @@ class InTuningState(ModelState):
                               self.model_sklearn = self.optimizer.optimizer.best_estimator_
                               self.assesment["model_sklearn"] = self.model_sklearn
                         else:
-                              model_keras = self.optimizer.optimizer.get_best_models(num_models=1)[0]
-                              self.model_sklearn = FeedForwardNeuralNetwork(num_features=self.dataset.X_train.shape[1], 
+                              best_model = self.optimizer.optimizer.get_best_models(num_models=1)[0]
+                              best_hps = self.optimizer.optimizer.get_best_hyperparameters(num_trials=1)[0]
+                              best_params = best_hps.values
+                              n_layers = best_params["n_layers"]
+                              learning_rate = best_params["learning_rate"]
+                              units_per_layers = []
+                              activations = []
+                              for i in range(n_layers):
+                                    units_per_layers.append(best_params[f"units_{i}"])
+                                    activations.append(best_params[f"act_{i}"])
+
+                              print(f"Best params: {best_params}")
+                              self.model_sklearn = FeedForwardNeuralNetwork(
+                                                                  num_features=self.dataset.X_train.shape[1], 
                                                                   num_classes=self.dataset.y_train.value_counts().shape[0], 
-                                                                  model_keras=model_keras)
-                              self.model_sklearn.is_fitted_ = True
-                                                                  
+                                                                  n_layers=n_layers,
+                                                                  units_per_layer=units_per_layers,
+                                                                  activations=activations,
+                                                                  learning_rate=learning_rate)
+                              self.model_sklearn.model = best_model
                               self.assesment["model_sklearn"] = self.model_sklearn
       
       def predict(self):
+                  
+                  if self.model_type == "stacking":
+                        print(f"ESTIMTORS AT PREDICTION ARE: {self.model_sklearn.estimators}")
+                  
                   data = self.get_predict_data()
 
                   start_time = time.time()

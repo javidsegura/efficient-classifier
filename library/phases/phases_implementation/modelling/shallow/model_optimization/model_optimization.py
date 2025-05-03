@@ -32,7 +32,7 @@ class Optimizer():
                         estimator=self.model_sklearn,
                         param_grid=param_grid,
                         n_iter=max_iter,
-                        cv=5,      
+                        cv=2,      
                         scoring='r2' if self.dataset.modelTask == "regression" else 'accuracy',
                         verbose=3,
                         random_state=42,
@@ -43,7 +43,7 @@ class Optimizer():
                         estimator=self.model_sklearn,
                         param_distributions=param_grid,
                         n_iter=max_iter,  
-                        cv=5,       
+                        cv=2,       
                         scoring='r2' if self.dataset.modelTask == "regression" else 'accuracy',
                         verbose=3,
                         random_state=42,
@@ -54,7 +54,7 @@ class Optimizer():
                         estimator=self.model_sklearn,
                         search_spaces=param_grid,
                         n_iter=max_iter,
-                        cv=5,
+                        cv=2,
                         scoring='r2' if self.dataset.modelTask == "regression" else 'accuracy',
                         verbose=3,
                         random_state=42,
@@ -63,18 +63,10 @@ class Optimizer():
             elif type == "bayes_nn":
                   assert self.modelObject is not None, "Model object must be provided"
                   print(f"Model object: {self.modelObject.tuning_states['in']}")
-                  build_model = self.modelObject.tuning_states["pre"].model_sklearn._get_compiled_model_optimized(num_features=self.dataset.X_train.shape[1],
-                                                                                                                   num_classes=self.dataset.y_train.value_counts().shape[0])
-                  optimizer = kt.BayesianOptimization(
-                        hypermodel=build_model,
-                        objective="val_accuracy",
-                        max_trials=max_iter,
-                        executions_per_trial=1, # put to three when full-test
-                        seed=42,
-                        directory="results/bayes_opt_results",
-                        project_name=f"{self.modelName}_bayes_opt",
-                        overwrite=True
-                  )
+                  optimizer = self.modelObject.tuning_states["pre"].model_sklearn.get_tuned_model(max_trials=max_iter,
+                                                                                                   executions_per_trial=1,
+                                                                                                   directory="results/bayes_opt_results",
+                                                                                                   project_name=f"{self.modelName}_bayes_opt")
             else:
                   raise ValueError(f"Invalid optimizer type: {type}")
             return optimizer 
@@ -82,13 +74,10 @@ class Optimizer():
       def fit(self):
             print(f" => STARTING OPTIMIZATION FOR {self.modelName}")
             if self.optimizer_type == "bayes_nn":
-                  self.optimizer.search(self.dataset.X_train, 
-                                       self.dataset.y_train, 
-                                       validation_data=(self.dataset.X_val, self.dataset.y_val),
-                                       epochs=self.epochs,
-                                       batch_size=32,
-                                       callbacks=[get_early_stopping()]
-                                       )
+                  self.modelObject.tuning_states["pre"].model_sklearn.tuner_search(self.dataset.X_train, 
+                                                                     self.dataset.y_train, 
+                                                                     self.dataset.X_val, 
+                                                                     self.dataset.y_val)
             else:
                   self.optimizer.fit(self.dataset.X_train, self.dataset.y_train)
             print(f" => FINISHED OPTIMIZATION FOR {self.modelName}")

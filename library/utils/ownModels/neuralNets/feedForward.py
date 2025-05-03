@@ -13,102 +13,146 @@ from tensorflow.keras.layers import Dropout
 
 from sklearn.base import BaseEstimator, ClassifierMixin
 
-
+import kerastuner as kt
+from sklearn.base import BaseEstimator, ClassifierMixin
 import numpy as np
+
 class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
-      """
-      Defines a standard non-optimized architecture 
+      def __init__(self,
+                  num_features: int,
+                  num_classes:   int,
+                  batch_size:    int = 128,
+                  epochs:        int = 20,
+                  n_layers:      int = 1,
+                  units_per_layer: list = [128],
+                  activations:   list = ['relu'],
+                  learning_rate: float = 1e-3
+                  ):
+            # store all hyper‑parameters
+            self.num_features  = num_features
+            self.num_classes   = num_classes
+            self.batch_size    = batch_size
+            self.epochs        = epochs
+            self.n_layers      = n_layers
+            self.units_per_layer = units_per_layer
+            self.activations   = activations
+            self.learning_rate = learning_rate
 
-      Parameters
-      ----------
-      input_shape : tuple
-            The shape of the input data
-      """
-      def __init__(self, num_features: int, num_classes: int, model_keras: object = None) -> None:
-            self.num_features = num_features
-            self.num_classes = num_classes
-            if model_keras is None:
-                  self.model = self._compile_model()
-            else:
-                  self.model = model_keras
+            # placeholder for the trained model
+            self.model = None
 
-      def _compile_model(self):
-            model = Sequential([
-                  tf.keras.Input(shape=(self.num_features,)),  
-                  Dense(128, activation='relu', kernel_initializer='glorot_uniform'),
-                  Dense(self.num_classes, activation='softmax', kernel_initializer='glorot_uniform') 
-            ])
+      def _build_optimizeable_model(self, hp):
+            """
+            Model‑building function for the tuner.
+            Uses `hp` to sample:
+            - number of layers
+            - units per layer
+            - activation
+            - learning rate
+            """
+            model = Sequential()
+            model.add(Input(shape=(self.num_features,)))
+
+            # Tune the number of layers: between 1 and 5
+            n_layers = hp.Int('n_layers', 1, 5, default=self.n_layers)
+            for i in range(n_layers):
+                  # Tune units per layer
+                  units = hp.Choice(f'units_{i}', [32, 64, 128, 256, 512],
+                                    default=self.units_per_layer[i]
+                                    if i < len(self.units_per_layer) else 128)
+                  # Tune activation per layer
+                  act   = hp.Choice(f'act_{i}', ['relu', 'tanh', 'selu'],
+                                    default=self.activations[i]
+                                    if i < len(self.activations) else 'relu')
+                  model.add(Dense(units, activation=act))
+
+            model.add(Dense(self.num_classes, activation='softmax'))
+
+            # Tune learning rate
+            lr = hp.Float('learning_rate', 1e-4, 1e-2, sampling='log',
+                        default=self.learning_rate)
+
             model.compile(
-                  optimizer=AdamW(learning_rate=0.001, weight_decay=1e-4),
+                  optimizer=AdamW(learning_rate=lr, weight_decay=1e-4),
                   loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy']  # Only built-in metrics unless you define custom ones
+                  metrics=['accuracy']
             )
-            assert model is not None, "Model is not built"
             return model
       
-      def _get_compiled_model_optimized(self, num_features, num_classes):
-            def _compiled_model_optimized(hp):
-                  model = Sequential()
-                  model.add(Input(shape=(num_features, )))
+      def _build_parametrized_model(self):
+            model = Sequential()
+            model.add(Input(shape=(self.num_features,)))
+            for i in range(self.n_layers):
+                  model.add(Dense(self.units_per_layer[i], activation=self.activations[i]))
+            model.add(Dense(self.num_classes, activation='softmax'))
 
-                  for i in range(hp.Int('num_layers', 1, 5)):
-                        neurons = hp.Choice(f'units_{i}', [32, 64, 128, 256, 512])
-                        model.add(Dense(neurons, activation='relu'))
-
-                  # Output
-                  model.add(Dense(num_classes, activation='softmax'))
-
-                  # 3) Learning rate: log-uniform from 1e-4 to 1e-2
-                  lr = hp.Float('learning_rate', 1e-4, 1e-2, sampling='log')
-                  model.compile(
-                        optimizer=AdamW(learning_rate=lr, weight_decay=1e-4),
-                        loss='sparse_categorical_crossentropy',
-                        metrics=['accuracy']
-                  )
-                  return model
-            return _compiled_model_optimized
-      
-      def fit(self, X_data, y_data, **kwargs):
-            X_val = kwargs.get("X_val", None)
-            y_val = kwargs.get("y_val", None)
-            if X_val is not None and y_val is not None:
-                  print(f"Fitting model with validation data")
-                  self.history = self.model.fit(
-                              X_data, 
-                              y_data, 
-                              epochs=5,
-                              batch_size=128, 
-                              validation_data=(X_val, y_val),
-                              callbacks=[get_early_stopping()])
-            else:
-                  print(f"Fitting model without validation data")
-                  self.history = self.model.fit(
-                              X_data, 
-                              y_data, 
-                              epochs=5,
-                              batch_size=128, 
-                              callbacks=[get_early_stopping()])
+            lr = self.learning_rate
+            model.compile(
+                  optimizer=AdamW(learning_rate=lr, weight_decay=1e-4),
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy']
+            )
             
+            return model
+      
+      def tuner_search(self,
+                       X_train,
+                       y_train,
+                       X_val,
+                       y_val):
+            
+            self.tuner.search(
+                        X_train, 
+                        y_train,
+                        validation_data=(X_val, y_val),
+                        batch_size=self.batch_size,
+                        epochs=self.epochs,
+                        callbacks=[get_early_stopping()])
+
+      def get_tuned_model(self,
+                  max_trials:  int = 20,
+                  executions_per_trial: int = 1,
+                  directory:   str = 'kt_tuning',
+                  project_name: str = 'ffnn'):
+            """
+            Run Bayesian hyperparameter search.
+            """
+            self.tuner = kt.BayesianOptimization(
+                  hypermodel=self._build_optimizeable_model,
+                  objective='val_accuracy',
+                  max_trials=max_trials,
+                  executions_per_trial=executions_per_trial,
+                  directory=directory,
+                  project_name=project_name,
+                  overwrite=True
+            )
+
+            return self.tuner
+
+      def fit(self, X, y, **kwargs):
+            self.model = self._build_parametrized_model()
+            fit_args = dict(
+                  x=X, y=y,
+                  batch_size=self.batch_size,
+                  epochs=self.epochs,
+                  callbacks=[get_early_stopping()]
+            )
+            if "X_val" in kwargs and "y_val" in kwargs:
+                  fit_args["validation_data"] = (kwargs["X_val"], kwargs["y_val"])
+            self.history = self.model.fit(**fit_args)
             self.is_fitted_ = True
             return self
-      
-      def predict(self, X_data):
-            self.soft_predictions = self.model.predict(X_data)
-            self.hard_predictions = np.argmax(self.soft_predictions, axis=1)
-            return self.hard_predictions
-      
+
+      def predict(self, X):
+            preds = self.model.predict(X)
+            return np.argmax(preds, axis=1)
+
       def get_params(self, deep=True):
             return {
-                  "num_features": self.num_features,
-                  "num_classes": self.num_classes,
-                  "model_keras": self.model
+                  'num_features':  self.num_features,
+                  'num_classes':   self.num_classes,
+                  'activations':   self.activations,
+                  'learning_rate': self.learning_rate,
+                  'batch_size':    self.batch_size,
+                  'epochs':        self.epochs
             }
-            # return {
-            #       "num_layers": len(self.model.layers),
-            #       "num_neurons": [layer.units for layer in self.model.layers if isinstance(layer, Dense)],
-            #       "activations": [layer.activation.__name__ for layer in self.model.layers if isinstance(layer, Dense)],
-            #       "optimizer": type(self.model.optimizer).__name__,
-            #       "loss": self.model.loss,
-            #       "metrics": [m.name if hasattr(m, 'name') else m for m in self.model.metrics]
-            # }
-      
