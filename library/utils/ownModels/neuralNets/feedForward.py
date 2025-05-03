@@ -11,10 +11,11 @@ from tensorflow.keras.optimizers import AdamW
 from tensorflow.keras.metrics import Precision, Recall, AUC
 from tensorflow.keras.layers import Dropout
 
+from sklearn.base import BaseEstimator, ClassifierMixin
 
 
 import numpy as np
-class FeedForwardNeuralNetwork():
+class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
       """
       Defines a standard non-optimized architecture 
 
@@ -88,7 +89,7 @@ class FeedForwardNeuralNetwork():
                               batch_size=128, 
                               callbacks=[get_early_stopping()])
             
-
+            self.is_fitted_ = True
             return self
       
       def predict(self, X_data):
@@ -96,7 +97,7 @@ class FeedForwardNeuralNetwork():
             self.hard_predictions = np.argmax(self.soft_predictions, axis=1)
             return self.hard_predictions
       
-      def get_params(self):
+      def get_params(self, deep=True):
             return {
                   "num_layers": len(self.model.layers),
                   "num_neurons": [layer.units for layer in self.model.layers if isinstance(layer, Dense)],

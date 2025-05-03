@@ -85,7 +85,7 @@ class PreTuningState(ModelState):
                               X_data, y_data = self.get_fit_data()
                   print(f"Lenght of X_data: {X_data.shape[0]}")
                   if self.model_type == "neural_network":
-                              self.assesment["model_sklearn"] = self.model_sklearn.fit(X_data, y_data, X_val=X_val, y_val=y_val)
+                              self.assesment["model_sklearn"] = self.model_sklearn.fit(X_data, y_data, X_val=X_val, y_val=y_val, isOptimizedVersion=False)
                   else:
                               self.assesment["model_sklearn"] = self.model_sklearn.fit(X_data, y_data)
                   end_time = time.time()
@@ -176,6 +176,7 @@ class InTuningState(ModelState):
                         self.model_sklearn = FeedForwardNeuralNetwork(num_features=self.dataset.X_train.shape[1], 
                                                                num_classes=self.dataset.y_train.value_counts().shape[0], 
                                                                model_keras=model_keras)
+                        self.model_sklearn.is_fitted_ = True
                                                                
                         self.assesment["model_sklearn"] = self.model_sklearn
       
