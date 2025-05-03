@@ -99,11 +99,16 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
       
       def get_params(self, deep=True):
             return {
-                  "num_layers": len(self.model.layers),
-                  "num_neurons": [layer.units for layer in self.model.layers if isinstance(layer, Dense)],
-                  "activations": [layer.activation.__name__ for layer in self.model.layers if isinstance(layer, Dense)],
-                  "optimizer": type(self.model.optimizer).__name__,
-                  "loss": self.model.loss,
-                  "metrics": [m.name if hasattr(m, 'name') else m for m in self.model.metrics]
+                  "num_features": self.num_features,
+                  "num_classes": self.num_classes,
+                  "model_keras": self.model
             }
+            # return {
+            #       "num_layers": len(self.model.layers),
+            #       "num_neurons": [layer.units for layer in self.model.layers if isinstance(layer, Dense)],
+            #       "activations": [layer.activation.__name__ for layer in self.model.layers if isinstance(layer, Dense)],
+            #       "optimizer": type(self.model.optimizer).__name__,
+            #       "loss": self.model.loss,
+            #       "metrics": [m.name if hasattr(m, 'name') else m for m in self.model.metrics]
+            # }
       
