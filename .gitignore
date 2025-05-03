@@ -4,4 +4,5 @@ __pycache__
 *.pyc
 results/plots/*
 results/serialization/*
+results/bayes_opt_results/*
 .env
