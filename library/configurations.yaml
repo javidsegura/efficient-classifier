@@ -43,7 +43,7 @@ feature_analysis_runner:
         max_iter: 1000
         delete_features: True
       boruta:
-        max_iter: 10
+        max_iter: 20
         delete_features: True
 
 modelling_runner:
@@ -61,35 +61,35 @@ modelling_runner:
           learning_rate: [0.01, 0.05, 0.1, 0.2]
           subsample: [0.5, 0.75, 1.0]
           n_estimators: [50, 100, 150, 200]
-          max_depth: [None, 10, 20, 30]
+          max_depth: [10, 20, 30]
           min_samples_split: [2, 5, 10]
           min_samples_leaf: [1, 2, 4]
         random_forest:
           n_estimators: [50, 100, 150, 200]
-          max_depth: [None, 10, 20, 30]
+          max_depth: [10, 20, 30]
           min_samples_split: [2, 5, 10]
           min_samples_leaf: [1, 2, 4]
         decision_tree:
           criterion: ['gini', 'entropy']
-          max_depth: [None, 10, 20, 30]
+          max_depth: [10, 20, 30]
           min_samples_split: [2, 5, 10]
           min_samples_leaf: [1, 2, 5]
           max_features: ['sqrt', 'log2']
           ccp_alpha: [0.0, 0.01, 0.1]
       tuner_params:
-        max_iter: 1
+        max_iter: 20
         epochs: 1
         
     neural_network:
        initial_architecture:
           batch_size: 128
-          epochs: 1
-          n_layers: 1
-          units_per_layer: [128]
-          activations: ['relu']
+          epochs: 30
+          n_layers: 2
+          units_per_layer: [512, 512]
+          activations: ['relu', 'relu']
           learning_rate: 0.001
     model_assesment:
-      comments: "I know cate will not like this comment"
+      comments: "HEAVY TRAINING GOING ON"
       cross_model_metrics: ["f1-score", "recall", "precision", "accuracy"]
       intra_model_metrics: ["f1-score", "recall", "precision", "accuracy"]
       results_summary:
