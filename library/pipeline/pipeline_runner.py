@@ -176,6 +176,7 @@ class PipelineRunner:
                                                             channel=self.variables["BOT"]["channel"])
                         except Exception as e:
                               self.logger.error(f"Error running phase '{phase_name}': {e}")
+                              print(f"ERROR RUNNING PHASE '{phase_name}': {e}")
                               self.slack_bot.send_message(f"Error running phase '{phase_name}': {e}",
                                                       channel=self.variables["BOT"]["channel"])
 

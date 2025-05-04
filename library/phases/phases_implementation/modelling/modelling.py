@@ -36,6 +36,10 @@ class Modelling:
 
       # 1) Adding models
       def add_model(self, model_name: str, model_sklearn: object, model_type: str = "classical"): 
+            """
+            Warning: as soon you add a model you cant modify the dataset 
+            
+            """
             assert model_type in ["classical", "neural_network", "stacking"]
             new_model = None
             if self.dataset.modelTask == "classification":

@@ -34,8 +34,7 @@ class ModellingRunner(PhaseRunner):
             because we have observed that a certain model is not performing well and taking too long to fit/predict)
             """
             self._create_pipelines_divergences()
-            pipelines = list(self.pipeline_manager.pipelines["not_baseline"].values()) # CHANGE TO NN SPECIFIC
-            default_pipeline = pipelines[0]
+            nn_pipeline = self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"]
 
             # Ensembled models
             self.pipeline_manager.pipelines["not_baseline"]["ensembled"].modelling.add_model("Gradient Boosting", 
@@ -56,8 +55,8 @@ class ModellingRunner(PhaseRunner):
             # Neural Network model
             self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"].modelling.add_model("Feed Forward Neural Network",
                                                                                              FeedForwardNeuralNetwork(
-                                                                                                num_features=default_pipeline.dataset.X_train.shape[1], 
-                                                                                                num_classes=default_pipeline.dataset.y_train.value_counts().shape[0],
+                                                                                                num_features=nn_pipeline.dataset.X_train.shape[1], 
+                                                                                                num_classes=nn_pipeline.dataset.y_train.value_counts().shape[0],
                                                                                                 batch_size=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["batch_size"],
                                                                                                 epochs=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["epochs"],
                                                                                                 n_layers=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["n_layers"],
