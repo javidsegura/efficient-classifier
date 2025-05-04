@@ -11,7 +11,7 @@ class PreTuningRunner(ModellingRunnerStates):
 
       def _general_analysis(self):
             # Evaluating and storing models
-            comments = "I know cate will not like this comment"
+            comments = self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["comments"]
             self.pipeline_manager.all_pipelines_execute(methodName="modelling.evaluate_and_store_models", 
                                                        verbose=False,
                                                        comments=comments, 
@@ -20,27 +20,26 @@ class PreTuningRunner(ModellingRunnerStates):
             
             # Cross model comparison
             self.pipeline_manager.pipelines_analysis.plot_cross_model_comparison(
-                  metric=["f1-score", "recall", "precision", "accuracy"],
+                  metric=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["cross_model_metrics"],
                   save_plots=self.save_plots,
                   save_path=self.save_path)
             
             # Time based model performance
-            metrics_df = self.pipeline_manager.pipelines_analysis.plot_results_df(metrics=["timeToFit", "timeToPredict"],
+            metrics_df = self.pipeline_manager.pipelines_analysis.plot_results_df(metrics=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["results_df_metrics"],
                                                                                  save_plots=self.save_plots,
                                                                                  save_path=self.save_path)
 
             # Results summary
-            self.pipeline_manager.pipelines_analysis.plot_results_summary(training_metric="timeToFit",
-                                                                         performance_metric="accuracy",
+            self.pipeline_manager.pipelines_analysis.plot_results_summary(training_metric=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["results_summary"]["training_metric"],
+                                                                         performance_metric=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["results_summary"]["performance_metric"],
                                                                          save_plots=self.save_plots,
                                                                          save_path=self.save_path)
             # Intra model comparison
-            self.pipeline_manager.pipelines_analysis.plot_intra_model_comparison(metrics=["f1-score", "recall", "precision", "accuracy"],
+            self.pipeline_manager.pipelines_analysis.plot_intra_model_comparison(metrics=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["intra_model_metrics"],
                                                                                  save_plots=self.save_plots,
                                                                                  save_path=self.save_path)
-            
             # Per-epoch progress
-            self.pipeline_manager.pipelines_analysis.plot_per_epoch_progress(metrics=["accuracy", "loss"],
+            self.pipeline_manager.pipelines_analysis.plot_per_epoch_progress(metrics=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["per_epoch_metrics"],
                                                                                  save_plots=self.save_plots,
                                                                                  save_path=self.save_path)
             
@@ -48,7 +47,7 @@ class PreTuningRunner(ModellingRunnerStates):
             residuals, confusion_matrices = self.pipeline_manager.pipelines_analysis.plot_confusion_matrix(save_plots=self.save_plots,
                                                                                                           save_path=self.save_path)
             
-   
+
             # Feature importance
             importances_dfs = self.pipeline_manager.pipelines_analysis.plot_feature_importance(save_plots=self.save_plots,
                                                                                                 save_path=self.save_path)

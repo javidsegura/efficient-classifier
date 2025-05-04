@@ -22,6 +22,9 @@ from library.phases.runners.modelling.modelling_runner import ModellingRunner
 from library.utils.decorators.timer import timer
 from library.utils.slackBot.bot import SlackBot
 
+import yaml
+
+
 """ Phases are: 
 - Splitting
 
@@ -32,13 +35,16 @@ class PipelineRunner:
                    dataset_path: str, 
                    model_task: str,
                    pipelines_names: dict[str, list[str]],
-                   include_plots: bool = True
+                   include_plots: bool = True,
+                   serialize_results: bool = False,
+                   variables: dict = None
                    ) -> None:
             """
             This is some gerat class
             """
             self.dataset_path = dataset_path
             self.model_task = model_task
+            self.variables = variables
             self._set_up_folders()
             self._set_up_pipelines(pipelines_names)
             self._set_up_logger()
@@ -55,7 +61,8 @@ class PipelineRunner:
                                                             save_path=self.plots_path + "feature_analysis/"),
                   "modelling": ModellingRunner(self.pipeline_manager,
                                                 include_plots=include_plots,
-                                                save_path=self.plots_path + "modelling/")
+                                                save_path=self.plots_path + "modelling/",
+                                                serialize_results=serialize_results)
                   
             }
             self.slack_bot = SlackBot()
@@ -71,7 +78,7 @@ class PipelineRunner:
                   combined_pipelines[category_name] = {}
                   for pipeline_name in pipelines:
                         combined_pipelines[category_name][pipeline_name] = default_pipeline
-            self.pipeline_manager = PipelineManager(combined_pipelines)
+            self.pipeline_manager = PipelineManager(combined_pipelines, variables=self.variables)
 
       
       def _set_up_logger(self) -> None:
@@ -112,17 +119,17 @@ class PipelineRunner:
                               time.sleep(.1)
                               self.slack_bot.send_message(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}\
                                                           Result: {str(phase_result)}",
-                                                          channel="#general")
+                                                          channel=self.variables["BOT"]["channel"])
 
                   run_phase()
             # Send slack bot all the images in the results/plots folder
-            for root, dirs, files in os.walk(self.plots_path):
-                  for file in files:
-                        file_path = os.path.join(root, file)
-                        self.slack_bot.send_file(file_path,
-                                                 channel="#general",
-                                                 title=file,
-                                                 initial_comment="")
+            # for root, dirs, files in os.walk(self.plots_path):
+            #       for file in files:
+            #             file_path = os.path.join(root, file)
+            #             self.slack_bot.send_file(file_path,
+            #                                      channel=self.variables["BOT"]["channel"],
+            #                                      title=file,
+            #                                      initial_comment="")
             
 
 

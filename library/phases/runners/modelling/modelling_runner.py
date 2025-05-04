@@ -22,8 +22,9 @@ from library.phases.runners.modelling.utils.states.modelling_runner_states_in im
 from library.phases.runners.modelling.utils.states.modelling_runner_states_post import PostTuningRunner
 
 class ModellingRunner(PhaseRunner):
-      def __init__(self, pipeline_manager: PipelineManager, include_plots: bool = False, save_path: str = "") -> None:
+      def __init__(self, pipeline_manager: PipelineManager, include_plots: bool = False, save_path: str = "", serialize_results: bool = False) -> None:
             super().__init__(pipeline_manager, include_plots, save_path)
+            self.serialize_results = serialize_results
       
       def _model_initializers(self):
             self._create_pipelines_divergences()
@@ -51,7 +52,12 @@ class ModellingRunner(PhaseRunner):
                                                                                              FeedForwardNeuralNetwork(
                                                                                                 num_features=default_pipeline.dataset.X_train.shape[1], 
                                                                                                 num_classes=default_pipeline.dataset.y_train.value_counts().shape[0],
-                                                                                                epochs=10
+                                                                                                batch_size=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["batch_size"],
+                                                                                                epochs=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["epochs"],
+                                                                                                n_layers=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["n_layers"],
+                                                                                                units_per_layer=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["units_per_layer"],
+                                                                                                activations=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["activations"],
+                                                                                                learning_rate=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["learning_rate"]
                                                                                                 ),
                                                                                              model_type="neural_network")
             # Baseline models
@@ -64,22 +70,22 @@ class ModellingRunner(PhaseRunner):
       def _exclude_models(self):
 
             # Ensembled models
-            self.pipeline_manager.pipelines["not_baseline"]["ensembled"].modelling.models_to_exclude = ["Gradient Boosting"]
+            self.pipeline_manager.pipelines["not_baseline"]["ensembled"].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["ensembled"]
 
             # Tree-based models
-            self.pipeline_manager.pipelines["not_baseline"]["tree_based"].modelling.models_to_exclude = []
+            self.pipeline_manager.pipelines["not_baseline"]["tree_based"].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["tree_based"]
 
             # Support Vector Machines models
-            self.pipeline_manager.pipelines["not_baseline"]["support_vector_machine"].modelling.models_to_exclude = ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
+            self.pipeline_manager.pipelines["not_baseline"]["support_vector_machine"].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["support_vector_machine"]
 
             # Naive Bayes model
-            self.pipeline_manager.pipelines["not_baseline"]["naive_bayes"].modelling.models_to_exclude = []
+            self.pipeline_manager.pipelines["not_baseline"]["naive_bayes"].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["naive_bayes"]
 
             # Feed Forward Neural Network model
-            self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"].modelling.models_to_exclude = []
+            self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["feed_forward_neural_network"]
 
             # Baseline models
-            self.pipeline_manager.pipelines["baseline"]["baselines"].modelling.models_to_exclude = [ ]
+            self.pipeline_manager.pipelines["baseline"]["baselines"].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["baselines"]
       
       def _create_pipelines_divergences(self):
             self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="ensembled")
@@ -117,6 +123,12 @@ class ModellingRunner(PhaseRunner):
                                                   save_plots=self.include_plots,
                                                   save_path=self.save_path)
             post_results = post_tuning_runner.run()
+
+            if self.serialize_results:
+                  if self.pipeline_manager.variables["modelling_runner"]["serialize_models"]["serialize_best_performing_model"]:
+                        self.pipeline_manager.serialize_models(models_to_serialize=self.pipeline_manager.best_performing_model["modelName"])
+                  self.pipeline_manager.serialize_models(models_to_serialize=self.pipeline_manager.variables["modelling_runner"]["serialize_models"]["models_to_serialize"])
+                  self.pipeline_manager.serialize_pipelines(pipelines_to_serialize=self.pipeline_manager.variables["modelling_runner"]["serialize_models"]["pipelines_to_serialize"])
 
             return {"pre_tuning_runner": pre_results,
                     "in_tuning_runner": in_results,

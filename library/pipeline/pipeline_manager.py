@@ -16,11 +16,12 @@ class PipelineManager:
       Evaluates all pipelines
       
       """
-      def __init__(self, pipelines: dict[str, dict[str, Pipeline]], serializer_type: str="joblib"):
+      def __init__(self, pipelines: dict[str, dict[str, Pipeline]], serializer_type: str="joblib", variables: dict = None):
             self.pipelines = pipelines
             self._pipeline_state = None # Can only take upon "pre", "in", "post"
             self.best_performing_model = None
             self.all_models = None
+            self.variables = variables
 
             # Sub-objects
             self.pipelines_analysis = PipelinesAnalysis(pipelines)

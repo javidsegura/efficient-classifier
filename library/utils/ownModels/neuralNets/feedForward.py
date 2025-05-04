@@ -28,7 +28,6 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
                   activations:   list = ['relu'],
                   learning_rate: float = 1e-3
                   ):
-            # store all hyper‑parameters
             self.num_features  = num_features
             self.num_classes   = num_classes
             self.batch_size    = batch_size

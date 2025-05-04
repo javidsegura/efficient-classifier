@@ -14,7 +14,7 @@ class NeuralNetsPlots:
             assert all(metric in self.history.keys() for metric in metrics), f"Metric must be in {self.history.keys()}"
             if "f1_score" in metrics:
                   raise NotImplementedError("F1 score is not implemented yet. ") # Currently having class-wide analysis
-
+            
             n_rows = math.ceil(len(metrics) / n_cols)
             print(f"There are {n_rows} rows and {n_cols} columns")
             

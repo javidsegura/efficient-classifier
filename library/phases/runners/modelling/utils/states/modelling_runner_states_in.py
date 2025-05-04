@@ -13,7 +13,7 @@ class InTuningRunner(ModellingRunnerStates):
 
       def _general_analysis(self):
             # Evaluating and storing models
-            comments = "Cate will definetely not like this?"
+            comments = self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["comments"]
             self.pipeline_manager.all_pipelines_execute(methodName="modelling.evaluate_and_store_models", 
                                                        exclude_category="baseline",
                                                        comments=comments, 
@@ -22,22 +22,22 @@ class InTuningRunner(ModellingRunnerStates):
             
             # Cross model comparison
             self.pipeline_manager.pipelines_analysis.plot_cross_model_comparison(
-                  metric=["f1-score", "recall", "precision", "accuracy"],
+                  metric=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["cross_model_metrics"],
                   save_plots=self.save_plots,
                   save_path=self.save_path)
             
             # Time based model performance
-            metrics_df = self.pipeline_manager.pipelines_analysis.plot_results_df(metrics=["timeToFit", "timeToPredict"],
+            metrics_df = self.pipeline_manager.pipelines_analysis.plot_results_df(metrics=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["results_df_metrics"],
                                                                                  save_plots=self.save_plots,
                                                                                  save_path=self.save_path)
 
             # Results summary
-            self.pipeline_manager.pipelines_analysis.plot_results_summary(training_metric="timeToFit",
-                                                                         performance_metric="accuracy",
+            self.pipeline_manager.pipelines_analysis.plot_results_summary(training_metric=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["results_summary"]["training_metric"],
+                                                                         performance_metric=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["results_summary"]["performance_metric"],
                                                                          save_plots=self.save_plots,
                                                                          save_path=self.save_path)
             # Intra model comparison
-            self.pipeline_manager.pipelines_analysis.plot_intra_model_comparison(metrics=["f1-score", "recall", "precision", "accuracy"],
+            self.pipeline_manager.pipelines_analysis.plot_intra_model_comparison(metrics=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["intra_model_metrics"],
                                                                                  save_plots=self.save_plots,
                                                                                  save_path=self.save_path)
             
@@ -52,23 +52,23 @@ class InTuningRunner(ModellingRunnerStates):
 
       def _get_grid_space(self):
             rf_grid = {
-                  'n_estimators': [50, 100, 150, 200], 
-                  'max_depth': [None, 10, 20, 30], 
-                  'min_samples_split': [2, 5, 10], 
-                  'min_samples_leaf': [1, 2, 4,]
+                  'n_estimators': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["n_estimators"], 
+                  'max_depth': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["max_depth"], 
+                  'min_samples_split': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["min_samples_split"], 
+                  'min_samples_leaf': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["min_samples_leaf"]
             }
 
             dt_grid = {
-                  'criterion': ['gini', 'entropy'],
-                  'max_depth': [None, 10, 20, 30],
-                  'min_samples_split': [2, 5, 10],
-                  'min_samples_leaf': [1, 2, 5],
-                  'max_features': [None, 'sqrt', 'log2'],
-                  'ccp_alpha': [0.0, 0.01, 0.1]
+                  'criterion': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["criterion"],
+                  'max_depth': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["max_depth"],
+                  'min_samples_split': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["min_samples_split"],
+                  'min_samples_leaf': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["min_samples_leaf"],
+                  'max_features': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["max_features"],
+                  'ccp_alpha': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["ccp_alpha"]
 
             } 
 
-            gnb_grid = {
+            gnb_grid = { # has to be hard-coded => Real datatype is not supported
                   'var_smoothing': Real(1e-12, 1e-6, prior='log-uniform')
             }
 
@@ -80,23 +80,23 @@ class InTuningRunner(ModellingRunnerStates):
                   "Random Forest": {
                         "optimizer_type": "bayes",
                         "param_grid": rf_grid,
-                        "max_iter": 5
+                        "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
                   },
                   "Decision Tree": {
                         "optimizer_type": "bayes",
                         "param_grid": dt_grid,
-                        "max_iter": 5
+                        "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
                   },
                   "Naive Bayes": {
                         "optimizer_type": "bayes",
                         "param_grid": gnb_grid,
-                        "max_iter": 5
+                        "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
                   },
                   "Feed Forward Neural Network": {
                         "optimizer_type": "bayes_nn",
                         "param_grid": None, # its hardcoded
-                        "max_iter": 5,
-                        "epochs": 10
+                        "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"],
+                        "epochs": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["epochs"]
                   }
             }
             return modelNameToOptimizer
