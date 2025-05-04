@@ -1,6 +1,7 @@
 
 
-# LIBRARY EXPLANATION
+# LIBRARY SUMMARY
+This document plans to provide an overview of the design and structure of the library. For more detailed explanations you can read "library_detailed"
 
  ### JARGONS USED
  - Pipeline = a collection of similar models being trained from start to finish. All pipelines have the same dataset but not all end up with the same features (tailored for to maximize model performance)
@@ -80,6 +81,7 @@ There was a bizarre SSL bug with the slack bot in Fede's computer. Try to debug 
 
 ## USEFUL COMMANDS (MacOS)
 - CMD + P => lets you access any module (python file) by writing its name. Useful when you know the name and want to avoid navigating all over the library.
+- CMD + click (in a function header) => it automatically opens up the file where that function is implemented (if its not the one you are already in)
 
 ## OOP CONCEPTS YOU NEED TO BE FAMILIAR WITH
 - What is an object
@@ -89,3 +91,7 @@ There was a bizarre SSL bug with the slack bot in Fede's computer. Try to debug 
 - Class abstraction
 
 You need to understand these concepts (less than 45 minutes in total, approx) in order to integrate your code properly.
+
+## EXTRAS
+- For code documentation (writing docstrings in the classes and its methods) we are using 'reStructuredText (reST) Style'. Make sure u adhere to that standard.
+- If you are coding with LLMs in the IDE, I strongly suggest adding all these documentation files in the context window of your prompt

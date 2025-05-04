@@ -1,6 +1,6 @@
 
 
-from library.utils.phase_runner.phase_runner import PhaseRunner
+from library.utils.phase_runner_definition.phase_runner import PhaseRunner
 from library.pipeline.pipeline_manager import PipelineManager
 
 class DataPreprocessingRunner(PhaseRunner):

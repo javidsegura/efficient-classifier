@@ -14,7 +14,7 @@ from library.utils.ownModels.majorityClassModel import MajorityClassClassifier
 from library.utils.ownModels.neuralNets.feedForward import FeedForwardNeuralNetwork
 
 
-from library.utils.phase_runner.phase_runner import PhaseRunner
+from library.utils.phase_runner_definition.phase_runner import PhaseRunner
 from library.pipeline.pipeline_manager import PipelineManager
 
 from library.phases.runners.modelling.utils.states.modelling_runner_states_pre import PreTuningRunner
