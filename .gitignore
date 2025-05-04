@@ -2,6 +2,13 @@
 .venv
 __pycache__
 *.pyc
+<<<<<<< HEAD
 .stored_objects/
 .DS_Store
 library/.DS_Store
+=======
+results/plots/*
+results/serialization/*
+results/bayes_opt_results/*
+.env
+>>>>>>> main

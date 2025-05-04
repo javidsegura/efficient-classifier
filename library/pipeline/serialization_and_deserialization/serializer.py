@@ -1,15 +1,16 @@
 
 
 from library.pipeline.pipeline import Pipeline
-from library.phases.model_selection.model.model import Model
+from library.phases.phases_implementation.modelling.shallow.model_definition.model_base import Model
 
 from library.utils.decorators.timer import timer
 
 import joblib
 import pickle
+import os
 
 from abc import ABC, abstractmethod
-            
+import time
 
 class Serialization:
       """ This class is responsible for serializing the pipelines and models. """
@@ -44,12 +45,13 @@ class SerializationJoblib(Serialization):
       
       def _serialize_pipeline(self, pipeline: Pipeline, pipeline_name: str):
             assert isinstance(pipeline, Pipeline), "Pipeline must be an instance of Pipeline"
-            joblib.dump(pipeline, f"results/pipelines/{pipeline_name}.joblib")
+            joblib.dump(pipeline, f"results/serialization/pipelines/{pipeline_name}_{time.time()}.joblib")
       
       def _serialize_model(self, model: Model, model_name: str):
             assert isinstance(model, Model), "Model must be an instance of Model"
             print(f"Model is {model}")
-            joblib.dump(model, f"results/models/{model_name}.joblib")
+
+            joblib.dump(model, f"results/serialization/models/{model_name}_{time.time()}.joblib")
       
 
 class SerializationPickle(Serialization):
@@ -58,9 +60,9 @@ class SerializationPickle(Serialization):
       
       def _serialize_pipeline(self, pipeline: Pipeline, pipeline_name: str):
             assert isinstance(pipeline, Pipeline), "Pipeline must be an instance of Pipeline"
-            pickle.dump(pipeline, open(f"results/pipelines/{pipeline_name}.pkl", "wb"))
+            pickle.dump(pipeline, open(f"results/pipelines/{pipeline_name}_{time.time()}.pkl", "wb"))
       
       def _serialize_model(self, model: Model, model_name: str):
             assert isinstance(model, Model), "Model must be an instance of Model"
-            pickle.dump(model, open(f"results/models/{model_name}.pkl", "wb"))
+            pickle.dump(model, open(f"results/models/{model_name}_{time.time()}.pkl", "wb"))
       
