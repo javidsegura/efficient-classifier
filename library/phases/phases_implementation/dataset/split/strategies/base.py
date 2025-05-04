@@ -28,13 +28,44 @@ class Split(ABC):
       
 
       def __get_X_y__(self, y_column: str, otherColumnsToDrop: list[str] = []) -> tuple[pd.DataFrame, pd.Series]:
-            """Splits the dataframe into features and target variable"""
+            """
+            
+            Splits the dataframe into features and target variable
+
+            Parameters:
+            ----------
+            y_column: str
+                  The name of the target column
+            otherColumnsToDrop: list[str]
+                  The names of the other columns to drop
+            
+            Returns:
+            -------
+            X: pd.DataFrame
+                  The features
+            y: pd.Series
+                  The target variable
+            
+            """
             X = self.dataset.df.drop(columns=[y_column] + otherColumnsToDrop)
             y = self.dataset.df[y_column]
             return X, y
       
       def plot_per_set_distribution(self, features: list[str], save_plots: bool = False, save_path: str = None):
-            """Plots the distribution of the features for the training, validation and test sets"""
+            """
+            Plots the distribution of the features for the training, validation and test sets. This is going to be meaningful for checking the similarity in statistical distributions between the sets.
+            Note: for high-dimesionality dataset this is going to be computationally expensive.
+
+            Parameters:
+            ----------
+            features: list[str]
+                  The names of the features to plot
+            save_plots: bool
+                  Whether to save the plots
+            save_path: str
+                  The path to save the plots
+            
+            """
             for feature in features:
                   fig, axes = plt.subplots(1, 3, figsize=(15, 5))
                   # Training set plot

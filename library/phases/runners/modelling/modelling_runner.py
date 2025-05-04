@@ -27,6 +27,12 @@ class ModellingRunner(PhaseRunner):
             self.serialize_results = serialize_results
       
       def _model_initializers(self):
+            """
+            We diverge all pipelines first (assuming it has not been done before, delete if it has @Juan or @Fede or @Cate).
+            Then add to each independent pipeline the given models. 
+            Finally we call the function that excludes all the models that we do not want the training to run (either because we are trying to debug and want to run as fast as possible or
+            because we have observed that a certain model is not performing well and taking too long to fit/predict)
+            """
             self._create_pipelines_divergences()
             pipelines = list(self.pipeline_manager.pipelines["not_baseline"].values()) # CHANGE TO NN SPECIFIC
             default_pipeline = pipelines[0]
@@ -62,7 +68,7 @@ class ModellingRunner(PhaseRunner):
                                                                                              model_type="neural_network")
             # Baseline models
             self.pipeline_manager.pipelines["baseline"]["baselines"].modelling.add_model("Logistic Regression (baseline)",
-                                                                                             LogisticRegression())
+                                                                                             LogisticRegression(max_iter=1000))
             self.pipeline_manager.pipelines["baseline"]["baselines"].modelling.add_model("Majority Class (baseline)",
                                                                                              MajorityClassClassifier())     
             self._exclude_models()  

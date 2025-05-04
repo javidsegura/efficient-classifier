@@ -63,6 +63,12 @@ class NoTimeSeries(Split):
             assert train_size + validation_size + test_size == 1, "The sum of the sizes must be 1"
             X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=validation_size + test_size, random_state=self.dataset.random_state) 
             X_val , X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=test_size/(validation_size + test_size), random_state=self.dataset.random_state) 
+            print(f"X_train: {X_train.shape}")
+            print(f"X_val: {X_val.shape}")
+            print(f"X_test: {X_test.shape}")
+            print(f"y_train: {y_train.shape}")
+            print(f"y_val: {y_val.shape}")
+            print(f"y_test: {y_test.shape}")
             self.dataset.X_train, self.dataset.X_val, self.dataset.X_test, self.dataset.y_train, self.dataset.y_val, self.dataset.y_test = X_train, X_val, X_test, y_train, y_val, y_test
             if save_plots:
                   super().plot_per_set_distribution(X.columns, save_plots, save_path)
@@ -71,7 +77,7 @@ class NoTimeSeries(Split):
 
       def asses_split_classifier(self, p: float, step: float, upper_bound: float = .50, save_plots: bool = False, save_path: str = None) -> pd.DataFrame:
             """
-            Assesses the split of the dataframe for classification tasks
+            Assesses the split of the dataframe for classification tasks.
 
             Parameters
             ----------
@@ -150,6 +156,6 @@ class NoTimeSeries(Split):
                   plt.title('Holdout Split Trade-Off: Training Set vs SE')
                   save_or_store_plot(fig, save_plots, save_path + "/split/split_trade_off", "split_trade_off.png")
                   
-            self.df_split_assesment = df_split_assesment.to_dict()
+            self.df_split_assesment = df_split_assesment
             return df_split_assesment 
       

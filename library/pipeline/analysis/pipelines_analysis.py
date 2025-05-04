@@ -19,6 +19,7 @@ class PipelinesAnalysis:
             self.phase = None
             self.best_performing_model = None
             self.neural_nets_plots = None
+            # Below you can find two attributes that are used to store the results of the analysis.
             self.merged_report_per_phase = {
                    "pre": None,
                    "in": None,
@@ -45,7 +46,7 @@ class PipelinesAnalysis:
 
       def _create_report_dataframe(self, report: dict, modelName: str, include_training: bool = False):
             """
-            Creates a dataframe from a classification report
+            Adds accuracy to the report as its own column instead of as an index (as it is by default)
             """
             accuracy = report.pop('accuracy')
             report['modelName'] = modelName + ("_train" if include_training else "")
@@ -63,13 +64,12 @@ class PipelinesAnalysis:
             classification_reports = []
             for category in self.pipelines:
                   for pipeline in self.pipelines[category]:
-                              for modelName in self.pipelines[category][pipeline].modelling.list_of_models:
-                                    # Only select the model that is the best if pipeline is post and and phase is post
-                                    if category == "not_baseline" and self.phase == "post" and self.best_performing_model["modelName"] != modelName:
+                              for modelName in self.pipelines[category][pipeline].modelling.list_of_models: 
+                                    if self.phase == "post" and category == "not_baseline" and self.best_performing_model["modelName"] != modelName:  # Only select the model that is the best if pipeline is in post mode
                                           continue
-                                    if modelName not in self.pipelines[category][pipeline].modelling.models_to_exclude:
+                                    if modelName not in self.pipelines[category][pipeline].modelling.models_to_exclude: # Exclude models that are not to be included
                                           if self.phase != "post":
-                                                      if self.phase == "in" and category == "baseline":
+                                                      if self.phase == "in" and category == "baseline": # We do not evaluate the baseline models while tuning (cause they are not tuned)
                                                             continue                                                            
                                                       y_pred = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_val"]
                                                       y_true = self.pipelines[category][pipeline].modelling.dataset.y_val
@@ -79,7 +79,7 @@ class PipelinesAnalysis:
                                                       df_not_training_report = self._create_report_dataframe(not_training_report, modelName)
                                                       classification_reports.append(df_not_training_report)
 
-                                                      if include_training:
+                                                      if include_training: # inter-model evaluation (meaning u compare the overftting)
                                                             y_pred_train = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_train"]
                                                             y_true_train = self.pipelines[category][pipeline].modelling.dataset.y_train
                                                             training_report = classification_report(y_true_train, y_pred_train, output_dict=True, zero_division=0)
@@ -94,14 +94,15 @@ class PipelinesAnalysis:
                                                       if include_training:
                                                             y_pred_train = self.pipelines[category][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["predictions_train"]
                                                             train = self.pipelines[category][pipeline].modelling.dataset.y_train
-                                                            test = self.pipelines[category][pipeline].modelling.dataset.y_test
-                                                            y_true_train = np.concatenate([train, test])
+                                                            val = self.pipelines[category][pipeline].modelling.dataset.y_val
+                                                            y_true_train = np.concatenate([train, val])
                                                             training_report = classification_report(y_true_train, y_pred_train, output_dict=True, zero_division=0)
                                                             df_training_report = self._create_report_dataframe(training_report, modelName, include_training=True)
                                                             classification_reports.append(df_training_report)
 
-            self.merged_report_per_phase[self.phase] = pd.concat(classification_reports).T
+            self.merged_report_per_phase[self.phase] = pd.concat(classification_reports).T # Get all the reports for the models in all the pipelines together
             
+            # This is given the encoded map (the numbers in target variable to the actual class names)
             if self.encoded_map is not None:
                   reverse_map = {str(v): k for k, v in self.encoded_map.items()} #{number:name}
                   index = self.merged_report_per_phase[self.phase].index.tolist()
@@ -128,8 +129,6 @@ class PipelinesAnalysis:
             self.results_per_phase[self.phase]["classification_report"] = class_report_df
             num_metrics = len(metric)
             rows = math.ceil(num_metrics / cols)
-
-            print(f"There going to be {rows} rows and {cols} columns")
 
             fig, axes = plt.subplots(rows, cols, figsize=(cols * 8, rows * 7))
             axes = axes.flatten()  
@@ -184,7 +183,6 @@ class PipelinesAnalysis:
 
             fig, axes = plt.subplots(rows, cols, figsize=(cols * 6, rows * 5))
 
-            print(f"There going to be {rows} rows and {cols} columns")
             colors = ["red", "blue", "green", "purple", "orange", "brown", "pink", "gray", "cyan", "magenta"]
             colors_length = len(colors)
             
@@ -239,7 +237,6 @@ class PipelinesAnalysis:
 
             fig, axes = plt.subplots(rows, cols, figsize=(cols * 6, rows * 5))
 
-            print(f"There going to be {rows} rows and {cols} columns")
             colors = ["red", "blue", "green", "purple", "orange", "brown", "pink", "gray", "cyan", "magenta"]
             colors_length = len(colors)
             
@@ -283,7 +280,7 @@ class PipelinesAnalysis:
 
       def plot_results_df(self, metrics: list[str], save_plots: bool = False, save_path: str = None):
             """
-            For all the metrics it plots all the trained models 
+            Results df is the dataframe with some general performance metrics + time-based metrics (time to fit, time to predict)
             """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             dataframes = []
@@ -326,7 +323,7 @@ class PipelinesAnalysis:
       
       def plot_feature_importance(self, save_plots: bool = False, save_path: str = None):
             """
-            Plots the feature importance of a given model
+            This needs to be expanded by @Juan and/or @Irina currently just using feature_importances_ attribute for tree-based models
             """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             importances_dfs = {}
@@ -404,7 +401,7 @@ class PipelinesAnalysis:
             
             for i, (modelName, cm_data) in enumerate(confusion_matrices.items()):
                   print(f"Plotting: {modelName}")
-                  # Absolute Confusion Matrix
+                  # Absolute Confusion Matrix (meaning it does not have the percentage of class predictionsm)
                   sns.heatmap(cm_data["absolute"], 
                         annot=True, 
                         fmt='d',  # 'd' for integers in absolute matrix

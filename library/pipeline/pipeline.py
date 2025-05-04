@@ -8,6 +8,9 @@ from library.phases.phases_implementation.modelling.modelling import Modelling
 RANDOM_STATE = 99
 
 class Pipeline:
+      """ 
+      Initializes all the phases of the pipeline.
+      """
       def __init__(self, dataset_path: str, 
                    model_results_path: str,
                    model_task: str, 

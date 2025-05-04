@@ -8,7 +8,27 @@ class NeuralNetsPlots:
             self.model_sklearn = model_sklearn
             self.history = None
 
-      def plot_per_epoch_progress(self, metrics: list[str], phase: str, n_cols: int = 2, save_plots: bool = False, save_path: str = None):
+      def plot_per_epoch_progress(self, metrics: list[str], phase: str, n_cols: int = 2, save_plots: bool = False, save_path: str = None) -> None:
+            """
+            Plots the progress of the feedforward NN per epoch. 
+
+            Parameters:
+            ----------
+            metrics: list[str]
+                  The metrics to plot.
+            phase: str
+                  The phase to plot.
+            n_cols: int
+                  The number of columns to plot.
+            save_plots: bool
+                  Whether to save the plots.
+            save_path: str
+                  The path to save the plots.
+
+            Returns:
+            -------
+            None
+            """
             if self.history is None:
                   self.history = self.model_sklearn.history.history
             assert all(metric in self.history.keys() for metric in metrics), f"Metric must be in {self.history.keys()}"

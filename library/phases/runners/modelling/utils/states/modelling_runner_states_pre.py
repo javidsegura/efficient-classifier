@@ -55,6 +55,9 @@ class PreTuningRunner(ModellingRunnerStates):
             return metrics_df.to_dict(), residuals, confusion_matrices, importances_dfs
 
       def _set_up_stacking_model(self):
+            """
+            We have to get the base estimators. THese are the ones were not excluded from training
+            """
             estimators = []
             for pipelineName, pipelineObject in self.pipeline_manager.pipelines["not_baseline"].items():
                   for modelName, modelObject in pipelineObject.modelling.list_of_models.items():

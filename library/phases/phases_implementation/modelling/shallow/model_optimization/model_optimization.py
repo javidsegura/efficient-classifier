@@ -16,6 +16,9 @@ from skopt.plots import plot_convergence
 
 class Optimizer():
       def __init__(self, model_sklearn: object, modelName: str, model_object: object, dataset: Dataset, optimizer_type: str, param_grid: dict, max_iter: int = 20, **kwargs):
+            """
+            Initializes the optimizer class by setting the selected optimizer object.
+            """
             assert model_object is not None, "Model object must be provided"
             self.model_sklearn = model_sklearn
             self.modelName = modelName
@@ -32,7 +35,7 @@ class Optimizer():
                         estimator=self.model_sklearn,
                         param_grid=param_grid,
                         n_iter=max_iter,
-                        cv=2,      
+                        cv=5,      
                         scoring='r2' if self.dataset.modelTask == "regression" else 'accuracy',
                         verbose=3,
                         random_state=42,
@@ -43,24 +46,24 @@ class Optimizer():
                         estimator=self.model_sklearn,
                         param_distributions=param_grid,
                         n_iter=max_iter,  
-                        cv=2,       
+                        cv=5,       
                         scoring='r2' if self.dataset.modelTask == "regression" else 'accuracy',
                         verbose=3,
                         random_state=42,
                         n_jobs=1
                   )
-            elif type == "bayes":
+            elif type == "bayes": # Usually, you only use this optimizer for neural nets
                   optimizer = BayesSearchCV(
                         estimator=self.model_sklearn,
                         search_spaces=param_grid,
                         n_iter=max_iter,
-                        cv=2,
+                        cv=5,
                         scoring='r2' if self.dataset.modelTask == "regression" else 'accuracy',
                         verbose=3,
                         random_state=42,
                         n_jobs=1
                   )
-            elif type == "bayes_nn":
+            elif type == "bayes_nn": # Neural nets optimizer needs special treatment
                   assert self.modelObject is not None, "Model object must be provided"
                   print(f"Model object: {self.modelObject.tuning_states['in']}")
                   optimizer = self.modelObject.tuning_states["pre"].model_sklearn.get_tuned_model(max_trials=max_iter,
@@ -72,8 +75,11 @@ class Optimizer():
             return optimizer 
       
       def fit(self):
+            """
+            Fits the optimize.
+            """
             print(f" => STARTING OPTIMIZATION FOR {self.modelName}")
-            if self.optimizer_type == "bayes_nn":
+            if self.optimizer_type == "bayes_nn": # Neural nets optimizer needs special treatment
                   self.modelObject.tuning_states["pre"].model_sklearn.tuner_search(self.dataset.X_train, 
                                                                      self.dataset.y_train, 
                                                                      self.dataset.X_val, 

@@ -19,8 +19,8 @@ import numpy as np
 
 class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
       def __init__(self,
-                  num_features: int,
-                  num_classes:   int,
+                  num_features: int, # Variables in the model
+                  num_classes:   int, # Classes to predict
                   batch_size:    int = 128,
                   epochs:        int = 20,
                   n_layers:      int = 1,
@@ -28,26 +28,54 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
                   activations:   list = ['relu'],
                   learning_rate: float = 1e-3
                   ):
-            self.num_features  = num_features
-            self.num_classes   = num_classes
-            self.batch_size    = batch_size
-            self.epochs        = epochs
-            self.n_layers      = n_layers
+            """
+
+            Notes:
+                  This class is keras model with a scikit-learn like interface.
+                  Activations and units per layers are arrays where each correspods to a layer.
+
+                  This model class also contains part of the optimizer for the model itself. This is different to scikit-learn native models.
+            """
+            assert len(units_per_layer) == n_layers, f"Number of units per layer must be equal to the number of layers. Units per layer: {units_per_layer}, Number of layers: {n_layers}"
+            assert len(activations) == n_layers, f"Number of activations must be equal to the number of layers. Activations: {activations}, Number of layers: {n_layers}"
+            self.num_features = num_features
+            self.num_classes = num_classes
+            self.batch_size = batch_size
+            self.n_layers = n_layers
             self.units_per_layer = units_per_layer
-            self.activations   = activations
+            self.activations = activations
             self.learning_rate = learning_rate
+            self.epochs = epochs
 
             # placeholder for the trained model
             self.model = None
 
+      def _build_parametrized_model(self):
+            """
+            Purpose: compiles the model for when non-optimizing the model.
+            """
+            model = Sequential()
+            model.add(Input(shape=(self.num_features,)))
+            for i in range(self.n_layers):
+                  model.add(Dense(self.units_per_layer[i], activation=self.activations[i]))
+            model.add(Dense(self.num_classes, activation='softmax'))
+
+            lr = self.learning_rate
+            model.compile(
+                  optimizer=AdamW(learning_rate=lr, weight_decay=1e-4),
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy']
+            )
+            
+            return model
+      
       def _build_optimizeable_model(self, hp):
             """
-            Model‑building function for the tuner.
-            Uses `hp` to sample:
-            - number of layers
-            - units per layer
-            - activation
-            - learning rate
+            Purpose:
+               - used by the keras tuner to find the best hyperparameters
+            Notes:
+              - Hyperparmeters values to tune are hardcoded here
+              - If you want to tune more parameters, please adhere to the current structure (adding as initilizer parameters)
             """
             model = Sequential()
             model.add(Input(shape=(self.num_features,)))
@@ -77,36 +105,6 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
                   metrics=['accuracy']
             )
             return model
-      
-      def _build_parametrized_model(self):
-            model = Sequential()
-            model.add(Input(shape=(self.num_features,)))
-            for i in range(self.n_layers):
-                  model.add(Dense(self.units_per_layer[i], activation=self.activations[i]))
-            model.add(Dense(self.num_classes, activation='softmax'))
-
-            lr = self.learning_rate
-            model.compile(
-                  optimizer=AdamW(learning_rate=lr, weight_decay=1e-4),
-                  loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy']
-            )
-            
-            return model
-      
-      def tuner_search(self,
-                       X_train,
-                       y_train,
-                       X_val,
-                       y_val):
-            
-            self.tuner.search(
-                        X_train, 
-                        y_train,
-                        validation_data=(X_val, y_val),
-                        batch_size=self.batch_size,
-                        epochs=self.epochs,
-                        callbacks=[get_early_stopping()])
 
       def get_tuned_model(self,
                   max_trials:  int = 20,
@@ -114,7 +112,7 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
                   directory:   str = 'kt_tuning',
                   project_name: str = 'ffnn'):
             """
-            Run Bayesian hyperparameter search.
+            Purpose: compiles the otpimizer and  returns it
             """
             self.tuner = kt.BayesianOptimization(
                   hypermodel=self._build_optimizeable_model,
@@ -127,6 +125,22 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
             )
 
             return self.tuner
+      
+      def tuner_search(self,
+                       X_train,
+                       y_train,
+                       X_val,
+                       y_val):
+            """
+            Purpose: activate the tuner search
+            """
+            self.tuner.search(
+                        X_train, 
+                        y_train,
+                        validation_data=(X_val, y_val),
+                        batch_size=self.batch_size,
+                        epochs=self.epochs,
+                        callbacks=[get_early_stopping()])
 
       def fit(self, X, y, **kwargs):
             self.model = self._build_parametrized_model()
@@ -134,16 +148,16 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
                   x=X, y=y,
                   batch_size=self.batch_size,
                   epochs=self.epochs,
-                  callbacks=[get_early_stopping()]
+                  callbacks=[get_early_stopping()] #  We use early to stop execution when it become ineffective
             )
             if "X_val" in kwargs and "y_val" in kwargs:
                   fit_args["validation_data"] = (kwargs["X_val"], kwargs["y_val"])
             self.history = self.model.fit(**fit_args)
-            self.is_fitted_ = True
+            self.is_fitted_ = True # Needed for sklearn compatibility
             return self
 
       def predict(self, X):
-            preds = self.model.predict(X)
+            preds = self.model.predict(X) # Softmax originally returns soft-probabilities. We then take the class with the highest probability of being right 
             return np.argmax(preds, axis=1)
 
       def get_params(self, deep=True):

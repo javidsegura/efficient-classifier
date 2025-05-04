@@ -25,6 +25,14 @@ from library.phases.phases_implementation.EDA.EDA import EDA
 
 class FeatureAnalysis:
     def __init__(self, dataset: Dataset):
+        """
+        Initializes the feature analysis class. Controls all the feature analysis methods.
+
+        Parameters
+        ----------
+        dataset : Dataset
+            The dataset to analyze
+        """
         self.dataset = dataset
         self.feature_transformation = FeatureTransformation(self.dataset)
         self.feature_engineering = FeatureEngineering(self.dataset)

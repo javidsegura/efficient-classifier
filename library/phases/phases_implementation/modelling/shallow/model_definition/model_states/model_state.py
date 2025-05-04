@@ -34,6 +34,16 @@ Assesment currently has the following structure:
 
 class ModelState(ABC):
       def __init__(self, model_sklearn: object, modelName: str, model_type: str, dataset: Dataset, results_header: list[str]):
+            """
+            This is the base class for all the model **states**.
+
+            Parameters
+            ----------
+            model_sklearn : object
+                  The model to be used
+            modelName : str
+            
+            """
             self.model_sklearn = model_sklearn
             self.modelName = modelName
             self.model_type = model_type
@@ -43,6 +53,9 @@ class ModelState(ABC):
       
       @abstractmethod
       def get_fit_data(self):
+            """
+            Varies over each state (in post its training + val for instance)
+            """
             pass
       
       @abstractmethod
@@ -246,7 +259,6 @@ class InTuningState(ModelState):
 class PostTuningState(ModelState):
       def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str], model_type: str = "classical"):
             super().__init__(model_sklearn, modelName, dataset, results_header, model_type)
-            """ model object needs to be overwritten!!!"""
       
       def get_fit_data(self): 
             self.X_train_combined = np.vstack([self.dataset.X_train, self.dataset.X_val])
@@ -279,7 +291,10 @@ class PostTuningState(ModelState):
 
             # Predict training data
             training_data = data["training"]
-            self.assesment["predictions_train"] = self.model_sklearn.predict(training_data)
+            assert training_data.shape[0] == self.X_train_combined.shape[0] == self.y_train_combined.shape[0], f"Training data shape: {training_data.shape} does not match X_train_combined shape: {self.X_train_combined.shape} or y_train_combined shape: {self.y_train_combined.shape}"
+            prediction_train = self.model_sklearn.predict(training_data)
+            assert len(prediction_train) == self.y_train_combined.shape[0], f"Prediction train shape: {prediction_train.shape} does not match y_train_combined shape: {self.y_train_combined.shape}"
+            self.assesment["predictions_train"] = prediction_train
 
             # Predict not training data
             not_training_data = data["not-training"]

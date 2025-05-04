@@ -9,6 +9,9 @@ from library.phases.phases_implementation.modelling.shallow.model_definition.mod
 
 class Model(ABC):
       def __init__(self, modelName: str, model_sklearn: object, model_type: str, results_header: list[str], dataset: Dataset):
+            """
+            This is the base class for all the model objects. It initializes the differeent tuning states and defines the fitting and predicitng methods for those states
+            """
             assert model_type in ["classical", "neural_network", "stacking"], "Model type must be one of the following: classical, neural_network"
             assert model_sklearn is not None, "Model sklearn must be provided"
             self.dataset = dataset

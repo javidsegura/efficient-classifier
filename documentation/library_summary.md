@@ -44,7 +44,7 @@ Lets start with b):
   - The slack-bot sends all the images in results/plots + results/model_evaluation + all the logs.
 
  a) Logs: 
-  - It writes to a logger (a permanent file that is commonly used in software systems to track an execution historial, which is useful for debugging + auditing --in our case just for audting) anything that the runners (present in library/phases/runners) return will be automatically written to the log files + send to the slack bot. This means that not everything you see in the terminal while you execute the script will necessarily be written to the log. Please make sure you only return relevant information. Just keep information that is conclusive of that phase results' and not things that are used for debugging (for that case just write to the terminal with print()). Finally, also make sure you are only sending text to the bot that is not redudant to the images that will also be sent.
+  - It writes to a logger (a permanent file that is commonly used in software systems to track an execution historial, which is useful for debugging + auditing --in our case just for audting) anything that the runners (present in library/phases/runners) return will be automatically written to the log files + send to the slack bot. This means that not everything you see in the terminal while you execute the script will necessarily be written to the log. Please make sure you only return relevant information. Just keep information that is conclusive of that phase results' and not things that are used for debugging (for that case just write to the terminal with print()). Finally, also make sure you are only sending text to the bot that is not redudant to the images that will also be sent. Please if you want to store a dataframe, just store the first 5 results and convert it to a dictionary first (.to_dict())
 
 ## THINGS YOU <i>DONT</i> HAVE TO MODIFY
 - Add a new pipeline runner 
@@ -66,6 +66,9 @@ For b) we have:
   - Changing thresholds for feature selection as needed (Fede)
   - Change hyperpamter optimization grid as needed (Fede)
   - Running everything in a Docker container and sending it to the server (Javi) -- done when all the above tasks are succesfully integrated
+
+Other tasks:
+- Publish library to PyPi (Javi)
 
 ## JUPYTER NOTEBOOK
 Matteo has indicated that we need to move away from the jupyter notebook, thus the need of the pipeline runner. However, in the meantime of you integrating your code to the pipeline runner, you can debug your code in the jupyter notebook if you feel more comfortable (remember you will be at a lower level of abstraction!)

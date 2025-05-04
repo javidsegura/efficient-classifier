@@ -74,8 +74,12 @@ class FeatureAnalysisRunner(PhaseRunner):
             return {"L1": {"predictivePowerFeatures": None, "excludedFeatures": None, "coefficients": None},
                     "Boruta": {"selected_features": selected_features, "excludedFeatures": excludedFeatures}}
       
-      def _run_feature_engineering(self) -> None:
-            # FEDE (expand here) => ADD FEDE AN EXAMPLE 
+
+            
+
+      
+      def _run_feature_engineering_after_split(self) -> None:
+            # FEDE (expand here)
             # after split
             ...
 
@@ -84,7 +88,7 @@ class FeatureAnalysisRunner(PhaseRunner):
             feature_transformation_results = self._run_feature_transformation()
             #self._run_manual_feature_selection()
             #automatic_feature_selection_results = self._run_automatic_feature_selection()
-            self._run_feature_engineering()
+            self._run_feature_engineering_after_split()
             return {
                   "feature_transformation_results": feature_transformation_results,
                   "automatic_feature_selection_results": None

@@ -51,45 +51,62 @@ class InTuningRunner(ModellingRunnerStates):
             return metrics_df.to_dict(), residuals, confusion_matrices, importances_dfs
 
       def _get_grid_space(self):
-            rf_grid = {
+            # Ensembled models
+            gradient_boosting_grid = {
+                  'learning_rate': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["learning_rate"],
+                  'subsample': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["subsample"],
+                  'n_estimators': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["n_estimators"], 
+                  'max_depth': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["max_depth"], 
+                  'min_samples_split': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["min_samples_split"], 
+                  'min_samples_leaf': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["min_samples_leaf"]
+            }
+            random_forest_grid = {
                   'n_estimators': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["n_estimators"], 
                   'max_depth': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["max_depth"], 
                   'min_samples_split': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["min_samples_split"], 
                   'min_samples_leaf': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["min_samples_leaf"]
             }
-
-            dt_grid = {
+            # Tree-based models
+            decision_tree_grid = {
                   'criterion': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["criterion"],
                   'max_depth': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["max_depth"],
                   'min_samples_split': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["min_samples_split"],
                   'min_samples_leaf': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["min_samples_leaf"],
                   'max_features': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["max_features"],
                   'ccp_alpha': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["ccp_alpha"]
-
             } 
 
-            gnb_grid = { # has to be hard-coded => Real datatype is not supported
+            # Support Vector Machines models (not doing it cause it goes too slow and underperforms)
+
+            
+            # Naiva Bayes model
+            naive_bayes_grid = { # has to be hard-coded => Real datatype is not supported
                   'var_smoothing': Real(1e-12, 1e-6, prior='log-uniform')
             }
 
-            return rf_grid, dt_grid, gnb_grid
+            return gradient_boosting_grid, random_forest_grid, decision_tree_grid, naive_bayes_grid
       
       def _get_grid_search_params(self):
-            rf_grid, dt_grid, gnb_grid = self._get_grid_space()
+            gradient_boosting_grid, random_forest_grid, decision_tree_grid, naive_bayes_grid = self._get_grid_space()
             modelNameToOptimizer = {
+                  "Gradient Boosting": {
+                        "optimizer_type": "bayes",
+                        "param_grid": gradient_boosting_grid,
+                        "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
+                  },
                   "Random Forest": {
                         "optimizer_type": "bayes",
-                        "param_grid": rf_grid,
+                        "param_grid": random_forest_grid,
                         "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
                   },
                   "Decision Tree": {
                         "optimizer_type": "bayes",
-                        "param_grid": dt_grid,
+                        "param_grid": decision_tree_grid,
                         "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
                   },
                   "Naive Bayes": {
                         "optimizer_type": "bayes",
-                        "param_grid": gnb_grid,
+                        "param_grid": naive_bayes_grid,
                         "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
                   },
                   "Feed Forward Neural Network": {
@@ -102,10 +119,12 @@ class InTuningRunner(ModellingRunnerStates):
             return modelNameToOptimizer
       
       def _set_up_stacking_model(self, optimized_models):
+            """
+            We have to get the base estimators. In this case there are the ones that were tuned
+            """
             estimators = []
-
             for pipelineName, results in optimized_models["not_baseline"].items():
-                  if isinstance(results, dict):
+                  if isinstance(results, dict): # If the model was in pre-tuning but not in in-tuning the result for its pipeline is None, not a dict
                         for modelName, modelObject in results.items():
                               estimators.append((modelName, modelObject))
             
@@ -113,7 +132,7 @@ class InTuningRunner(ModellingRunnerStates):
             stackingModel = StackingClassifier(
                   estimators=estimators,
                   final_estimator=DecisionTreeClassifier(),
-                  cv="prefit",
+                  cv="prefit", # This makes the base models to not be retrained 
                   verbose=3
             )
 
@@ -135,9 +154,7 @@ class InTuningRunner(ModellingRunnerStates):
                                        exclude_category="baseline",
                                        exclude_pipeline_names=all_pipelines_to_exclude
                                        )
-
             
-
       def run(self):
             self.pipeline_manager.pipeline_state = "in"
             print("In tuning runner")

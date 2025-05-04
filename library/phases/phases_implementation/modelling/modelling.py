@@ -23,6 +23,7 @@ class Modelling:
                   "post": PostTuningResultAnalysis(phase_results_df= pd.DataFrame()),
             }
 
+      # 0) Attibutes logic
       @property
       def models_to_exclude(self):
             return self._models_to_exclude
@@ -33,6 +34,7 @@ class Modelling:
                   assert modelName in self.list_of_models, f"Model {modelName} not found in list of models"
             self._models_to_exclude = value
 
+      # 1) Adding models
       def add_model(self, model_name: str, model_sklearn: object, model_type: str = "classical"): 
             assert model_type in ["classical", "neural_network", "stacking"]
             new_model = None
@@ -43,6 +45,7 @@ class Modelling:
 
             self.list_of_models[model_name] = new_model
       
+      # 2) Fitting, predicting and optimizing models
       def _fit_and_predict(self, modelName, modelObject: Model, current_phase: str):
             modelObject.fit(modelName=modelName, current_phase=current_phase)
             modelObject.predict(modelName=modelName, current_phase=current_phase)
@@ -160,17 +163,35 @@ class Modelling:
                                     modelName, modelObject = future.result()
                                     self.list_of_models[modelName] = modelObject
 
+      # 3) Evaluating and store model results 
       def _evaluate_model(self, modelName, modelObject, current_phase: str):
             print(f"Evaluating model {modelName}")
             modelObject.evaluate(modelName=modelName, current_phase=current_phase)
             return modelName, modelObject
 
-      def evaluate_and_store_models(self, comments: str, current_phase: str, **kwargs):
+      def evaluate_and_store_models(self, comments: str, current_phase: str, **kwargs) -> pd.DataFrame | None:
+            """
+            It asses each model and stores the results in the results_df.
+
+            Parameters
+            ----------
+            comments: str
+                  The comments to store in the results_df (and in disk)
+            current_phase: str
+                  The current phase of the modelling
+            kwargs: dict
+                  Additional keyword arguments defining phase-specific parameters
+
+            Returns
+            -------
+            pd.DataFrame or None
+                  The results of the evaluation
+            """
             if comments:
                   self.comments = comments
             assert self.comments, "comments must be provided"
 
-            # Separate bayes_nn models from others
+            # Separate "bayes_nn" models from others. This is because bayes_nn cant use parallel processing (for some keras-specific reasons)
             bayes_nn_models = []
             other_models = []
 
@@ -220,8 +241,6 @@ class Modelling:
             for modelName, modelObject in bayes_nn_models:
                   modelName, modelObject = self._evaluate_model(modelName, modelObject, current_phase)
                   self.list_of_models[modelName] = modelObject
-
-            print("All models have been evaluated.")
             
             # Store results and update analysis
             model_logs = self.results_df.store_results(
@@ -240,6 +259,9 @@ class Modelling:
       
 
       def plot_convergence(self):
+            """
+            This method is deprecated.
+            """
             for modelName, modelObject in self.list_of_models.items():
                   if hasattr(modelObject.tuning_states["in"], "optimizer"):
                         modelObject.tuning_states["in"].optimizer.plot_convergence()
