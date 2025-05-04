@@ -122,14 +122,18 @@ class PipelineRunner:
                                                           channel=self.variables["BOT"]["channel"])
 
                   run_phase()
-            # Send slack bot all the images in the results/plots folder
-            # for root, dirs, files in os.walk(self.plots_path):
-            #       for file in files:
-            #             file_path = os.path.join(root, file)
-            #             self.slack_bot.send_file(file_path,
-            #                                      channel=self.variables["BOT"]["channel"],
-            #                                      title=file,
-            #                                      initial_comment="")
-            
+            #Send slack bot all the images in the results/plots folder
+            for root, dirs, files in os.walk(self.plots_path):
+                  for file in files:
+                        file_path = os.path.join(root, file)
+                        self.slack_bot.send_file(file_path,
+                                                 channel=self.variables["BOT"]["channel"],
+                                                 title=file,
+                                                 initial_comment="")
+            # Send slack bot the results progress
+            self.slack_bot.send_file(self.model_results_path,
+                                                 channel=self.variables["BOT"]["channel"],
+                                                 title=self.model_results_path,
+                                                 initial_comment="Here is the results progress log")
 
 

@@ -12,8 +12,6 @@ import matplotlib.pyplot as plt
 
 
 
-
-
 def run_pipeline():
        # Setting up the pipeline runner
        pipeline_runner = PipelineRunner(
