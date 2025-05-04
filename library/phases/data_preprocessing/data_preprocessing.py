@@ -21,22 +21,46 @@ class Preprocessing:
     def delete_columns(self, columnsToDelete: list[str]) -> str:
       """ 
       Deletes the columns in the dataset
-      
+
       Parameters:
       -----------
       columnsToDelete : list[str]
-        The columns to delete
-        
+          The columns to delete
+
       Returns:
       --------
       str
-        Message indicating the number of columns deleted
+          Message indicating the number of columns deleted
       """
-      self.dataset.X_train.drop(columns=columnsToDelete, inplace=True)
-      self.dataset.X_val.drop(columns=columnsToDelete, inplace=True)
-      self.dataset.X_test.drop(columns=columnsToDelete, inplace=True)
-      return f"Succesfully deleted {len(columnsToDelete)} columns, to check the results run: \n baseline_pipeline.dataset.X_train.head()"
-    
-    
+
+      # Validate input type
+      if not isinstance(columnsToDelete, list) or not all(isinstance(col, str) for col in columnsToDelete):
+          raise TypeError("columnsToDelete must be a list of strings.")
+
+      # Validate dataset attributes
+      for attr in ['X_train', 'X_val', 'X_test']:
+          if not hasattr(self.dataset, attr):
+              raise AttributeError(f"The dataset is missing the attribute '{attr}'.")
+
+      # Check that all columns exist in all datasets
+      missing_cols = {
+          attr: [col for col in columnsToDelete if col not in getattr(self.dataset, attr).columns]
+          for attr in ['X_train', 'X_val', 'X_test']
+      }
+      errors = [f"{attr} is missing columns: {cols}" for attr, cols in missing_cols.items() if cols]
+      if errors:
+          raise ValueError("Some columns to delete are missing:\n" + "\n".join(errors))
+
+      # Try deleting the columns
+      try:
+          self.dataset.X_train.drop(columns=columnsToDelete, inplace=True)
+          self.dataset.X_val.drop(columns=columnsToDelete, inplace=True)
+          self.dataset.X_test.drop(columns=columnsToDelete, inplace=True)
+      except Exception as e:
+          raise RuntimeError(f"An error occurred while deleting columns: {e}")
+
+      return (f"Successfully deleted {len(columnsToDelete)} columns. "
+              "To check the results, run: baseline_pipeline.dataset.X_train.head()")
+
 
   

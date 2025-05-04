@@ -4,64 +4,92 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 class FeatureScaling:
-  def __init__(self, dataset: Dataset) -> None:
-    self.dataset = dataset
+    def __init__(self, dataset: Dataset) -> None:
+        self.dataset = dataset
   
-  def scale_features(
+    def scale_features(
         self,
         scaler: str,
         columnsToScale: list[str],
         plot: bool = False,
     ) -> str:
-      """
-      Scales the features in the dataset
+        """
+        Scales the features in the dataset
 
-      Parameters:
-      -----------
-      scaler : str
-          The scaler to use ('minmax', 'robust', 'standard')
-      columnsToScale : list[str]
-          The columns to scale
-      plot : bool
-          Whether to plot distributions before and after scaling
+        Parameters
+        ----------
+        scaler : str
+            The scaler to use ('minmax', 'robust', 'standard')
+        columnsToScale : list[str]
+            The columns to scale
+        plot : bool
+            Whether to plot distributions before and after scaling
 
-      Returns:
-      --------
-      str
-          Message indicating the number of features scaled  
-      """
-      assert len(columnsToScale) > 0, "Columns to scale must be provided"
+        Returns
+        -------
+        str
+            Message indicating the number of features scaled  
+        """
 
-      if scaler == "minmax":
-          scaler_obj = MinMaxScaler()
-      elif scaler == "robust":
-          scaler_obj = RobustScaler()
-      elif scaler == "standard":
-          scaler_obj = StandardScaler()
-      else:
-          raise ValueError(f"Invalid scaler: {scaler}")
+        # --- Input validation ---
+        if not isinstance(scaler, str):
+            raise TypeError("Parameter 'scaler' must be a string.")
+        if len(columnsToScale) == 0:
+            raise ValueError("At least one column must be provided for scaling.")
+        if not isinstance(plot, bool):
+            raise TypeError("Parameter 'plot' must be a boolean.")
 
-      # Optionally store original data for plotting
-      if plot:
-          original_data = self.dataset.X_train[columnsToScale].copy()
+        # --- Dataset validation ---
+        for attr in ['X_train', 'X_val', 'X_test']:
+            if not hasattr(self.dataset, attr):
+                raise AttributeError(f"The dataset is missing the attribute '{attr}'.")
+            missing_cols = [col for col in columnsToScale if col not in getattr(self.dataset, attr).columns]
+            if missing_cols:
+                raise ValueError(f"The following columns are missing in '{attr}': {missing_cols}")
 
-      # Apply transformation
-      self.dataset.X_train[columnsToScale] = scaler_obj.fit_transform(self.dataset.X_train[columnsToScale])
-      self.dataset.X_val[columnsToScale] = scaler_obj.transform(self.dataset.X_val[columnsToScale])
-      self.dataset.X_test[columnsToScale] = scaler_obj.transform(self.dataset.X_test[columnsToScale])
+        # --- Scaler selection ---
+        if scaler == "minmax":
+            scaler_obj = MinMaxScaler()
+        elif scaler == "robust":
+            scaler_obj = RobustScaler()
+        elif scaler == "standard":
+            scaler_obj = StandardScaler()
+        else:
+            raise ValueError(f"Invalid scaler: {scaler}. Choose from 'minmax', 'robust', or 'standard'.")
 
-      # Plot only the first 10 columns if requested
-      if plot:
-          max_plots = 5
-          plot_columns = columnsToScale[:max_plots]
-          for col in plot_columns:
-              fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharey=True)
-              sns.histplot(original_data[col], kde=True, ax=axes[0])
-              axes[0].set_title(f"{col} - Before Scaling")
-              sns.histplot(self.dataset.X_train[col], kde=True, ax=axes[1])
-              axes[1].set_title(f"{col} - After Scaling")
-              plt.tight_layout()
-              plt.show()
+        # --- Optional: store original data for plotting ---
+        if plot:
+            try:
+                original_data = self.dataset.X_train[columnsToScale].copy()
+            except Exception as e:
+                raise RuntimeError(f"Failed to copy original data for plotting: {e}")
 
-      return f"Succesfully scaled {len(columnsToScale)} features. Plotted distributions for the first {min(10, len(columnsToScale))} features." \
-            f"\nTo check the results run: \n your_pipeline.dataset.X_train.head()"
+        # --- Apply scaling ---
+        try:
+            self.dataset.X_train[columnsToScale] = scaler_obj.fit_transform(self.dataset.X_train[columnsToScale])
+            self.dataset.X_val[columnsToScale] = scaler_obj.transform(self.dataset.X_val[columnsToScale])
+            self.dataset.X_test[columnsToScale] = scaler_obj.transform(self.dataset.X_test[columnsToScale])
+        except Exception as e:
+            raise RuntimeError(f"An error occurred during scaling: {e}")
+
+        # --- Optional: plot distributions ---
+        if plot:
+            try:
+                max_plots = 5
+                plot_columns = columnsToScale[:max_plots]
+                for col in plot_columns:
+                    fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharey=True)
+                    sns.histplot(original_data[col], kde=True, ax=axes[0])
+                    axes[0].set_title(f"{col} - Before Scaling")
+                    sns.histplot(self.dataset.X_train[col], kde=True, ax=axes[1])
+                    axes[1].set_title(f"{col} - After Scaling")
+                    plt.tight_layout()
+                    plt.show()
+            except Exception as e:
+                raise RuntimeError(f"An error occurred while plotting: {e}")
+
+        return (
+            f"Successfully scaled {len(columnsToScale)} features. "
+            f"Plotted distributions for the first {min(5, len(columnsToScale))} features.\n"
+            f"To check the results run:\n your_pipeline.dataset.X_train.head()"
+        )
