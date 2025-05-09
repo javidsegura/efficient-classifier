@@ -24,29 +24,6 @@ class DataPreprocessingRunner(PhaseRunner):
       def _preprocessor_initializers(self):
             # Ensembled Pipelines
             self.pipeline_manager.pipelines["not_baseline"]["ensembled"].preprocessing
-            
-      def _execute_preprocessing(self, preprocessing: Preprocessing, cfg: dict):
-            # 1. Missing Values and Duplicate Analysis
-            print("Preprocessing --- Missing Values & Duplicates")
-            print("-"*15)
-            preprocessing.uncomplete_data_obj.get_missing_values()
-            preprocessing.uncomplete_data_obj.analyze_duplicates()
-            
-            # 2. Outliers & Bounds
-            print("Preprocessing --- Bounds & Outliers")
-            print("-"*15)
-            preprocessing.outliers_bounds_obj.get_outliers()
-            preprocessing.outliers_bounds_obj.bound_checking()
-            
-            # 3. Feature Scaling
-            print("Preprocessing --- Feature Scaling")
-            print("-"*15)
-            preprocessing.feature_scaling_obj.scale_features()
-            
-            # 4. Class Imbalance
-            print("Preprocessing --- Class Imbalance")
-            print("-"*15)
-            preprocessing.class_imbalance_obj.class_imbalance()
         
       def _execute_preprocessing_with_config(self, preprocessing: Preprocessing, cfg: dict) -> None:
             """
@@ -137,10 +114,10 @@ class DataPreprocessingRunner(PhaseRunner):
                               raise KeyError(f"No preprocessing config found for pipeline '{pipeline_name}'")
 
                         # Create a fresh Preprocessing instance with the current dataset
-                        preprocessor = Preprocessing(dataset=pipeline.dataset)
+                        #preprocessor = Preprocessing(dataset=pipeline.dataset)
                         
                         try:
-                              summary = self._execute_preprocessing_with_config(preprocessing=preprocessor, cfg=cfg)
+                              summary = self._execute_preprocessing_with_config(preprocessing=pipeline.preprocessing, cfg=cfg)
                               print(summary)
                               results[category_name][pipeline_name] = summary
                         except Exception as e:
