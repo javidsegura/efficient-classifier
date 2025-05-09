@@ -140,13 +140,11 @@ preprocessing_runner:
       plot: false
     duplicates:
       analyze: true
-      remove: true
       plot: true
     outliers:
       detection_type: percentile
       plot: false
     scaling:
-      scale: true
       scaler: robust
       plot: false
     imbalance:

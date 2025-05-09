@@ -87,12 +87,18 @@ class DataPreprocessingRunner(PhaseRunner):
             # 3) Feature scaling
             print("\nPreprocessing --- Feature Scaling\n")
             scale_cfg = cfg.get('scaling', {})
-            scale_res = preprocessing.feature_scaling_obj.scale_features(
-                  scaler=scale_cfg.get('scaler'),
-                  columnsToScale=preprocessing.dataset.X_train.select_dtypes(include=["number"]).columns,
-                  plot=scale_cfg.get('plot', False)
-            )
-            messages.append(f"Features scaled with {scale_cfg.get('scaler')} (plot={scale_cfg.get('plot', False)}): {scale_res}")
+            scaler_type = scale_cfg.get('scaler')
+
+            if scaler_type is None or str(scaler_type).lower() == "none":
+                  messages.append("Skipped feature scaling (scaler=None)")
+            else:
+                  scale_res = preprocessing.feature_scaling_obj.scale_features(
+                        scaler=scaler_type,
+                        columnsToScale=preprocessing.dataset.X_train.select_dtypes(include=["number"]).columns,
+                        plot=scale_cfg.get('plot', False)
+                  )
+                  messages.append(f"Features scaled with {scaler_type} (plot={scale_cfg.get('plot', False)}): {scale_res}")
+
 
             # 4) Class imbalance correction
             print("\nPreprocessing --- Class Imbalance\n")
