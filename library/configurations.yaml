@@ -23,6 +23,137 @@ dataset_runner:
       validation_size: 0.1
       test_size: 0.1
 
+## Preprocessing configuration for each pipeline
+# Define common placeholders once and reference by anchor
+preprocessing_runner:
+  placeholders: &placeholders
+    - null
+    - -999
+    - "N/A"
+    - "missing"
+    - ""
+    - "-inf"
+    - "NaN"
+    - "nan"
+    - "none"
+    - "None"
+    - "missing"
+  baselines:
+    missing:
+      placeholders: *placeholders
+      plot: true
+    duplicates:
+      analyze: false
+      remove: false
+    outliers:
+      detection_type: percentile
+      plot: false
+    scaling:
+      scaler: robust
+      plot: true
+    imbalance:
+      perform: false
+      plot: false
+  tree_based:
+    missing:
+      placeholders: *placeholders
+      plot: false
+    duplicates:
+      analyze: true
+      plot: true
+    outliers:
+      detection_type: percentile
+      plot: false
+    scaling:
+      scaler: none
+      plot: false
+    imbalance:
+      perform: false
+      plot: false
+  support_vector_machine:
+    missing:
+      placeholders: *placeholders
+      plot: false
+    duplicates:
+      analyze: true
+      plot: true
+    outliers:
+      detection_type: percentile
+      plot: false
+    scaling:
+      scaler: robust
+      plot: false
+    imbalance:
+      perform: true
+      plot: true
+  naive_bayes:
+    missing:
+      placeholders: *placeholders
+      plot: false
+    duplicates:
+      analyze: true
+      plot: true
+    outliers:
+      detection_type: percentile
+      plot: false
+    scaling:
+      scaler: standard
+      plot: false
+    imbalance:
+      perform: false
+      plot: false
+  feed_forward_neural_network:
+    missing:
+      placeholders: *placeholders
+      plot: false
+    duplicates:
+      analyze: false
+      plot: true
+    outliers:
+      detection_type: percentile
+      plot: false
+    scaling:
+      scaler: robust
+      plot: false
+    imbalance:
+      perform: false
+      plot: false
+  ensembled:
+    missing:
+      placeholders: *placeholders
+      plot: false
+    duplicates:
+      analyze: false
+      plot: true
+    outliers:
+      detection_type: percentile
+      plot: false
+    scaling:
+      scaler: robust
+      plot: false
+    imbalance:
+      perform: false
+      plot: false
+  stacking:
+    missing:
+      placeholders: *placeholders
+      plot: false
+    duplicates:
+      analyze: true
+      remove: true
+      plot: true
+    outliers:
+      detection_type: percentile
+      plot: false
+    scaling:
+      scale: true
+      scaler: robust
+      plot: false
+    imbalance:
+      method: none
+      plot: false
+
+
 feature_analysis_runner:
     features_to_encode: ["Reboot"]
     manual_feature_selection:

@@ -7,9 +7,8 @@ from pathlib import Path
 class DataPreprocessingRunner(PhaseRunner):
       def __init__(self, pipeline_manager: PipelineManager, include_plots: bool = False, save_path: str = "") -> None:
             super().__init__(pipeline_manager, include_plots, save_path)
-            config_path = Path(__file__).parent / 'preprocessing_config.yaml'
-            with open(config_path, 'r') as f:
-                  self.config = yaml.safe_load(f)
+            self.variables = pipeline_manager.variables
+            self.config = self.variables.get("preprocessing_runner", {})
             
       def _create_pipelines_divergences(self):
             self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="ensembled")
