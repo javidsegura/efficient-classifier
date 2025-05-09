@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-from library.utils.pythonObjects.save_or_store_plot import save_or_store_plot
+from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
 """
 
 """

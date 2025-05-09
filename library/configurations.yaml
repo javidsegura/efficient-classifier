@@ -22,6 +22,9 @@ dataset_runner:
       train_size: 0.8
       validation_size: 0.1
       test_size: 0.1
+    metrics_to_evaluate:
+      classification: ["accuracy", "precision", "recall", "f1-score", "kappa"]
+      regression: ["r2", "mae", "mse"]
 
 feature_analysis_runner:
     features_to_encode: ["Reboot"]
@@ -43,16 +46,16 @@ feature_analysis_runner:
         max_iter: 1000
         delete_features: True
       boruta:
-        max_iter: 20
+        max_iter: 10
         delete_features: True
 
 modelling_runner:
     models_to_exclude:
-      ensembled: ["Gradient Boosting", ]
+      ensembled: ["Gradient Boosting", "Random Forest"]
       tree_based: []
       support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
       naive_bayes: []
-      feed_forward_neural_network: []
+      feed_forward_neural_network: ["Feed Forward Neural Network"]
       stacking: []
       baselines: ["Logistic Regression (baseline)" ]
     hyperparameters:
@@ -77,13 +80,13 @@ modelling_runner:
           max_features: ['sqrt', 'log2']
           ccp_alpha: [0.0, 0.01, 0.1]
       tuner_params:
-        max_iter: 20
+        max_iter: 5
         epochs: 1
         
     neural_network:
        initial_architecture:
           batch_size: 128
-          epochs: 30
+          epochs: 5
           n_layers: 2
           units_per_layer: [512, 512]
           activations: ['relu', 'relu']
@@ -94,7 +97,7 @@ modelling_runner:
       intra_model_metrics: ["f1-score", "recall", "precision", "accuracy"]
       results_summary:
         training_metric: "timeToFit"
-        performance_metric: "accuracy"
+        performance_metric: "f1-score"
       results_df_metrics: ["timeToFit", "timeToPredict"]
       per_epoch_metrics: ["accuracy", "loss"]
       best_model_selection_metric: "f1-score"
@@ -102,8 +105,6 @@ modelling_runner:
       serialize_best_performing_model: True
       models_to_serialize: []
       pipelines_to_serialize: []
-    
-    
 
 
 

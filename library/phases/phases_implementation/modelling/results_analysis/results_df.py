@@ -13,14 +13,17 @@ import time, sys
 from library.phases.phases_implementation.modelling.shallow.model_definition.model_base import Model
 from library.phases.phases_implementation.dataset.dataset import Dataset
 
+import yaml
 
 
 class ResultsDF:
       def __init__(self, model_results_path: str, dataset: Dataset):
+            self.variables = yaml.load(open("library/configurations.yaml"), Loader=yaml.FullLoader)
+
             if dataset.modelTask == "classification":
-                  metrics_to_evaluate = ["accuracy", "precision", "recall", "f1-score"]
+                  metrics_to_evaluate = self.variables["dataset_runner"]["metrics_to_evaluate"]["classification"]
             else:
-                  metrics_to_evaluate = ["r2", "mae", "mse"]
+                  metrics_to_evaluate = self.variables["dataset_runner"]["metrics_to_evaluate"]["regression"]
             assert len(metrics_to_evaluate) > 0, "The metrics to evaluate must be a non-empty list"
             self.metrics_to_evaluate = metrics_to_evaluate
             self.model_results_path = model_results_path
@@ -57,8 +60,7 @@ class ResultsDF:
                   if col not in metadata_cols:
                         raise ValueError(f"The data to write does not match the columns of the results. \n Data to write: {sorted(list(metadata_cols))} \n Data header: {sorted(header_cols)}")
       
-      def store_results(self, list_of_models: dict[str, Model], current_phase: str, comments: str, models_to_exclude: list[str] = None):
-            assert current_phase and comments, "Either current_phase and comments must be provided"
+      def store_results(self, list_of_models: dict[str, Model], current_phase: str, models_to_exclude: list[str] = None):
             model_logs = []
             for modelName, modelObject in list_of_models.items():
                   if models_to_exclude is not None and modelName in models_to_exclude:
@@ -75,7 +77,7 @@ class ResultsDF:
                   model_log = {
                         "id": "",
                         "timeStamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "comments": comments,
+                        "comments": self.variables["modelling_runner"]["model_assesment"]["comments"],
                         "modelName": modelName,
                         "currentPhase": current_phase,
                         "features_used": self.dataset.X_train.columns.tolist(),
@@ -86,14 +88,16 @@ class ResultsDF:
                   if self.dataset.modelTask == "classification":
                         model_log["classification_report"] = metadata["classification_report"]
                   # Adding remaining data 
+                  print(f"METADATA IS: {metadata}")
                   metricsAdded = 0
                   for col in list(metadata.keys()):
                         if col in self.metrics_to_evaluate:
+                              print(f"COL IS: {col}")
                               if using_validation_set:
-                                    model_log[f"{col}_val"] = metadata[col]
+                                    model_log[f"{col}_val"] = metadata["metrics"]["base_metrics"][col] if col in metadata["metrics"]["base_metrics"] else metadata["metrics"]["additional_metrics"]["not_train"][col]
                                     model_log[f"{col}_test"] = -1
                               else:
-                                    model_log[f"{col}_test"] = metadata[col]
+                                    model_log[f"{col}_test"] = metadata["metrics"]["base_metrics"][col] if col in metadata["metrics"]["base_metrics"] else metadata["metrics"]["additional_metrics"]["train"][col + "_train"]
                                     model_log[f"{col}_val"] = -1
                               metricsAdded += 1
                   assert metricsAdded == len(self.metrics_to_evaluate), f"Not all metrics were added. Model_log is: {model_log}"
@@ -112,7 +116,6 @@ class ResultsDF:
                               You tried to write {model_log}")
                   model_logs.append(model_log)
             sys.stdout.flush()
-
             return model_logs
       
       def serialize_params(self, params):

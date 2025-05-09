@@ -57,12 +57,12 @@ class FeatureAnalysisRunner(PhaseRunner):
       
       def _run_automatic_feature_selection(self) -> None:
             # 1) L1
-            # predictivePowerFeatures, excludedFeatures, coefficients = self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.automatic_feature_selection.fit",
-            #                                             verbose=False,
-            #                                             type="L1",
-            #                                             max_iter=self.pipeline_manager.variables["feature_analysis_runner"]["automatic_feature_selection"]["l1"]["max_iter"],
-            #                                             delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["automatic_feature_selection"]["l1"]["delete_features"],
-            #                                             )
+            predictivePowerFeatures, excludedFeatures, coefficients = self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.automatic_feature_selection.fit",
+                                                        verbose=False,
+                                                        type="L1",
+                                                        max_iter=self.pipeline_manager.variables["feature_analysis_runner"]["automatic_feature_selection"]["l1"]["max_iter"],
+                                                        delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["automatic_feature_selection"]["l1"]["delete_features"],
+                                                        )
             # 2) Boruta
             selected_features, excludedFeatures = self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.automatic_feature_selection.fit",
                                                         verbose=True,
@@ -86,12 +86,12 @@ class FeatureAnalysisRunner(PhaseRunner):
 
       def run(self) -> None:
             feature_transformation_results = self._run_feature_transformation()
-            manual_feature_selection_results = self._run_manual_feature_selection()
-            automatic_feature_selection_results = self._run_automatic_feature_selection()
-            self._run_feature_engineering_after_split()
+            #manual_feature_selection_results = self._run_manual_feature_selection()
+            #automatic_feature_selection_results = self._run_automatic_feature_selection()
+            #self._run_feature_engineering_after_split()
             return {
                   "feature_transformation_results": feature_transformation_results,
-                  "manual_feature_selection_results": manual_feature_selection_results,
-                  "automatic_feature_selection_results": automatic_feature_selection_results
+                  "manual_feature_selection_results": None,
+                  "automatic_feature_selection_results": None
                   }
 

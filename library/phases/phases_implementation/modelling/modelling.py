@@ -16,7 +16,6 @@ class Modelling:
             self.list_of_models = {}
             self.dataset = dataset
             self._models_to_exclude = []
-            self.comments = ""
             self.results_analysis = {
                   "pre": PreTuningResultAnalysis(phase_results_df= pd.DataFrame()),
                   "in": InTuningResultAnalysis(phase_results_df= pd.DataFrame()),
@@ -173,7 +172,7 @@ class Modelling:
             modelObject.evaluate(modelName=modelName, current_phase=current_phase)
             return modelName, modelObject
 
-      def evaluate_and_store_models(self, comments: str, current_phase: str, **kwargs) -> pd.DataFrame | None:
+      def evaluate_and_store_models(self, current_phase: str, **kwargs) -> pd.DataFrame | None:
             """
             It asses each model and stores the results in the results_df.
 
@@ -191,9 +190,6 @@ class Modelling:
             pd.DataFrame or None
                   The results of the evaluation
             """
-            if comments:
-                  self.comments = comments
-            assert self.comments, "comments must be provided"
 
             # Separate "bayes_nn" models from others. This is because bayes_nn cant use parallel processing (for some keras-specific reasons)
             bayes_nn_models = []
@@ -250,7 +246,6 @@ class Modelling:
             model_logs = self.results_df.store_results(
                   list_of_models=self.list_of_models,
                   current_phase=current_phase,
-                  comments=self.comments,
                   models_to_exclude=self.models_to_exclude
             )
             if model_logs is not None:
@@ -262,10 +257,4 @@ class Modelling:
                   return None
       
 
-      def plot_convergence(self):
-            """
-            This method is deprecated.
-            """
-            for modelName, modelObject in self.list_of_models.items():
-                  if hasattr(modelObject.tuning_states["in"], "optimizer"):
-                        modelObject.tuning_states["in"].optimizer.plot_convergence()
+
