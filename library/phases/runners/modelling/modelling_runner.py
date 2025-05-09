@@ -33,7 +33,7 @@ class ModellingRunner(PhaseRunner):
             Finally we call the function that excludes all the models that we do not want the training to run (either because we are trying to debug and want to run as fast as possible or
             because we have observed that a certain model is not performing well and taking too long to fit/predict)
             """
-            self._create_pipelines_divergences()
+            #self._create_pipelines_divergences()
             nn_pipeline = self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"]
 
             # Ensembled models
@@ -93,14 +93,15 @@ class ModellingRunner(PhaseRunner):
             self.pipeline_manager.pipelines["baseline"]["baselines"].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["baselines"]
       
       def _create_pipelines_divergences(self):
-            self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="ensembled")
-            self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="tree_based")
-            self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="support_vector_machine")
-            self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="naive_bayes")
-            self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="feed_forward_neural_network")
-            self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="stacking")
-            self.pipeline_manager.create_pipeline_divergence(category="baseline", pipelineName="baselines")
-            print(f"Pipelines AFTER divergences: {self.pipeline_manager.pipelines}")
+            # self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="ensembled")
+            # self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="tree_based")
+            # self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="support_vector_machine")
+            # self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="naive_bayes")
+            # self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="feed_forward_neural_network")
+            # self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="stacking")
+            # self.pipeline_manager.create_pipeline_divergence(category="baseline", pipelineName="baselines")
+            # print(f"Pipelines AFTER divergences: {self.pipeline_manager.pipelines}")
+            pass
                                                                       
                                                                                              
       def run(self) -> None:

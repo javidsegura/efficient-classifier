@@ -193,7 +193,7 @@ class OutliersBounds:
         plt.tight_layout()
         plt.show()
 
-    def get_outliers_df(
+    def get_outliers(
         self,
         detection_type: str = "iqr",
         plot: bool = False,

@@ -17,6 +17,8 @@ class Preprocessing:
         self.class_imbalance_obj = ClassImbalance(dataset=self.dataset)
         self.feature_scaling_obj = FeatureScaling(dataset=self.dataset)
         self.outliers_bounds_obj = OutliersBounds(dataset=self.dataset)
+        
+
 
     def delete_columns(self, columnsToDelete: list[str]) -> str:
       """ 
