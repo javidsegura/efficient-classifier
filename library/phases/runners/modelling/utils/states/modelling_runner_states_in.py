@@ -45,10 +45,8 @@ class InTuningRunner(ModellingRunnerStates):
             residuals, confusion_matrices = self.pipeline_manager.pipelines_analysis.plot_confusion_matrix(save_plots=self.save_plots,
                                                                                                           save_path=self.save_path)
    
-            importances_dfs = self.pipeline_manager.pipelines_analysis.plot_feature_importance(save_plots=self.save_plots,
-                                                                                                save_path=self.save_path)
 
-            return metrics_df.to_dict(), residuals, confusion_matrices, importances_dfs
+            return metrics_df.to_dict(), residuals, confusion_matrices
 
       def _get_grid_space(self):
             # Ensembled models

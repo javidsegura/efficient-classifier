@@ -39,9 +39,6 @@ class PipelineRunner:
                    serialize_results: bool = False,
                    variables: dict = None
                    ) -> None:
-            """
-            This is some gerat class
-            """
             self.dataset_path = dataset_path
             self.model_task = model_task
             self.variables = variables
