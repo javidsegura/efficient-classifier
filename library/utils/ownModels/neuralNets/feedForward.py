@@ -8,7 +8,6 @@ from tensorflow.keras.layers import Dense, Input
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import AdamW
-from tensorflow.keras.metrics import Precision, Recall, AUC
 from tensorflow.keras.layers import Dropout
 
 from sklearn.base import BaseEstimator, ClassifierMixin

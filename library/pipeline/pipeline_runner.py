@@ -184,7 +184,7 @@ class PipelineRunner:
                               raise e
 
                   run_phase()
-            if not error_occured:
+            if not error_occured and self.variables["BOT"]["send_images"]:
                   try:
                         #Send slack bot all the images in the results/plots folder
                         for root, dirs, files in os.walk(self.plots_path):

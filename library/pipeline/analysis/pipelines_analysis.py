@@ -76,6 +76,7 @@ class PipelinesAnalysis:
                         df.loc[key] = value
                         df.loc[key, "modelName"] = modelName + "_train"
             
+            
             return df
       
       def _compute_classification_report(self, include_training: bool = False):

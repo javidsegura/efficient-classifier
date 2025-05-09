@@ -10,7 +10,6 @@ class PostTuningRunner(ModellingRunnerStates):
       def _general_analysis(self):
             # Cross model comparison
             self.pipeline_manager.pipelines_analysis.plot_cross_model_comparison(
-                  metric=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["cross_model_metrics"],
                   save_plots=self.save_plots,
                   save_path=self.save_path)
             
@@ -25,7 +24,7 @@ class PostTuningRunner(ModellingRunnerStates):
                                                                          save_plots=self.save_plots,
                                                                          save_path=self.save_path)
             # Intra model comparison
-            self.pipeline_manager.pipelines_analysis.plot_intra_model_comparison(metrics=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["intra_model_metrics"],
+            self.pipeline_manager.pipelines_analysis.plot_intra_model_comparison(
                                                                                  save_plots=self.save_plots,
                                                                                  save_path=self.save_path)
             

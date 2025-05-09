@@ -55,7 +55,7 @@ modelling_runner:
       tree_based: []
       support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
       naive_bayes: []
-      feed_forward_neural_network: ["Feed Forward Neural Network"]
+      feed_forward_neural_network: ["Feed Forward Neural Network"] 
       stacking: []
       baselines: ["Logistic Regression (baseline)" ]
     hyperparameters:
@@ -110,3 +110,4 @@ modelling_runner:
 
 BOT:
   channel: "#general"
+  send_images: False
