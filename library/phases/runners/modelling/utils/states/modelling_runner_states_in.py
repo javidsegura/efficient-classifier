@@ -177,6 +177,7 @@ class InTuningRunner(ModellingRunnerStates):
                                                                            exclude_pipeline_names=["stacking"],
                                                                            current_phase=self.pipeline_manager.pipeline_state,
                                                                            modelNameToOptimizer=modelNameToOptimizer)
-            self._set_up_stacking_model(optimized_models, modelNameToOptimizerStacking)
+            if len(self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["stacking"]) == 0:
+                  self._set_up_stacking_model(optimized_models, modelNameToOptimizerStacking)
             general_analysis_results = self._general_analysis()
             return general_analysis_results

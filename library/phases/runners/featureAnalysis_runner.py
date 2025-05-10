@@ -15,7 +15,10 @@ class FeatureAnalysisRunner(PhaseRunner):
             """
             Note for @fede:
                   - Currently the same procedure is applied to all pipelines. Better results can be achieved if we apply different procedures to different pipelines.
+                  - These runs suppor slow, but they are not the best.
             """
+
+
             # 1) Mutual Information
             self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.manual_feature_selection.fit",
                                                         verbose=True,
@@ -55,13 +58,13 @@ class FeatureAnalysisRunner(PhaseRunner):
             return None
       
       def _run_automatic_feature_selection(self) -> None:
-            # 1) L1
-            predictivePowerFeatures, excludedFeatures, coefficients = self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.automatic_feature_selection.fit",
-                                                        verbose=False,
-                                                        type="L1",
-                                                        max_iter=self.pipeline_manager.variables["feature_analysis_runner"]["automatic_feature_selection"]["l1"]["max_iter"],
-                                                        delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["automatic_feature_selection"]["l1"]["delete_features"],
-                                                        )
+            # # 1) L1
+            # predictivePowerFeatures, excludedFeatures, coefficients = self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.automatic_feature_selection.fit",
+            #                                             verbose=False,
+            #                                             type="L1",
+            #                                             max_iter=self.pipeline_manager.variables["feature_analysis_runner"]["automatic_feature_selection"]["l1"]["max_iter"],
+            #                                             delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["automatic_feature_selection"]["l1"]["delete_features"],
+            #                                             )
             # 2) Boruta
             selected_features, excludedFeatures = self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.automatic_feature_selection.fit",
                                                         verbose=True,
@@ -84,9 +87,9 @@ class FeatureAnalysisRunner(PhaseRunner):
 
 
       def run(self) -> None:
-            feature_transformation_results = self._run_feature_transformation()
-            #manual_feature_selection_results = self._run_manual_feature_selection()
-            #automatic_feature_selection_results = self._run_automatic_feature_selection()
+            feature_transformation_results = self._run_feature_transformation() 
+            manual_feature_selection_results = self._run_manual_feature_selection() # Comment out cause it goes too slow
+            #automatic_feature_selection_results = self._run_automatic_feature_selection() # Comment out cause it goes too slow
             self._run_feature_engineering_after_split()
             return {
                   "feature_transformation_results": feature_transformation_results,

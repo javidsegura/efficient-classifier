@@ -50,7 +50,8 @@ class EDA:
     cmap = sns.diverging_palette(230, 20, as_cmap=True)
     vmin, vmax = corr.min().min(), corr.max().max()
     sns.heatmap(corr, mask=mask, cmap=cmap, center=0,
-              square=True, linewidths=.5, cbar_kws={"shrink": .8}, vmin=vmin, vmax=vmax, **kwargs)
+              square=True, linewidths=.5, cbar_kws={"shrink": .8}, vmin=vmin, vmax=vmax,
+              xticklabels=corr.columns, yticklabels=corr.index, **kwargs)
     plt.title(f"{title}")
     save_or_store_plot(f, save_plots, save_path + "/feature_selection/manual/multicollinearity", f"{title}.png")
 

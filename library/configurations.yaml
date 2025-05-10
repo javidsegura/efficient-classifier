@@ -53,11 +53,11 @@ data_preprocessing_runner:
       stacking: robust
     imbalancer:
       baselines: ADASYN
-      ensembled: no_imbalancer # We dont want to balance the classes for ensembled models
-      tree_based: no_imbalancer
-      support_vector_machine: no_imbalancer # We dont want to balance the classes for ensembled models
-      naive_bayes: SMOTE
-      feed_forward_neural_network: no_imbalancer
+      ensembled: ADASYN # We dont want to balance the classes for ensembled models
+      tree_based: ADASYN
+      support_vector_machine: ADASYN
+      naive_bayes: ADASYN
+      feed_forward_neural_network: ADASYN
       stacking: no_imbalancer
 
 
@@ -90,9 +90,9 @@ modelling_runner:
       tree_based: ["Decision Tree"]
       support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
       naive_bayes: []
-      feed_forward_neural_network: ["Feed Forward Neural Network"] 
-      stacking: []
-      baselines: ["Logistic Regression (baseline)"]
+      feed_forward_neural_network: [] 
+      stacking: ["Stacking"]
+      baselines: []
     hyperparameters:
       grid_space:
         gradient_boosting:
@@ -125,11 +125,11 @@ modelling_runner:
     neural_network:
        initial_architecture:
           batch_size: 128
-          epochs: 5
-          n_layers: 2
-          units_per_layer: [512, 512]
+          epochs: 1
+          n_layers: 4
+          units_per_layer: [512, 256, 128, 64]
           learning_rate: 0.001
-          activations: ['relu', 'relu']
+          activations: ['relu', 'relu', 'relu', 'relu']
           kernel_initializer: 'glorot_uniform'
     model_assesment:
       comments: "UPDATED KAPPA NAME IN THE CSV, ONE SECOND TIME"
