@@ -15,7 +15,7 @@ PIPELINE_RUNNER:
 
 dataset_runner:
     split_df: 
-      p: 0.80
+      p: 0.85
       step: .05
     encoding:
       y_column: "Category"
@@ -56,7 +56,7 @@ modelling_runner:
       support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
       naive_bayes: []
       feed_forward_neural_network: ["Feed Forward Neural Network"] 
-      stacking: []
+      stacking: ["Stacking"]
       baselines: ["Logistic Regression (baseline)" ]
     hyperparameters:
       grid_space:
@@ -79,8 +79,13 @@ modelling_runner:
           min_samples_leaf: [1, 2, 5]
           max_features: ['sqrt', 'log2']
           ccp_alpha: [0.0, 0.01, 0.1]
+        stacking:
+          final_estimator__C: [0.001, 0.01, 0.1, 1, 10]
+          final_estimator__penalty: ['l2']
+          final_estimator__solver: ['lbfgs']
+          passthrough: [True, False]
       tuner_params:
-        max_iter: 5
+        max_iter: 1
         epochs: 1
         
     neural_network:
@@ -92,7 +97,7 @@ modelling_runner:
           activations: ['relu', 'relu']
           learning_rate: 0.001
     model_assesment:
-      comments: "HEAVY TRAINING GOING ON"
+      comments: "UPDATED KAPPA NAME IN THE CSV, ONE SECOND TIME"
       cross_model_metrics: ["f1-score", "recall", "precision", "accuracy"]
       intra_model_metrics: ["f1-score", "recall", "precision", "accuracy"]
       results_summary:

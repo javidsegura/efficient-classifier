@@ -86,6 +86,10 @@ class Modelling:
             return modelName, modelObject
 
       def fit_models(self, current_phase: str, **kwargs):
+            """
+            Note: for the in phase, we need to optimize the models in parallel except for the bayes_nn models, which we need to optimize sequentially (keras-specific reasons).
+            
+            """
             assert current_phase in ["pre", "in", "post"], "Current phase must be one of the tuning states"
             print(f"Gonna start fitting models in {current_phase} phase")
             with concurrent.futures.ProcessPoolExecutor() as executor:
@@ -97,23 +101,16 @@ class Modelling:
                               modelName, model = future.result() 
                               self.list_of_models[modelName] = model # update results
                   elif current_phase == "in":
-                        isStackingPipeline = False
-                        for modelName, modelObject in self.list_of_models.items():
-                              if modelObject.model_type == "stacking":
-                                    isStackingPipeline = True
-                                    self._fit_and_predict(modelName, modelObject, current_phase)
+                        modelNameToOptimizer = kwargs.get("modelNameToOptimizer", None)
+                        assert modelNameToOptimizer is not None, "modelNameToOptimizer must be provided"
+                        future_to_model = []
+                        optimized_models = {}
 
-                        if not isStackingPipeline:
-                              modelNameToOptimizer = kwargs.get("modelNameToOptimizer", None)
-                              assert modelNameToOptimizer is not None, "modelNameToOptimizer must be provided"
-                              future_to_model = []
-                              optimized_models = {}
+                        # Separate models
+                        bayes_nn_models = []
+                        other_models = []
 
-                              # Separate models
-                              bayes_nn_models = []
-                              other_models = []
-
-                              for modelName, optimization_params in modelNameToOptimizer.items():
+                        for modelName, optimization_params in modelNameToOptimizer.items():
                                     if modelName not in list(self.list_of_models.keys()):
                                           continue
                                     if modelName in self.models_to_exclude:
@@ -123,20 +120,20 @@ class Modelling:
                                     else:
                                           other_models.append((modelName, optimization_params))
 
-                              # Run non-bayes_nn models in process pool
-                              for modelName, optimization_params in other_models:
+                        # Run non-bayes_nn models in process pool
+                        for modelName, optimization_params in other_models:
                                     print(f"Optimizing model {modelName}")
                                     modelObject = self.list_of_models[modelName]
                                     future = executor.submit(self._optimize_model, modelName, modelObject, current_phase, optimization_params)
                                     future_to_model.append(future)
 
-                              for future in concurrent.futures.as_completed(future_to_model):
+                        for future in concurrent.futures.as_completed(future_to_model):
                                     modelName, modelObject = future.result()
                                     self.list_of_models[modelName] = modelObject
                                     optimized_models[modelName] = modelObject.tuning_states["in"].assesment["model_sklearn"]
 
-                              # Run bayes_nn models sequentially (outside process pool)
-                              for modelName, optimization_params in bayes_nn_models:
+                        # Run bayes_nn models sequentially (outside process pool)
+                        for modelName, optimization_params in bayes_nn_models:
                                     print(f"Optimizing bayes_nn model {modelName}")
                                     modelObject = self.list_of_models[modelName]
                                     # Direct call, not via executor
@@ -144,7 +141,7 @@ class Modelling:
                                     self.list_of_models[modelName] = modelObject
                                     optimized_models[modelName] = modelObject.tuning_states["in"].assesment["model_sklearn"]
 
-                              return optimized_models
+                        return optimized_models
                   elif current_phase == "post":
                               # Exclude neural-nets fro conccurent
                               best_model_name, baseline_model_name = kwargs.get("best_model_name", None), kwargs.get("baseline_model_name", None)

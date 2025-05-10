@@ -74,10 +74,10 @@ class Classifier(Model):
 
             results = {
                   "base_metrics": {
-                        "f1-score": f1_score,
+                        "accuracy": accuracy,
                         "precision": precision,
                         "recall": recall,
-                        "accuracy": accuracy,
+                        "f1-score": f1_score,
                   },
                   "additional_metrics": {
                         "not_train": {

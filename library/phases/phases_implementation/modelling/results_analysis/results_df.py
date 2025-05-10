@@ -29,8 +29,7 @@ class ResultsDF:
             self.model_results_path = model_results_path
             self.dataset = dataset
             header = ["id", "timeStamp", "comments", "modelName", "currentPhase", "features_used", "hyperParameters", "timeToFit", "timeToPredict"]
-            if dataset.modelTask == "classification":
-                  header += ["classification_report"]
+
             header += [f"{metric}_val" for metric in self.metrics_to_evaluate]
             header += [f"{metric}_test" for metric in self.metrics_to_evaluate]
             self.header = header
@@ -85,8 +84,7 @@ class ResultsDF:
                         "timeToFit": metadata["timeToFit"],
                         "timeToPredict": metadata["timeToPredict"],
                   }
-                  if self.dataset.modelTask == "classification":
-                        model_log["classification_report"] = metadata["classification_report"]
+                  
                   # Adding remaining data 
                   print(f"METADATA IS: {metadata}")
                   metricsAdded = 0

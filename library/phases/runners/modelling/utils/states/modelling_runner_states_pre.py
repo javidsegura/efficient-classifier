@@ -3,7 +3,7 @@ from library.phases.runners.modelling.utils.states.modelling_runner_states_base 
 from library.pipeline.pipeline_manager import PipelineManager
 
 from sklearn.ensemble import StackingClassifier
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
 
 class PreTuningRunner(ModellingRunnerStates):
       def __init__(self, pipeline_manager: PipelineManager, save_plots: bool = False, save_path: str = None):
@@ -69,8 +69,8 @@ class PreTuningRunner(ModellingRunnerStates):
             #Stacking model
             stackingModel = StackingClassifier(
                   estimators=estimators,
-                  final_estimator=DecisionTreeClassifier(), # to be manually tuned
-                  cv="prefit",
+                  final_estimator=LogisticRegression(), 
+                  cv=5,
                   verbose=3
             )
 
@@ -93,8 +93,8 @@ class PreTuningRunner(ModellingRunnerStates):
             print("Pre tuning runner about to start")
             # Fitting models
             self.pipeline_manager.all_pipelines_execute(
-                  methodName="modelling.fit_models",
-                                       exclude_pipeline_names=["stacking"], # debugging
+                                       methodName="modelling.fit_models",
+                                       exclude_pipeline_names=["stacking"], 
                                        current_phase="pre")
             self._set_up_stacking_model()
             general_analysis_results = self._general_analysis()
