@@ -28,11 +28,6 @@ class DataPreprocessingRunner(PhaseRunner):
             print(f"ENCODED MAP PIPELINS IS: {encoded_maps_per_pipeline}")
             self.pipeline_manager.pipelines_analysis.encoded_map = encoded_maps_per_pipeline["not_baseline"]["ensembled"]
             return None
-            
-      
-      def _preprocessor_initializers(self):
-            # Ensembled Pipelines
-            self.pipeline_manager.pipelines["not_baseline"]["ensembled"].preprocessing
         
       def _execute_preprocessing_with_config(self, preprocessing: Preprocessing, cfg: dict) -> None:
             """

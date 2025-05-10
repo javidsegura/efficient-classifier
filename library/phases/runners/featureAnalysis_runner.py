@@ -8,6 +8,7 @@ class FeatureAnalysisRunner(PhaseRunner):
             super().__init__(pipeline_manager, include_plots, save_path)
 
       def _run_feature_transformation(self) -> None:
+            # Do not add encoding, this is added in _feature_encoding_helper() in dataPreprocessing_runner.py
             pass
       
       def _run_manual_feature_selection(self) -> None:
