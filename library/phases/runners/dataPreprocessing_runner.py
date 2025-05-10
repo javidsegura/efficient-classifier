@@ -96,14 +96,14 @@ class DataPreprocessingRunner(PhaseRunner):
       
       
       def run(self) -> None:
-            self._create_pipelines_divergences()
             #print(self.pipeline_manager.pipelines)
+            self._feature_encoding_helper()
+            self._create_pipelines_divergences()
             
             print("-"*30)
             print("STARTING PREPROCESSING")
             print("-"*30)
             
-            self._feature_encoding_helper()
             
             results = {}
 
@@ -117,9 +117,6 @@ class DataPreprocessingRunner(PhaseRunner):
                         cfg = self.config.get(pipeline_name)
                         if cfg is None:
                               raise KeyError(f"No preprocessing config found for pipeline '{pipeline_name}'")
-
-                        # Create a fresh Preprocessing instance with the current dataset
-                        #preprocessor = Preprocessing(dataset=pipeline.dataset)
                         
                         try:
                               summary = self._execute_preprocessing_with_config(preprocessing=pipeline.preprocessing, cfg=cfg)

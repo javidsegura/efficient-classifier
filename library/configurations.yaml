@@ -152,7 +152,7 @@ modelling_runner:
       support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
       naive_bayes: []
       feed_forward_neural_network: []
-      stacking: []
+      stacking: ["Stacking"]
       baselines: ["Logistic Regression (baseline)" ]
     hyperparameters:
       grid_space:
