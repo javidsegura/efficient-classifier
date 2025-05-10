@@ -19,7 +19,7 @@ class EDA:
     self.dataset = dataset
     
 
-  def plot_correlation_matrix(self, size: str = "small", splitted_sets: bool = False, title: str = "", save_plots: bool = False, save_path: str = "", **kwargs) -> None:
+  def plot_correlation_matrix(self, size: str = "small", numerical_df: pd.DataFrame = None, title: str = "", save_plots: bool = False, save_path: str = "", **kwargs) -> None:
     """
     Plots the correlation matrix of the dataframe
 
@@ -32,12 +32,7 @@ class EDA:
     -------
       None
     """
-    if splitted_sets:
-      only_numerical_df = self.dataset.X_train.select_dtypes(include=["number"])
-      corr = only_numerical_df.corr()
-    else:
-      only_numerical_df = self.dataset.df.select_dtypes(include=["number"])
-      corr = only_numerical_df.corr()
+    corr = numerical_df.corr()
     mask = np.triu(np.ones_like(corr, dtype=bool)) # avoid redundancy
     if size == "s":
       f, ax = plt.subplots(figsize=(5, 3))

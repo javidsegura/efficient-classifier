@@ -8,7 +8,7 @@ PIPELINE_RUNNER:
   model_task: "classification"
   pipelines_names:
     not_baseline: ["ensembled", "tree_based", "support_vector_machine",
-                              "naive_bayes", "feed_forward_neural_network", "stacking"]
+                              "naive_bayes", "feed_forward_neural_network", "stacking"] # removed support vector machine cause it goes too slow
     baseline: ["baselines"]
   include_plots: True
   max_plots_per_function: 5 # Plots 5 plots for function that plot all features in the dataset. Set to -1 number to plot all
@@ -87,12 +87,12 @@ feature_analysis_runner:
 modelling_runner:
     models_to_exclude:
       ensembled: ["Gradient Boosting", "Random Forest"]
-      tree_based: ["Decision Tree"]
+      tree_based: [] # ALWAYS KEEP TREE, ITS USED AS REFERENCE FOR FEATURE SELECTION
       support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
       naive_bayes: []
       feed_forward_neural_network: [] 
-      stacking: ["Stacking"]
-      baselines: []
+      stacking: []
+      baselines: ["Logistic Regression (baseline)"]
     hyperparameters:
       grid_space:
         gradient_boosting:
@@ -120,12 +120,12 @@ modelling_runner:
           final_estimator__solver: ['lbfgs']
           passthrough: [True, False]
       tuner_params:
-        max_iter: 1
-        epochs: 1
+        max_iter: 1 # CHANGE THIS TO MAKE IT RUN FASTER 
+        epochs: 1 # CHANGE THIS TO MAKE IT RUN FASTER 
     neural_network:
        initial_architecture:
           batch_size: 128
-          epochs: 1
+          epochs: 1 # CHANGE THIS TO MAKE IT RUN FASTER 
           n_layers: 4
           units_per_layer: [512, 256, 128, 64]
           learning_rate: 0.001
