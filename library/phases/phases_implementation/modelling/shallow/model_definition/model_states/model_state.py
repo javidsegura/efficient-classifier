@@ -153,28 +153,17 @@ class InTuningState(ModelState):
                   print(f"Model object: {model_object} for {self.modelName}")
 
                   assert self.model_type is not None, f"Model object must have a model_type. {self.modelName}. Model object: {model_object}"
-                  if self.model_type == "stacking":
-                        print(f"Sklearn model for stacking has predictors: {self.model_sklearn.estimators}")
-                        start_time = time.time()
-                        print(f"!> Started fitting {self.modelName}")
-                        X_data, y_data = self.get_fit_data()
-                        print(f"Lenght of X_data: {X_data.shape[0]}")
-                        self.assesment["model_sklearn"] = self.model_sklearn.fit(X_data, y_data)
-                        end_time = time.time()
-                        time_taken = end_time - start_time
-                        self.assesment["timeToFit"] = time_taken
-                        print(f"\t\t => Fitted {self.modelName}. Took {time_taken} seconds")
-                  else:
-                        if self.model_type == "neural_network":
-                              epochs = kwargs.get("epochs", None)
-                        else:
-                              epochs = None
-                        assert optimizer_type in ["grid", "random", "bayes", "bayes_nn"], "Optimizer type must be one of the following: grid, random, bayes, bayes_nn"
-                        assert max_iter is not None, "Max iter must be provided"
-                        assert model_object is not None, "Model object must be provided"
-                        print(f"Model object: {model_object}")
 
-                        if self.model_type == "neural_network":
+                  if self.model_type == "neural_network":
+                              epochs = kwargs.get("epochs", None)
+                  else:
+                              epochs = None
+                  assert optimizer_type in ["grid", "random", "bayes", "bayes_nn"], "Optimizer type must be one of the following: grid, random, bayes, bayes_nn"
+                  assert max_iter is not None, "Max iter must be provided"
+                  assert model_object is not None, "Model object must be provided"
+                  print(f"Model object: {model_object}")
+
+                  if self.model_type == "neural_network":
                               self.optimizer = Optimizer(
                                                       model_sklearn=self.model_sklearn,
                                                       modelName=self.modelName, 
@@ -184,7 +173,7 @@ class InTuningState(ModelState):
                                                       param_grid=param_grid,
                                                       max_iter=max_iter,
                                                       epochs=epochs)
-                        else:
+                  else:
                               self.optimizer = Optimizer(
                                                       model_sklearn=self.model_sklearn,
                                                       modelName=self.modelName, 
@@ -193,37 +182,37 @@ class InTuningState(ModelState):
                                                       optimizer_type=optimizer_type, 
                                                       param_grid=param_grid,
                                                       max_iter=max_iter)
-                        time_start = time.time()
-                        self.optimizer.fit()
-                        time_end = time.time()
-                        time_taken = time_end - time_start
-                        self.assesment["timeToFit"] = time_taken
-                        if optimizer_type != "bayes_nn":
+                  time_start = time.time()
+                  self.optimizer.fit()
+                  time_end = time.time()
+                  time_taken = time_end - time_start
+                  self.assesment["timeToFit"] = time_taken
+                  if optimizer_type != "bayes_nn":
                               self.model_sklearn = self.optimizer.optimizer.best_estimator_
                               self.assesment["model_sklearn"] = self.model_sklearn
-                        else:
-                              best_model = self.optimizer.optimizer.get_best_models(num_models=1)[0]
-                              best_hps = self.optimizer.optimizer.get_best_hyperparameters(num_trials=1)[0]
-                              best_params = best_hps.values
-                              n_layers = best_params["n_layers"]
-                              learning_rate = best_params["learning_rate"]
-                              units_per_layers = []
-                              activations = []
-                              for i in range(n_layers):
-                                    units_per_layers.append(best_params[f"units_{i}"])
-                                    activations.append(best_params[f"act_{i}"])
+                  else:
+                        best_model = self.optimizer.optimizer.get_best_models(num_models=1)[0]
+                        best_hps = self.optimizer.optimizer.get_best_hyperparameters(num_trials=1)[0]
+                        best_params = best_hps.values
+                        n_layers = best_params["n_layers"]
+                        learning_rate = best_params["learning_rate"]
+                        units_per_layers = []
+                        activations = []
+                        for i in range(n_layers):
+                              units_per_layers.append(best_params[f"units_{i}"])
+                              activations.append(best_params[f"act_{i}"])
 
-                              print(f"Best params: {best_params}")
-                              self.model_sklearn = FeedForwardNeuralNetwork(
+                        print(f"Best params: {best_params}")
+                        self.model_sklearn = FeedForwardNeuralNetwork(
                                                                   num_features=self.dataset.X_train.shape[1], 
                                                                   num_classes=self.dataset.y_train.value_counts().shape[0], 
                                                                   n_layers=n_layers,
                                                                   units_per_layer=units_per_layers,
                                                                   activations=activations,
                                                                   learning_rate=learning_rate)
-                              self.model_sklearn.model = best_model
-                              self.assesment["model_sklearn"] = self.model_sklearn
-                              self.model_sklearn.is_fitted_ = True
+                        self.model_sklearn.model = best_model
+                        self.assesment["model_sklearn"] = self.model_sklearn
+                        self.model_sklearn.is_fitted_ = True
       
       def predict(self):
                   

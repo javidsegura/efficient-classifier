@@ -4,7 +4,7 @@ from library.pipeline.pipeline_manager import PipelineManager
 from skopt.space import Real
 
 from sklearn.ensemble import StackingClassifier
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
 
 
 class InTuningRunner(ModellingRunnerStates):
@@ -22,7 +22,6 @@ class InTuningRunner(ModellingRunnerStates):
             
             # Cross model comparison
             self.pipeline_manager.pipelines_analysis.plot_cross_model_comparison(
-                  metric=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["cross_model_metrics"],
                   save_plots=self.save_plots,
                   save_path=self.save_path)
             
@@ -37,7 +36,7 @@ class InTuningRunner(ModellingRunnerStates):
                                                                          save_plots=self.save_plots,
                                                                          save_path=self.save_path)
             # Intra model comparison
-            self.pipeline_manager.pipelines_analysis.plot_intra_model_comparison(metrics=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["intra_model_metrics"],
+            self.pipeline_manager.pipelines_analysis.plot_intra_model_comparison(
                                                                                  save_plots=self.save_plots,
                                                                                  save_path=self.save_path)
             
@@ -45,10 +44,8 @@ class InTuningRunner(ModellingRunnerStates):
             residuals, confusion_matrices = self.pipeline_manager.pipelines_analysis.plot_confusion_matrix(save_plots=self.save_plots,
                                                                                                           save_path=self.save_path)
    
-            importances_dfs = self.pipeline_manager.pipelines_analysis.plot_feature_importance(save_plots=self.save_plots,
-                                                                                                save_path=self.save_path)
 
-            return metrics_df.to_dict(), residuals, confusion_matrices, importances_dfs
+            return metrics_df.to_dict(), residuals, confusion_matrices
 
       def _get_grid_space(self):
             # Ensembled models
@@ -84,10 +81,20 @@ class InTuningRunner(ModellingRunnerStates):
                   'var_smoothing': Real(1e-12, 1e-6, prior='log-uniform')
             }
 
-            return gradient_boosting_grid, random_forest_grid, decision_tree_grid, naive_bayes_grid
+            # Feed Forward Neural Network model (hard-coded)
+
+            # Stacking
+            stacking_grid = {
+                  'final_estimator__C': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["stacking"]["final_estimator__C"],
+                  'final_estimator__penalty': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["stacking"]["final_estimator__penalty"],
+                  'final_estimator__solver': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["stacking"]["final_estimator__solver"],
+                  'passthrough': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["stacking"]["passthrough"]
+            }
+
+            return gradient_boosting_grid, random_forest_grid, decision_tree_grid, naive_bayes_grid, stacking_grid
       
       def _get_grid_search_params(self):
-            gradient_boosting_grid, random_forest_grid, decision_tree_grid, naive_bayes_grid = self._get_grid_space()
+            gradient_boosting_grid, random_forest_grid, decision_tree_grid, naive_bayes_grid, stacking_grid = self._get_grid_space()
             modelNameToOptimizer = {
                   "Gradient Boosting": {
                         "optimizer_type": "bayes",
@@ -116,9 +123,16 @@ class InTuningRunner(ModellingRunnerStates):
                         "epochs": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["epochs"]
                   }
             }
-            return modelNameToOptimizer
+            modelNameToOptimizerStacking = {
+                  "Stacking": {
+                        "optimizer_type": "bayes",
+                        "param_grid": stacking_grid,
+                        "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
+                  }
+            }
+            return modelNameToOptimizer, modelNameToOptimizerStacking
       
-      def _set_up_stacking_model(self, optimized_models):
+      def _set_up_stacking_model(self, optimized_models: dict, modelNameToOptimizerStacking: dict):
             """
             We have to get the base estimators. In this case there are the ones that were tuned
             """
@@ -131,8 +145,8 @@ class InTuningRunner(ModellingRunnerStates):
             #Stacking model
             stackingModel = StackingClassifier(
                   estimators=estimators,
-                  final_estimator=DecisionTreeClassifier(),
-                  cv="prefit", # This makes the base models to not be retrained 
+                  final_estimator=LogisticRegression(),
+                  cv=5,
                   verbose=3
             )
 
@@ -151,19 +165,18 @@ class InTuningRunner(ModellingRunnerStates):
             
             self.pipeline_manager.all_pipelines_execute(methodName="modelling.fit_models", 
                                        current_phase=self.pipeline_manager.pipeline_state,
-                                       exclude_category="baseline",
-                                       exclude_pipeline_names=all_pipelines_to_exclude
+                                       modelNameToOptimizer=modelNameToOptimizerStacking
                                        )
             
       def run(self):
             self.pipeline_manager.pipeline_state = "in"
             print("In tuning runner")
             # Fitting models
-            modelNameToOptimizer = self._get_grid_search_params()
+            modelNameToOptimizer, modelNameToOptimizerStacking = self._get_grid_search_params()
             optimized_models = self.pipeline_manager.all_pipelines_execute(methodName="modelling.fit_models", 
                                                                            exclude_pipeline_names=["stacking"],
                                                                            current_phase=self.pipeline_manager.pipeline_state,
                                                                            modelNameToOptimizer=modelNameToOptimizer)
-            self._set_up_stacking_model(optimized_models)
+            self._set_up_stacking_model(optimized_models, modelNameToOptimizerStacking)
             general_analysis_results = self._general_analysis()
             return general_analysis_results

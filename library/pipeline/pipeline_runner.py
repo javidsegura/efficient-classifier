@@ -20,7 +20,7 @@ from library.phases.runners.modelling.modelling_runner import ModellingRunner
 
 # Utils
 from library.utils.decorators.timer import timer
-from library.utils.slackBot.bot import SlackBot
+from library.phases.phases_implementation.dev_ops.slackBot.bot import SlackBot
 
 import yaml
 
@@ -39,9 +39,6 @@ class PipelineRunner:
                    serialize_results: bool = False,
                    variables: dict = None
                    ) -> None:
-            """
-            This is some gerat class
-            """
             self.dataset_path = dataset_path
             self.model_task = model_task
             self.variables = variables
@@ -65,6 +62,15 @@ class PipelineRunner:
                                                 serialize_results=serialize_results)  
             }
             self.slack_bot = SlackBot()
+      
+      def _dataset_specific_set_up(self, default_pipeline: Pipeline) -> None:
+            """
+            Set ups the dataset specific set-up.
+            """
+            # DO GENERAL PIPELINE-WIDE SET-UP (e.g: remove zero day, no category, etc) => DATASET-SPECIFIC
+            default_pipeline.dataset.df.drop(columns=["Family", "Hash"], inplace=True) # We have decided to use only category as target variable; Hash is temporary while im debugging (it will be deleted in EDA)
+            default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "Zero_Day"].index, inplace=True)
+            default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "No_Category"].index, inplace=True)
 
       
       def _set_up_pipelines(self, pipelines_names: dict[str, list[str]]) -> None:
@@ -83,14 +89,8 @@ class PipelineRunner:
             """
             print(f"Setting up pipelines for {self.model_task} model task")
             combined_pipelines = {}
-            default_pipeline = Pipeline(self.dataset_path, self.model_results_path, self.model_task)
-
-
-            # DO GENERAL PIPELINE-WIDE SET-UP (e.g: remove zero day, no category, etc) => DATASET-SPECIFIC
-            default_pipeline.dataset.df.drop(columns=["Family", "Hash"], inplace=True) # We have decided to use only category as target variable; Hash is temporary while im debugging (it will be deleted in EDA)
-            default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "Zero_Day"].index, inplace=True)
-            default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "No_Category"].index, inplace=True)
-
+            default_pipeline = Pipeline(self.dataset_path, self.model_results_path, self.model_task)            
+            self._dataset_specific_set_up(default_pipeline)
 
             for category_name, pipelines in pipelines_names.items():
                   combined_pipelines[category_name] = {}
@@ -160,6 +160,7 @@ class PipelineRunner:
             -------
             None
             """
+            error_occured = False
             for phase_name, phase_runner in self.phase_runners.items():
                   @timer(phase_name)
                   def run_phase():
@@ -174,31 +175,34 @@ class PipelineRunner:
                                     #                         Result: {str(phase_result)}",
                                     #                         channel=self.variables["BOT"]["channel"])
                         except Exception as e:
-                              #self.logger.error(f"Error running phase '{phase_name}': {e}")
+                              error_occured = True
+                              self.logger.error(f"Error running phase '{phase_name}': {e}")
                               print(f"ERROR RUNNING PHASE '{phase_name}': {e}")
-                              # self.slack_bot.send_message(f"Error running phase '{phase_name}': {e}",
-                              #                         channel=self.variables["BOT"]["channel"])
+                              self.slack_bot.send_message(f"Error running phase '{phase_name}': {e}",
+                                                      channel=self.variables["BOT"]["channel"])
+                              raise e
 
                   run_phase()
-            # try:
-            #       #Send slack bot all the images in the results/plots folder
-            #       for root, dirs, files in os.walk(self.plots_path):
-            #             for file in files:
-            #                   file_path = os.path.join(root, file)
-            #                   time.sleep(1) # This is to avoid sending too many messages to the slack channel at once 
-            #                   self.slack_bot.send_file(file_path,
-            #                                           channel=self.variables["BOT"]["channel"],
-            #                                           title=file,
-            #                                           initial_comment="")
-            #       # Send slack bot the results progress
-            #       self.slack_bot.send_file(self.model_results_path,
-            #                                           channel=self.variables["BOT"]["channel"],
-            #                                           title=self.model_results_path,
-            #                                           initial_comment="Here is the results progress log")
-            # except Exception as e:
-            #       self.logger.error(f"Error sending slack bot the results progress: {e}")
-            #       self.slack_bot.send_message(f"Error sending slack bot the results progress: {e}",
-            #                                           channel=self.variables["BOT"]["channel"])
+            if not error_occured and self.variables["BOT"]["send_images"]:
+                  try:
+                        #Send slack bot all the images in the results/plots folder
+                        for root, dirs, files in os.walk(self.plots_path):
+                              for file in files:
+                                    file_path = os.path.join(root, file)
+                                    time.sleep(1) # This is to avoid sending too many messages to the slack channel at once 
+                                    self.slack_bot.send_file(file_path,
+                                                            channel=self.variables["BOT"]["channel"],
+                                                            title=file,
+                                                            initial_comment="")
+                        # Send slack bot the results progress
+                        self.slack_bot.send_file(self.model_results_path,
+                                                            channel=self.variables["BOT"]["channel"],
+                                                            title=self.model_results_path,
+                                                            initial_comment="Here is the results progress log")
+                  except Exception as e:
+                        self.logger.error(f"Error sending slack bot the results progress: {e}")
+                        self.slack_bot.send_message(f"Error sending slack bot the results progress: {e}",
+                                                            channel=self.variables["BOT"]["channel"])
 
 
 

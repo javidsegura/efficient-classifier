@@ -8,7 +8,6 @@ from tensorflow.keras.layers import Dense, Input
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import AdamW
-from tensorflow.keras.metrics import Precision, Recall, AUC
 from tensorflow.keras.layers import Dropout
 
 from sklearn.base import BaseEstimator, ClassifierMixin
@@ -26,7 +25,8 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
                   n_layers:      int = 1,
                   units_per_layer: list = [128],
                   activations:   list = ['relu'],
-                  learning_rate: float = 1e-3
+                  learning_rate: float = 1e-3,
+                  kernel_initializer: str = 'glorot_uniform',
                   ):
             """
 
@@ -46,6 +46,7 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
             self.activations = activations
             self.learning_rate = learning_rate
             self.epochs = epochs
+            self.kernel_initializer = kernel_initializer
 
             # placeholder for the trained model
             self.model = None
@@ -57,8 +58,8 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
             model = Sequential()
             model.add(Input(shape=(self.num_features,)))
             for i in range(self.n_layers):
-                  model.add(Dense(self.units_per_layer[i], activation=self.activations[i]))
-            model.add(Dense(self.num_classes, activation='softmax'))
+                  model.add(Dense(self.units_per_layer[i], activation=self.activations[i], kernel_initializer=self.kernel_initializer))
+            model.add(Dense(self.num_classes, activation='softmax', kernel_initializer=self.kernel_initializer))
 
             lr = self.learning_rate
             model.compile(
@@ -157,15 +158,23 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
             return self
 
       def predict(self, X):
-            preds = self.model.predict(X) # Softmax originally returns soft-probabilities. We then take the class with the highest probability of being right 
-            return np.argmax(preds, axis=1)
+            self.preds = self.model.predict(X) # Softmax originally returns soft-probabilities. We then take the class with the highest probability of being right 
+            return np.argmax(self.preds, axis=1)
+      
+      def predict_proba(self, X):
+            if self.preds is None:
+                  return self.model.predict(X)
+            return self.preds
 
       def get_params(self, deep=True):
             return {
                   'num_features':  self.num_features,
                   'num_classes':   self.num_classes,
+                  'batch_size':    self.batch_size,
+                  'epochs':        self.epochs,
+                  'n_layers':      self.n_layers,
+                  'units_per_layer': self.units_per_layer,
                   'activations':   self.activations,
                   'learning_rate': self.learning_rate,
-                  'batch_size':    self.batch_size,
-                  'epochs':        self.epochs
+                  'kernel_initializer': self.kernel_initializer,
             }

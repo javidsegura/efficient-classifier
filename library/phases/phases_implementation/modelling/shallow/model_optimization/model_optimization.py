@@ -36,7 +36,7 @@ class Optimizer():
                         param_grid=param_grid,
                         n_iter=max_iter,
                         cv=5,      
-                        scoring='r2' if self.dataset.modelTask == "regression" else 'accuracy',
+                        scoring='r2' if self.dataset.modelTask == "regression" else 'f1_weighted',
                         verbose=3,
                         random_state=42,
                         n_jobs=1
@@ -47,7 +47,7 @@ class Optimizer():
                         param_distributions=param_grid,
                         n_iter=max_iter,  
                         cv=5,       
-                        scoring='r2' if self.dataset.modelTask == "regression" else 'accuracy',
+                        scoring='r2' if self.dataset.modelTask == "regression" else 'f1_weighted',
                         verbose=3,
                         random_state=42,
                         n_jobs=1
@@ -58,7 +58,7 @@ class Optimizer():
                         search_spaces=param_grid,
                         n_iter=max_iter,
                         cv=5,
-                        scoring='r2' if self.dataset.modelTask == "regression" else 'accuracy',
+                        scoring='r2' if self.dataset.modelTask == "regression" else 'f1_weighted',
                         verbose=3,
                         random_state=42,
                         n_jobs=1

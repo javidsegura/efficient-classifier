@@ -1,7 +1,8 @@
 
 
 # LIBRARY DETAILED
-We analyze the the library in major detail now. We include folder explanations + some advanced concepts in certain phases (denoted by a .py at the end of the title in the given section):
+We analyze the the library in major detail now. We include folder explanations + some advanced concepts in certain phases (denoted by a .py at the end of the title in the given section). Finally. 
+there is a small Q&A at the end for some questions you may have.
 
 ## JARGONS USED
 Model_sklearn refers to the model you do for instance, model.fit() and model object is the object that captures all the sklearn models accross its diffeernt phases and defines their different behavior.
@@ -89,3 +90,12 @@ Assesment currently has the following structure:
 - model_evaluation: stores the logs of all the models that have been trained since we started using this library. Useful to evaluate the progess
 - plots: stores all the images of the plots when uusing the pipeline runner
 - serialization stores the objects (models or pipelines) to disk
+
+
+# Q&A
+- Q: How do I add a new metric?
+- A: 
+  1. Before u store a new metric, you have to mark all the past values as empty. For that use the function in 'library/utils/miscellaneous/write_new_col.py'. 
+  2. After this, compute the metric in the 'evaluate' function in the 'classifier.py' file. Add it to the return result of the function with
+  the same structure of the "kappan's" metric example
+  3. Add the new metric name to configurations.yaml in dataset_runner->metric_to_evaluate.

@@ -7,7 +7,7 @@ import pandas as pd
 
 from library.phases.phases_implementation.dataset.dataset import Dataset
 
-from library.utils.pythonObjects.save_or_store_plot import save_or_store_plot
+from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
 
 
 class EDA:
