@@ -8,13 +8,7 @@ class FeatureAnalysisRunner(PhaseRunner):
             super().__init__(pipeline_manager, include_plots, save_path)
 
       def _run_feature_transformation(self) -> None:
-            encoded_maps_per_pipeline = self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_transformation.get_categorical_features_encoded", 
-                                                                                    verbose=True, 
-                                                                                    features=self.pipeline_manager.variables["feature_analysis_runner"]["features_to_encode"],
-                                                                                    encode_y=True)
-            print(f"ENCODED MAP PIPELINS IS: {encoded_maps_per_pipeline}")
-            self.pipeline_manager.pipelines_analysis.encoded_map = encoded_maps_per_pipeline["not_baseline"]["ensembled"]
-            return encoded_maps_per_pipeline
+            pass
       
       def _run_manual_feature_selection(self) -> None:
             # 1) Mutual Information

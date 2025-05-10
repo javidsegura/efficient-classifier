@@ -65,18 +65,18 @@ class ClassImbalance:
                 raise RuntimeError(f"An error occurred while plotting pre-SMOTE: {e}")
 
         # --- Encode non-numeric features ---
-        try:
-            X = self.dataset.X_train.copy()
-            for col in X.select_dtypes(include='object').columns:
-                le = LabelEncoder()
-                X[col] = le.fit_transform(X[col].astype(str))
-        except Exception as e:
-            raise RuntimeError(f"An error occurred during encoding of non-numeric features: {e}")
+        # try:
+        #     X = self.dataset.X_train.copy()
+        #     for col in X.select_dtypes(include='object').columns:
+        #         le = LabelEncoder()
+        #         X[col] = le.fit_transform(X[col].astype(str))
+        # except Exception as e:
+        #     raise RuntimeError(f"An error occurred during encoding of non-numeric features: {e}")
 
         # --- Apply SMOTE ---
         try:
             smote = SMOTE(random_state=42)
-            X_res, y_res = smote.fit_resample(X, self.dataset.y_train)
+            X_res, y_res = smote.fit_resample(self.dataset.X_train, self.dataset.y_train)
             self.dataset.X_train = X_res
             self.dataset.y_train = y_res
         except Exception as e:

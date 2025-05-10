@@ -20,6 +20,15 @@ class DataPreprocessingRunner(PhaseRunner):
             self.pipeline_manager.create_pipeline_divergence(category="baseline", pipelineName="baselines")
             print(f"Pipelines AFTER divergences: {self.pipeline_manager.pipelines}")
             
+      def _feature_encoding_helper(self) -> dict:
+            encoded_maps_per_pipeline = self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_transformation.get_categorical_features_encoded", 
+                                                                                    verbose=True, 
+                                                                                    features=self.pipeline_manager.variables["feature_analysis_runner"]["features_to_encode"],
+                                                                                    encode_y=True)
+            print(f"ENCODED MAP PIPELINS IS: {encoded_maps_per_pipeline}")
+            self.pipeline_manager.pipelines_analysis.encoded_map = encoded_maps_per_pipeline["not_baseline"]["ensembled"]
+            return None
+            
       
       def _preprocessor_initializers(self):
             # Ensembled Pipelines
@@ -92,13 +101,14 @@ class DataPreprocessingRunner(PhaseRunner):
       
       
       def run(self) -> None:
-            print(self.pipeline_manager.pipelines)
             self._create_pipelines_divergences()
-            print(self.pipeline_manager.pipelines)
+            #print(self.pipeline_manager.pipelines)
+            
             print("-"*30)
             print("STARTING PREPROCESSING")
             print("-"*30)
             
+            self._feature_encoding_helper()
             
             results = {}
 

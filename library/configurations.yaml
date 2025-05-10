@@ -23,8 +23,6 @@ dataset_runner:
       validation_size: 0.1
       test_size: 0.1
 
-## Preprocessing configuration for each pipeline
-# Define common placeholders once and reference by anchor
 preprocessing_runner:
   placeholders: &placeholders
     - null
@@ -38,115 +36,87 @@ preprocessing_runner:
     - "none"
     - "None"
     - "missing"
+  
+  default_missing: &default_missing
+    placeholders: *placeholders
+  default_duplicates: &default_duplicates
+    analyze: false
+    plot: false
+  default_outliers: &default_outliers
+    detection_type: percentile
+    plot: false
+  default_scaling: &default_scaling
+    scaler: robust
+    plot: false
+  default_imbalance: &default_imbalance
+    perform: false
+    plot: false
+  
   baselines:
-    missing:
-      placeholders: *placeholders
-      plot: true
-    duplicates:
-      analyze: false
-      remove: false
-    outliers:
-      detection_type: percentile
-      plot: false
-    scaling:
-      scaler: robust
-      plot: true
-    imbalance:
-      perform: false
-      plot: false
+    missing: *default_missing
+    duplicates: *default_duplicates
+    outliers: *default_outliers
+    scaling: *default_scaling
+    imbalance: *default_imbalance
+
   tree_based:
-    missing:
-      placeholders: *placeholders
-      plot: false
+    missing: *default_missing
     duplicates:
       analyze: true
       plot: true
-    outliers:
-      detection_type: percentile
-      plot: false
+    outliers: *default_outliers
     scaling:
       scaler: none
       plot: false
-    imbalance:
-      perform: false
-      plot: false
+    imbalance: *default_imbalance
+
   support_vector_machine:
-    missing:
-      placeholders: *placeholders
-      plot: false
+    missing: *default_missing
     duplicates:
       analyze: true
       plot: true
-    outliers:
-      detection_type: percentile
-      plot: false
-    scaling:
-      scaler: robust
-      plot: false
+    outliers: *default_outliers
+    scaling: *default_scaling
     imbalance:
       perform: true
       plot: true
+
   naive_bayes:
-    missing:
-      placeholders: *placeholders
-      plot: false
+    missing: *default_missing
     duplicates:
       analyze: true
       plot: true
-    outliers:
-      detection_type: percentile
-      plot: false
+    outliers: *default_outliers
     scaling:
       scaler: standard
       plot: false
-    imbalance:
-      perform: false
-      plot: false
+    imbalance: *default_imbalance
+
   feed_forward_neural_network:
-    missing:
-      placeholders: *placeholders
-      plot: false
+    missing: *default_missing
     duplicates:
       analyze: false
       plot: true
-    outliers:
-      detection_type: percentile
-      plot: false
-    scaling:
-      scaler: robust
-      plot: false
-    imbalance:
-      perform: false
-      plot: false
+    outliers: *default_outliers
+    scaling: *default_scaling
+    imbalance: *default_imbalance
+
   ensembled:
-    missing:
-      placeholders: *placeholders
-      plot: false
+    missing: *default_missing
     duplicates:
       analyze: false
       plot: true
-    outliers:
-      detection_type: percentile
-      plot: false
-    scaling:
-      scaler: robust
-      plot: false
-    imbalance:
-      perform: false
-      plot: false
+    outliers: *default_outliers
+    scaling: *default_scaling
+    imbalance: *default_imbalance
+
   stacking:
-    missing:
-      placeholders: *placeholders
-      plot: false
+    missing: *default_missing
     duplicates:
       analyze: true
       plot: true
-    outliers:
-      detection_type: percentile
-      plot: false
-    scaling:
-      scaler: robust
-      plot: false
+    outliers: *default_outliers
+    scaling: *default_scaling
     imbalance:
       method: none
       plot: false
