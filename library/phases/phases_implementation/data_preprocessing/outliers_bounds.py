@@ -5,6 +5,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
+from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
+
+
 class OutliersBounds:
     def __init__(self, dataset: Dataset) -> None:
       self.dataset = dataset
@@ -196,9 +200,9 @@ class OutliersBounds:
     def get_outliers(
         self,
         detection_type: str = "iqr",
-        plot: bool = False,
         threshold: float = 1.5,
-        columnsToCheck: list[str] | None = None
+        save_plots: bool = False,
+        save_path: str = None
     ) -> str:
         """
         Detects outliers, removes them from X_train, and returns a summary.
@@ -211,8 +215,7 @@ class OutliersBounds:
             Whether to show distribution plots of the outlier features.
         threshold : float
             Multiplier for IQR used to define outlier bounds.
-        columnsToCheck : list[str] | None
-            Columns to check for outliers. If None, uses all numeric columns.
+   
 
         Returns
         -------
@@ -223,13 +226,10 @@ class OutliersBounds:
         # --- Validations ---
         if detection_type not in ("iqr", "percentile"):
             raise ValueError("detection_type must be 'iqr' or 'percentile'.")
-        if not isinstance(plot, bool):
-            raise TypeError("plot must be a boolean.")
+        if not isinstance(save_plots, bool):
+            raise TypeError("save_plots must be a boolean.")
         if not isinstance(threshold, (int, float)) or threshold <= 0:
             raise ValueError("threshold must be a positive number.")
-        if columnsToCheck is not None:
-            if not isinstance(columnsToCheck, list) or not all(isinstance(c, str) for c in columnsToCheck):
-                raise TypeError("columnsToCheck must be a list of strings or None.")
 
         # --- Get numeric columns ---
         if not hasattr(self.dataset, "X_train"):
@@ -237,8 +237,7 @@ class OutliersBounds:
         if not isinstance(self.dataset.X_train, pd.DataFrame):
             raise TypeError("self.dataset.X_train must be a pandas DataFrame.")
 
-        only_numerical_features = self.dataset.X_train.select_dtypes(include=["number"]).columns.tolist()
-        columns = columnsToCheck if columnsToCheck else only_numerical_features
+        columns = self.dataset.X_train.select_dtypes(include=["number"]).columns.tolist()
 
         outlier_rows = []
 
@@ -277,10 +276,11 @@ class OutliersBounds:
                     "outliersValues": outliersDataset.values
                 })
 
-                if plot:
-                    plt.title(f"Distribution of '{feature}'")
-                    sns.histplot(original_values, kde=True)
-                    plt.show()
+                if save_plots:
+                    fig, ax = plt.subplots(figsize=(15, 4))
+                    ax.set_title(f"Distribution of '{feature}'")
+                    sns.histplot(original_values, kde=True, ax=ax)
+                    save_or_store_plot(fig, save_plots, save_path + "/outliers_bounds/outliers", f"{feature}.png")
 
                 if detection_type == "iqr":
                     self.dataset.X_train = self.dataset.X_train[~outlier_mask]
@@ -293,8 +293,9 @@ class OutliersBounds:
 
         return (
             f"There are {len(outlier_df)} features with outliers out of "
-            f"{len(only_numerical_features)} numerical features "
-            f"({len(outlier_df) / len(only_numerical_features) * 100:.2f}%)"
+            f"{len(columns)} numerical features "
+            f"({len(outlier_df) / len(columns) * 100:.2f}%)"
+            f"New X_train shape: {self.dataset.X_train.shape} and y_train shape: {self.dataset.y_train.shape}"
         )
    
     

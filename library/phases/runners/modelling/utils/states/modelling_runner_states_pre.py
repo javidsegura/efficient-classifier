@@ -96,7 +96,8 @@ class PreTuningRunner(ModellingRunnerStates):
                                        methodName="modelling.fit_models",
                                        exclude_pipeline_names=["stacking"], 
                                        current_phase="pre")
-            self._set_up_stacking_model()
+            if len(self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["stacking"]) == 0:
+                  self._set_up_stacking_model()
             general_analysis_results = self._general_analysis()
 
             return general_analysis_results

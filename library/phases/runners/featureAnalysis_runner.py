@@ -12,6 +12,10 @@ class FeatureAnalysisRunner(PhaseRunner):
             pass
       
       def _run_manual_feature_selection(self) -> None:
+            """
+            Note for @fede:
+                  - Currently the same procedure is applied to all pipelines. Better results can be achieved if we apply different procedures to different pipelines.
+            """
             # 1) Mutual Information
             self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.manual_feature_selection.fit",
                                                         verbose=True,
@@ -89,4 +93,6 @@ class FeatureAnalysisRunner(PhaseRunner):
                   "manual_feature_selection_results": None,
                   "automatic_feature_selection_results": None
                   }
+      
+
 

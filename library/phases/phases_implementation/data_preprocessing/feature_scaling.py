@@ -2,16 +2,21 @@ from library.phases.phases_implementation.dataset.dataset import Dataset
 from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
+from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
+
+import yaml
 
 class FeatureScaling:
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
-  
+        self.variables = yaml.load(open("library/configurations.yaml"), Loader=yaml.FullLoader)
+
     def scale_features(
         self,
         scaler: str,
         columnsToScale: list[str],
-        plot: bool = False,
+        save_plots: bool = False,
+        save_path: str = None
     ) -> str:
         """
         Scales the features in the dataset
@@ -22,8 +27,10 @@ class FeatureScaling:
             The scaler to use ('minmax', 'robust', 'standard')
         columnsToScale : list[str]
             The columns to scale
-        plot : bool
-            Whether to plot distributions before and after scaling
+        save_plots : bool
+            Whether to save plots before and after scaling
+        save_path : str
+            The path to save the plots
 
         Returns
         -------
@@ -36,8 +43,8 @@ class FeatureScaling:
             raise TypeError("Parameter 'scaler' must be a string.")
         if len(columnsToScale) == 0:
             raise ValueError("At least one column must be provided for scaling.")
-        if not isinstance(plot, bool):
-            raise TypeError("Parameter 'plot' must be a boolean.")
+        if not isinstance(save_plots, bool):
+            raise TypeError("Parameter 'save_plots' must be a boolean.")
 
         # --- Dataset validation ---
         for attr in ['X_train', 'X_val', 'X_test']:
@@ -58,7 +65,7 @@ class FeatureScaling:
             raise ValueError(f"Invalid scaler: {scaler}. Choose from 'minmax', 'robust', or 'standard'.")
 
         # --- Optional: store original data for plotting ---
-        if plot:
+        if save_plots:
             try:
                 original_data = self.dataset.X_train[columnsToScale].copy()
             except Exception as e:
@@ -73,10 +80,10 @@ class FeatureScaling:
             raise RuntimeError(f"An error occurred during scaling: {e}")
 
         # --- Optional: plot distributions ---
-        if plot:
+        if save_plots:
             try:
-                max_plots = 5
-                plot_columns = columnsToScale[:max_plots]
+                max_plots = self.variables["PIPELINE_RUNNER"]["max_plots_per_function"]
+                plot_columns = columnsToScale[:max_plots] if max_plots > 0 else columnsToScale
                 for col in plot_columns:
                     fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharey=True)
                     sns.histplot(original_data[col], kde=True, ax=axes[0])
@@ -84,7 +91,7 @@ class FeatureScaling:
                     sns.histplot(self.dataset.X_train[col], kde=True, ax=axes[1])
                     axes[1].set_title(f"{col} - After Scaling")
                     plt.tight_layout()
-                    plt.show()
+                    save_or_store_plot(fig, save_plots, save_path + "/feature_scaling", f"{col}.png")
             except Exception as e:
                 raise RuntimeError(f"An error occurred while plotting: {e}")
 

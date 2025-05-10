@@ -169,7 +169,7 @@ class PipelineRunner:
                               phase_result = phase_runner.run()
                               #self.logger.info(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}")
                               if phase_result is not None:
-                                    #self.logger.info(f"'{phase_name}' returned: {phase_result}")
+                                    self.logger.info(f"'{phase_name}' returned: {phase_result}")
                                     time.sleep(1) # This is to avoid sending too many messages to the slack channel at once 
                                     # self.slack_bot.send_message(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}\
                                     #                         Result: {str(phase_result)}",

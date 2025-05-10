@@ -1,23 +1,27 @@
 from library.phases.phases_implementation.dataset.dataset import Dataset
 import matplotlib.pyplot as plt
 import seaborn as sns
-from imblearn.over_sampling import SMOTE
+from imblearn.over_sampling import SMOTE, ADASYN
 from sklearn.preprocessing import LabelEncoder
-
+from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
 class ClassImbalance:
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
       
     
-    def class_imbalance(self, plot: bool = False) -> str:
+    def class_imbalance(self, method: str = "SMOTE", save_plots: bool = False, save_path: str = None) -> str:
         """
         Balances classes via SMOTE and optionally plots the distributions
         before and after resampling.
 
         Parameters
         ----------
-        plot : bool
-            Whether to show barplots of class counts before/after SMOTE
+        method : str
+            The method to use for balancing classes.
+        save_plots : bool
+            Whether to save plots of class counts before/after SMOTE
+        save_path : str
+            The path to save the plots
 
         Returns
         -------
@@ -26,8 +30,8 @@ class ClassImbalance:
         """
 
         # --- Input validation ---
-        if not isinstance(plot, bool):
-            raise TypeError("Parameter 'plot' must be a boolean.")
+        if not isinstance(save_plots, bool):
+            raise TypeError("Parameter 'save_plots' must be a boolean.")
 
         # --- Attribute checks ---
         for attr in ['X_train', 'y_train']:
@@ -48,34 +52,29 @@ class ClassImbalance:
             raise ValueError("Class count contains zero, cannot compute imbalance ratio.")
 
         # --- Plot before resampling ---
-        if plot:
+        fig, ax = plt.subplots(figsize=(6, 4), nrows=1, ncols=2)
+        ax = ax.flatten()
+        if save_plots:
             try:
-                plt.figure(figsize=(6, 4))
                 sns.barplot(
                     x=counts_before.index.astype(str),
-                    y=counts_before.values
+                    y=counts_before.values,
+                    ax=ax[0]
                 )
-                plt.title(f"Before SMOTE (imbalance ratio {self.imbalance_ratio:.2f}:1)")
-                plt.xlabel("Class")
-                plt.ylabel("Count")
-                plt.xticks(rotation=45, ha="right")
-                plt.tight_layout()
-                plt.show()
+                ax[0].set_title(f"Before {method} (imbalance ratio {self.imbalance_ratio:.2f}:1)")
+                ax[0].set_xlabel("Class")
+                ax[0].set_ylabel("Count")
+                ax[0].set_xticklabels(ax[0].get_xticklabels(), rotation=45, ha="right")
+
             except Exception as e:
                 raise RuntimeError(f"An error occurred while plotting pre-SMOTE: {e}")
 
-        # --- Encode non-numeric features ---
-        # try:
-        #     X = self.dataset.X_train.copy()
-        #     for col in X.select_dtypes(include='object').columns:
-        #         le = LabelEncoder()
-        #         X[col] = le.fit_transform(X[col].astype(str))
-        # except Exception as e:
-        #     raise RuntimeError(f"An error occurred during encoding of non-numeric features: {e}")
-
         # --- Apply SMOTE ---
         try:
-            smote = SMOTE(random_state=42)
+            if method == "SMOTE":
+                smote = SMOTE(random_state=42)
+            elif method == "ADASYN":
+                smote = ADASYN(random_state=42)
             X_res, y_res = smote.fit_resample(self.dataset.X_train, self.dataset.y_train)
             self.dataset.X_train = X_res
             self.dataset.y_train = y_res
@@ -83,20 +82,20 @@ class ClassImbalance:
             raise RuntimeError(f"An error occurred during SMOTE resampling: {e}")
 
         # --- Plot after resampling ---
-        if plot:
+        if save_plots:
             try:
                 counts_after = self.dataset.y_train.value_counts().sort_index()
-                plt.figure(figsize=(6, 4))
                 sns.barplot(
                     x=counts_after.index.astype(str),
-                    y=counts_after.values
+                    y=counts_after.values,
+                    ax=ax[1]
                 )
-                plt.title("After SMOTE (balanced 1:1)")
-                plt.xlabel("Class")
-                plt.ylabel("Count")
-                plt.xticks(rotation=45, ha="right")
-                plt.tight_layout()
-                plt.show()
+                ax[1].set_title(f"After {method} (balanced 1:1)")
+                ax[1].set_xlabel("Class")
+                ax[1].set_ylabel("Count")
+                ax[1].set_xticklabels(ax[1].get_xticklabels(), rotation=45, ha="right")
+                plt.tight_layout(w_pad=3)
+                save_or_store_plot(fig, save_plots, save_path + "/class_imbalance", f"class_imbalance.png")
             except Exception as e:
                 raise RuntimeError(f"An error occurred while plotting post-SMOTE: {e}")
 

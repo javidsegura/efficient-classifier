@@ -11,7 +11,8 @@ PIPELINE_RUNNER:
                               "naive_bayes", "feed_forward_neural_network", "stacking"]
     baseline: ["baselines"]
   include_plots: True
-  serialize_results: True
+  max_plots_per_function: 5 # Plots 5 plots for function that plot all features in the dataset. Set to -1 number to plot all
+  serialize_results: False
 
 dataset_runner:
     split_df: 
@@ -25,6 +26,40 @@ dataset_runner:
     metrics_to_evaluate:
       classification: ["accuracy", "precision", "recall", "f1-score", "kappa"]
       regression: ["r2", "mae", "mse"]
+    
+data_preprocessing_runner:
+  placeholders: 
+    - null
+    - -999
+    - "N/A"
+    - "missing"
+    - ""
+    - "-inf"
+    - "NaN"
+    - "nan"
+    - "none"
+    - "None"
+    - "missing"
+  outliers:
+    detection_type: percentile
+  pipeline_specific_configurations:
+    scaler:
+      baselines: robust
+      ensembled: robust
+      tree_based: no_scaler # Signalling we dont want to scale the features for tree based models
+      support_vector_machine: robust
+      naive_bayes: standard
+      feed_forward_neural_network: robust
+      stacking: robust
+    imbalancer:
+      baselines: ADASYN
+      ensembled: no_imbalancer # We dont want to balance the classes for ensembled models
+      tree_based: no_imbalancer
+      support_vector_machine: no_imbalancer # We dont want to balance the classes for ensembled models
+      naive_bayes: SMOTE
+      feed_forward_neural_network: no_imbalancer
+      stacking: no_imbalancer
+
 
 feature_analysis_runner:
     features_to_encode: ["Reboot"]
@@ -52,12 +87,12 @@ feature_analysis_runner:
 modelling_runner:
     models_to_exclude:
       ensembled: ["Gradient Boosting", "Random Forest"]
-      tree_based: []
+      tree_based: ["Decision Tree"]
       support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
       naive_bayes: []
       feed_forward_neural_network: ["Feed Forward Neural Network"] 
-      stacking: ["Stacking"]
-      baselines: ["Logistic Regression (baseline)" ]
+      stacking: []
+      baselines: ["Logistic Regression (baseline)"]
     hyperparameters:
       grid_space:
         gradient_boosting:
@@ -87,15 +122,15 @@ modelling_runner:
       tuner_params:
         max_iter: 1
         epochs: 1
-        
     neural_network:
        initial_architecture:
           batch_size: 128
           epochs: 5
           n_layers: 2
           units_per_layer: [512, 512]
-          activations: ['relu', 'relu']
           learning_rate: 0.001
+          activations: ['relu', 'relu']
+          kernel_initializer: 'glorot_uniform'
     model_assesment:
       comments: "UPDATED KAPPA NAME IN THE CSV, ONE SECOND TIME"
       cross_model_metrics: ["f1-score", "recall", "precision", "accuracy"]

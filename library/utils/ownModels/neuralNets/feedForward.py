@@ -16,17 +16,19 @@ import kerastuner as kt
 from sklearn.base import BaseEstimator, ClassifierMixin
 import numpy as np
 
+import yaml
+
 class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
       def __init__(self,
                   num_features: int, # Variables in the model
                   num_classes:   int, # Classes to predict
-                  batch_size:    int = 128,
-                  epochs:        int = 20,
-                  n_layers:      int = 1,
-                  units_per_layer: list = [128],
-                  activations:   list = ['relu'],
-                  learning_rate: float = 1e-3,
-                  kernel_initializer: str = 'glorot_uniform',
+                  batch_size:    int = None,
+                  epochs:        int = None,
+                  n_layers:      int = None,
+                  units_per_layer: list = None,
+                  activations:   list = None,
+                  learning_rate: float = None,
+                  kernel_initializer: str = None,
                   ):
             """
 
@@ -36,19 +38,26 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
 
                   This model class also contains part of the optimizer for the model itself. This is different to scikit-learn native models.
             """
-            assert len(units_per_layer) == n_layers, f"Number of units per layer must be equal to the number of layers. Units per layer: {units_per_layer}, Number of layers: {n_layers}"
-            assert len(activations) == n_layers, f"Number of activations must be equal to the number of layers. Activations: {activations}, Number of layers: {n_layers}"
+            variables = yaml.load(open("library/configurations.yaml"), Loader=yaml.FullLoader)
+            nn_config = variables["modelling_runner"]["neural_network"]["initial_architecture"]
+
+            
             self.num_features = num_features
             self.num_classes = num_classes
-            self.batch_size = batch_size
-            self.n_layers = n_layers
-            self.units_per_layer = units_per_layer
-            self.activations = activations
-            self.learning_rate = learning_rate
-            self.epochs = epochs
-            self.kernel_initializer = kernel_initializer
+            self.batch_size = batch_size if batch_size is not None else nn_config["batch_size"]
+            self.epochs = epochs if epochs is not None else nn_config["epochs"]
+            self.n_layers = n_layers if n_layers is not None else nn_config["n_layers"]
+            self.units_per_layer = units_per_layer if units_per_layer is not None else nn_config["units_per_layer"]
+            self.activations = activations if activations is not None else nn_config["activations"]
+            self.learning_rate = learning_rate if learning_rate is not None else nn_config["learning_rate"]
+            self.kernel_initializer = kernel_initializer if kernel_initializer is not None else nn_config["kernel_initializer"]
 
-            # placeholder for the trained model
+            # Validate the parameters if they are provided
+            if units_per_layer is not None and n_layers is not None:
+                  assert len(units_per_layer) == n_layers, f"Number of units per layer must be equal to the number of layers. Units per layer: {units_per_layer}, Number of layers: {n_layers}"
+            if activations is not None and n_layers is not None:
+                  assert len(activations) == n_layers, f"Number of activations must be equal to the number of layers. Activations: {activations}, Number of layers: {n_layers}"
+
             self.model = None
 
       def _build_parametrized_model(self):
@@ -108,7 +117,7 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
             return model
 
       def get_tuned_model(self,
-                  max_trials:  int = 20,
+                  max_trials:  int,
                   executions_per_trial: int = 1,
                   directory:   str = 'kt_tuning',
                   project_name: str = 'ffnn'):
@@ -155,16 +164,16 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
                   fit_args["validation_data"] = (kwargs["X_val"], kwargs["y_val"])
             self.history = self.model.fit(**fit_args)
             self.is_fitted_ = True # Needed for sklearn compatibility
+            self.classes_ = np.unique(y)  # Add this line to store unique class labels
+            
             return self
 
       def predict(self, X):
-            self.preds = self.model.predict(X) # Softmax originally returns soft-probabilities. We then take the class with the highest probability of being right 
-            return np.argmax(self.preds, axis=1)
+            preds = self.model.predict(X) # Softmax originally returns soft-probabilities. We then take the class with the highest probability of being right 
+            return np.argmax(preds, axis=1)
       
       def predict_proba(self, X):
-            if self.preds is None:
-                  return self.model.predict(X)
-            return self.preds
+            return self.model.predict(X)  # Simply return the model's predictions directly
 
       def get_params(self, deep=True):
             return {

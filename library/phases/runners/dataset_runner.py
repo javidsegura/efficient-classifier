@@ -33,15 +33,7 @@ class DatasetRunner(PhaseRunner):
             # pre split
             self._ensembled_pipeline_feature_engineering()
       
-      # def _create_pipelines_divergences(self):
-      #       self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="ensembled")
-      #       self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="tree_based")
-      #       self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="support_vector_machine")
-      #       self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="naive_bayes")
-      #       self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="feed_forward_neural_network")
-      #       self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="stacking")
-      #       self.pipeline_manager.create_pipeline_divergence(category="baseline", pipelineName="baselines")
-      #       print(f"Pipelines AFTER divergences: {self.pipeline_manager.pipelines}")
+
 
       def run(self) -> None:
             # Select the first pipeline.
@@ -63,7 +55,7 @@ class DatasetRunner(PhaseRunner):
                         train_size=self.pipeline_manager.variables["dataset_runner"]["encoding"]["train_size"],
                         validation_size=self.pipeline_manager.variables["dataset_runner"]["encoding"]["validation_size"],
                         test_size=self.pipeline_manager.variables["dataset_runner"]["encoding"]["test_size"],
-                        save_plots=False, # remove this harcdoded value (currently set to make pipeline run faster)
+                        save_plots=True, 
                         save_path=self.save_path
                   )
             return split_df, encoding_df

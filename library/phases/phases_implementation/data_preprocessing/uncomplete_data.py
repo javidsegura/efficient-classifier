@@ -4,18 +4,22 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 from library.phases.phases_implementation.dataset.dataset import Dataset
+from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
+
 
 class UncompleteData:
     def __init__(self, dataset: Dataset) -> None:
       self.dataset = dataset
     
-    def analyze_duplicates(self, plot: bool = False) -> str:
+    def analyze_duplicates(self, save_plots: bool = False, save_path: str = None) -> str:
         """Report and optionally visualise duplicate rows.
 
         Parameters
         ----------
-        plot : bool, default=False
+        save_plots : bool, default=False
             If *True*, a barplot of duplicate counts per column is displayed.
+        save_path : str
+            The path to save the plot.
 
         Returns
         -------
@@ -24,8 +28,8 @@ class UncompleteData:
         """
 
         # --- Input validation ---
-        if not isinstance(plot, bool):
-            raise TypeError("Parameter 'plot' must be a boolean.")
+        if not isinstance(save_plots, bool):
+            raise TypeError("Parameter 'save_plots' must be a boolean.")
 
         # --- Dataset structure check ---
         if not hasattr(self.dataset, "df"):
@@ -41,20 +45,20 @@ class UncompleteData:
             raise RuntimeError(f"Error checking for duplicates: {e}")
 
         # --- Plotting if requested ---
-        if plot:
+        if save_plots:
             if duplicates_sum > 0:
                 try:
                     duplicates_by_column = self.dataset.df[duplicates].count()
                     feature_names = [f'{i+1}' for i in range(len(duplicates_by_column))]
 
-                    plt.figure(figsize=(15, 4))
+                    fig, ax = plt.figure(figsize=(15, 4))
                     sns.barplot(x=feature_names, y=duplicates_by_column.values)
                     plt.title("Number of Duplicates by Column")
                     plt.xlabel("Features")
                     plt.ylabel("Number of Duplicates")
                     plt.xticks(rotation=45, ha='right')
                     plt.tight_layout()
-                    plt.show()
+                    save_or_store_plot(fig, save_plots, save_path + "/uncomplete_data/duplicates", "duplicates_by_column.png")
                 except Exception as e:
                     raise RuntimeError(f"An error occurred while plotting: {e}")
             else:
@@ -98,7 +102,7 @@ class UncompleteData:
         else:
             return "No duplicates found in the dataset"
  
-    def get_missing_values(self, placeholders: list[str] | None = None, *, plot: bool = False):
+    def get_missing_values(self, placeholders: list[str] | None = None, save_plots: bool = False, save_path: str = None):
         """
         Return the subset of rows that contain *any* missing value.
 
@@ -106,8 +110,10 @@ class UncompleteData:
         ----------
         placeholders : list[str] | None
             Additional strings that should be considered *NA* (e.g., "N/A", "-1").
-        plot : bool, default=False
+        save_plots : bool, default=False
             When *True*, show a barplot of missing counts per column.
+        save_path : str
+            The path to save the plot.
 
         Returns
         -------
@@ -120,7 +126,7 @@ class UncompleteData:
             raise AttributeError("The dataset does not contain an attribute named 'df'.")
         if not hasattr(self.dataset.df, "isnull"):
             raise TypeError("self.dataset.df must be a pandas DataFrame.")
-        if not isinstance(plot, bool):
+        if not isinstance(save_plots, bool):
             raise TypeError("Parameter 'plot' must be a boolean.")
 
         try:
@@ -144,17 +150,17 @@ class UncompleteData:
                 rows_with_missing = self.dataset.df[condition]
                 print(f"Rows with missing values:\n{rows_with_missing}")
 
-                if plot:
+                if save_plots:
                     try:
                         missing_values_by_column = self.dataset.df.isnull().sum()
-                        plt.figure(figsize=(15, 4))
+                        fig, ax = plt.figure(figsize=(15, 4))
                         sns.barplot(x=self.dataset.df.columns, y=missing_values_by_column.values)
                         plt.title("Missing Values by Column")
                         plt.xlabel("Features")
                         plt.ylabel("Number of Missing Values")
                         plt.xticks(rotation=45, ha='right')
                         plt.tight_layout()
-                        plt.show()
+                        save_or_store_plot(fig, save_plots, save_path + "/uncomplete_data/missing_values", "missing_values_by_column.png")
                     except Exception as e:
                         raise RuntimeError(f"An error occurred while plotting: {e}")
 
@@ -162,8 +168,8 @@ class UncompleteData:
 
             else:
                 msg = "No missing values found in the dataset"
-                print(msg if not plot else msg + ", no need to plot")
-                return None
+                print(msg if not save_plots else msg + ", no need to plot")
+                return msg
 
         except Exception as e:
             raise RuntimeError(f"An error occurred while analyzing missing values: {e}")

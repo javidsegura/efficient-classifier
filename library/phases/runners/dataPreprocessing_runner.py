@@ -8,8 +8,16 @@ class DataPreprocessingRunner(PhaseRunner):
       def __init__(self, pipeline_manager: PipelineManager, include_plots: bool = False, save_path: str = "") -> None:
             super().__init__(pipeline_manager, include_plots, save_path)
             self.variables = pipeline_manager.variables
-            self.config = self.variables.get("preprocessing_runner", {})
-            
+
+      def _feature_encoding_helper(self) -> dict:
+            encoded_maps_per_pipeline = self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_transformation.get_categorical_features_encoded", 
+                                                                                    verbose=True, 
+                                                                                    features=self.pipeline_manager.variables["feature_analysis_runner"]["features_to_encode"],
+                                                                                    encode_y=True)
+            print(f"ENCODED MAP PIPELINS IS: {encoded_maps_per_pipeline}")
+            self.pipeline_manager.pipelines_analysis.encoded_map = encoded_maps_per_pipeline["not_baseline"]["ensembled"]
+
+      
       def _create_pipelines_divergences(self):
             self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="ensembled")
             self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="tree_based")
@@ -20,83 +28,91 @@ class DataPreprocessingRunner(PhaseRunner):
             self.pipeline_manager.create_pipeline_divergence(category="baseline", pipelineName="baselines")
             print(f"Pipelines AFTER divergences: {self.pipeline_manager.pipelines}")
             
-      def _feature_encoding_helper(self) -> dict:
-            encoded_maps_per_pipeline = self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_transformation.get_categorical_features_encoded", 
-                                                                                    verbose=True, 
-                                                                                    features=self.pipeline_manager.variables["feature_analysis_runner"]["features_to_encode"],
-                                                                                    encode_y=True)
-            print(f"ENCODED MAP PIPELINS IS: {encoded_maps_per_pipeline}")
-            self.pipeline_manager.pipelines_analysis.encoded_map = encoded_maps_per_pipeline["not_baseline"]["ensembled"]
             return None
         
-      def _execute_preprocessing_with_config(self, preprocessing: Preprocessing, cfg: dict) -> None:
+      def _execute_preprocessing(self, preprocessing: Preprocessing, pipeline_name: str) -> str:
             """
             Apply missing-value handling, duplicate analysis, outlier bounding,
-            feature scaling, and class-imbalance correction based on cfg,
+            feature scaling, and class-imbalance correction based on config,
             returning a composed summary of operations/results.
+
+            Parameters
+            ----------
+            preprocessing: Preprocessing
+                  The preprocessing object contains all the methods 
+            pipeline_name: str
+                  The name of the pipeline to use.
+
+            Returns
+            -------
+            str
+                  A composed summary of operations/results.
+
             """
             messages = []
+            save_path = self.save_path + f"/{pipeline_name}"
 
             # 1) Missing values & Duplicate analysis
-            print("\nPreprocessing --- Missing Values & Duplicates\n")
-            missing_cfg = cfg.get('missing', {})
+            print(f"\nPreprocessing --- Missing Values & Duplicates - {pipeline_name}\n")
             missing_res = preprocessing.uncomplete_data_obj.get_missing_values(
-                  placeholders=missing_cfg.get('placeholders'),
-                  plot=missing_cfg.get('plot', False)
+                  placeholders=self.variables["data_preprocessing_runner"]["placeholders"],
+                  save_plots=self.include_plots,
+                  save_path=save_path
             )
-            messages.append(f"Handled missing values (plot={missing_cfg.get('plot', False)}): {missing_res}")
+            messages.append(f"Handled missing values : {missing_res}")
 
-            dup_cfg = cfg.get('duplicates', {})
-            if dup_cfg.get('analyze', False):
-                  dup_res = preprocessing.uncomplete_data_obj.analyze_duplicates(
-                  plot=dup_cfg.get('plot', False)
+            dup_res = preprocessing.uncomplete_data_obj.analyze_duplicates(
+                  save_plots=self.include_plots,
+                  save_path=save_path
                   )
-                  messages.append(f"Duplicates analyzed (plot={dup_cfg.get('plot', False)}): {dup_res}")
-            else:
-                  messages.append("Skipped duplicate analysis")
+            messages.append(f"Duplicates analyzed : {dup_res}")
+    
 
             # 2) Outlier detection & bounding
-            print("\nPreprocessing --- Bounds & Outliers\n")
-            out_cfg = cfg.get('outliers', {})
+            print(f"\nPreprocessing --- Bounds & Outliers - {pipeline_name}\n")
             out_res = preprocessing.outliers_bounds_obj.get_outliers(
-                  detection_type=out_cfg.get('detection_type'),
-                  plot=out_cfg.get('plot', False)
+                  detection_type=self.variables["data_preprocessing_runner"]["outliers"]["detection_type"],
+                  save_plots=False, # HARDCODED FOR DEBUGGING. REMOVE IN PRODUCTION.
+                  save_path=save_path
             )
             preprocessing.outliers_bounds_obj.bound_checking()
-            messages.append(f"Outliers detected by {out_cfg.get('detection_type')} (plot={out_cfg.get('plot', False)}): {out_res}")
+            messages.append(f"Outliers detected by {self.variables['data_preprocessing_runner']['outliers']['detection_type']} : {out_res}")
 
             # 3) Feature scaling
-            print("\nPreprocessing --- Feature Scaling\n")
-            scale_cfg = cfg.get('scaling', {})
-            scaler_type = scale_cfg.get('scaler')
-
-            if scaler_type is None or str(scaler_type).lower() == "none":
-                  messages.append("Skipped feature scaling (scaler=None)")
+            print(f"\nPreprocessing --- Feature Scaling - {pipeline_name}\n")
+            scaler = self.variables["data_preprocessing_runner"]["pipeline_specific_configurations"]["scaler"][pipeline_name]
+            if scaler == "no_scaler":
+                  scale_res = "No scaling performed"
             else:
                   scale_res = preprocessing.feature_scaling_obj.scale_features(
-                        scaler=scaler_type,
+                        scaler=scaler,
                         columnsToScale=preprocessing.dataset.X_train.select_dtypes(include=["number"]).columns,
-                        plot=scale_cfg.get('plot', False)
+                        save_plots=self.include_plots,
+                        save_path=save_path
                   )
-                  messages.append(f"Features scaled with {scaler_type} (plot={scale_cfg.get('plot', False)}): {scale_res}")
+            messages.append(f"Features scaled with {scaler} : {scale_res}")
 
 
             # 4) Class imbalance correction
-            print("\nPreprocessing --- Class Imbalance\n")
-            imb_cfg = cfg.get('imbalance', {})
-            if imb_cfg.get('perform', False):
-                  imb_res = preprocessing.class_imbalance_obj.class_imbalance(plot=imb_cfg.get('plot', False))
-                  messages.append(f"Class imbalance correction performed (plot={imb_cfg.get('plot', False)}): {imb_res}")
+            print(f"\nPreprocessing --- Class Imbalance - {pipeline_name}\n")
+            imbalancer = self.variables["data_preprocessing_runner"]["pipeline_specific_configurations"]["imbalancer"][pipeline_name]
+            if imbalancer == "no_imbalancer":
+                  imb_res = "No imbalancer performed"
             else:
-                  messages.append("Skipped class imbalance correction (perform=False)")
+                  imb_res = preprocessing.class_imbalance_obj.class_imbalance(
+                        method=imbalancer,
+                        save_plots=self.include_plots,
+                        save_path=save_path
+                  )
+            messages.append(f"Class imbalance: {imb_res}")
 
-            # Combine all messages into one summary
+
+            print(f"Messages: {messages}")
             return "; ".join(messages)
     
       
       
       def run(self) -> None:
-            #print(self.pipeline_manager.pipelines)
             self._feature_encoding_helper()
             self._create_pipelines_divergences()
             
@@ -104,26 +120,14 @@ class DataPreprocessingRunner(PhaseRunner):
             print("STARTING PREPROCESSING")
             print("-"*30)
             
-            
             results = {}
 
             for category_name, pipelines in self.pipeline_manager.pipelines.items():
-                  results.setdefault(category_name, {})  
+                  results[category_name] = {}
                   for pipeline_name, pipeline in pipelines.items():
                         print(f"--> Running preprocessing on pipeline: {category_name} / {pipeline_name}")
                         print("-"*30)
-                        
-                        # Lookup config for this pipeline
-                        cfg = self.config.get(pipeline_name)
-                        if cfg is None:
-                              raise KeyError(f"No preprocessing config found for pipeline '{pipeline_name}'")
-                        
-                        try:
-                              summary = self._execute_preprocessing_with_config(preprocessing=pipeline.preprocessing, cfg=cfg)
-                              print(summary)
-                              results[category_name][pipeline_name] = summary
-                        except Exception as e:
-                              error_msg = f"Failed preprocessing on {pipeline_name}: {e}"
-                              print(error_msg)
-                              results[category_name][pipeline_name] = error_msg
+                        summary = self._execute_preprocessing(preprocessing=pipeline.preprocessing, pipeline_name=pipeline_name)
+                        print(summary)
+                        results[category_name][pipeline_name] = summary
             return results

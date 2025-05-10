@@ -6,6 +6,7 @@ import seaborn as sns
 import os
 
 from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
+import yaml
 """
 
 """
@@ -13,7 +14,7 @@ from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
 class Split(ABC):
       def __init__(self, dataset) -> None:
             self.dataset = dataset
-
+            self.variables = yaml.load(open("library/configurations.yaml"), Loader=yaml.FullLoader)
       @abstractmethod
       def split_data(self,
                      y_column: str,
@@ -66,7 +67,8 @@ class Split(ABC):
                   The path to save the plots
             
             """
-            for feature in features:
+            max_plots = self.variables["PIPELINE_RUNNER"]["max_plots_per_function"]
+            for feature in features[:max_plots] if max_plots > 0 else features:
                   fig, axes = plt.subplots(1, 3, figsize=(15, 5))
                   # Training set plot
                   sns.histplot(data=self.dataset.X_train[feature], bins=20, ax=axes[0])
