@@ -1,7 +1,7 @@
 
 
 from library.phases.phases_implementation.dataset.dataset import Dataset
-from library.phases.phases_implementation.data_preprocessing.data_preprocessing import DataPreprocessing
+from library.phases.phases_implementation.data_preprocessing.data_preprocessing import Preprocessing
 from library.phases.phases_implementation.feature_analysis.feature_engineering.feature_engineering import FeatureEngineering
 from library.phases.phases_implementation.feature_analysis.feature_selection.feature_selection import FeatureSelection
 import pandas as pd

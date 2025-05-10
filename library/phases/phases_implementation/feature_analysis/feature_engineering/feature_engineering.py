@@ -2,7 +2,7 @@
 from library.phases.phases_implementation.dataset.dataset import Dataset
 from sklearn.preprocessing import PolynomialFeatures
 
-from library.phases.phases_implementation.data_preprocessing.data_preprocessing import DataPreprocessing
+from library.phases.phases_implementation.data_preprocessing.data_preprocessing import Preprocessing
 
 import pandas as pd
 
@@ -32,7 +32,7 @@ class FeatureEngineering:
         self.dataset.X_test = pd.DataFrame(x_arr, columns=new_features_name)
 
         if standarize:
-            preprocessing = DataPreprocessing(self.dataset)
+            preprocessing = Preprocessing(self.dataset)
             preprocessing.scale_features(scaler=scaler, columnsToScale=new_features_name)
         print(f"Added {self.dataset.X_train.shape[1] - original_number_of_features} features")
         

@@ -59,8 +59,7 @@ class PipelineRunner:
                   "modelling": ModellingRunner(self.pipeline_manager,
                                                 include_plots=include_plots,
                                                 save_path=self.plots_path + "modelling/",
-                                                serialize_results=serialize_results)
-                  
+                                                serialize_results=serialize_results)  
             }
             self.slack_bot = SlackBot()
       
@@ -168,13 +167,13 @@ class PipelineRunner:
                         try:
                               start_time = time.time()
                               phase_result = phase_runner.run()
-                              self.logger.info(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+                              #self.logger.info(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}")
                               if phase_result is not None:
-                                    self.logger.info(f"'{phase_name}' returned: {phase_result}")
+                                    #self.logger.info(f"'{phase_name}' returned: {phase_result}")
                                     time.sleep(1) # This is to avoid sending too many messages to the slack channel at once 
-                                    self.slack_bot.send_message(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}\
-                                                            Result: {str(phase_result)}",
-                                                            channel=self.variables["BOT"]["channel"])
+                                    # self.slack_bot.send_message(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}\
+                                    #                         Result: {str(phase_result)}",
+                                    #                         channel=self.variables["BOT"]["channel"])
                         except Exception as e:
                               error_occured = True
                               self.logger.error(f"Error running phase '{phase_name}': {e}")
