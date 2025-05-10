@@ -6,4 +6,3 @@ results/plots/*
 results/serialization/*
 results/bayes_opt_results/*
 .env
-notebook.ipynb
