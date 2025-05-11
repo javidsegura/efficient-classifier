@@ -18,10 +18,7 @@ Permutation Importance: This is model-agnostic. For each feature:
 Permutation importance is typically used when the model does not expose native feature importances or when a more consistent, comparable measure across different model types is desired.
 
 
-
-
-
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 What Insights Are There?
@@ -45,6 +42,7 @@ Dimensionality reduction methods such as PCA or feature clustering were intentio
 
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 Model Interpretability with SHAP
@@ -66,8 +64,7 @@ For linear models SHAP can also be applied. Here, it uses either the LinearExpla
 Naive Bayes models can technically be explained with SHAP, using the KernelExplainer. However, this approach is less common, slower, and may yield explanations that are less stable or interpretable. Similarly, models like non-linear Support Vector Machines (SVMs), especially those that do not implement predict_proba, rely on approximate methods like KernelExplainer. This makes SHAP explanations feasible but computationally intensive and less precise for large datasets.
 
 
-
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 What Insights Are There?
@@ -90,6 +87,7 @@ Excluded Alternatives / Methodological Decisions
 
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 Model Interpretability with LIME
@@ -105,12 +103,7 @@ For non-linear support vector machines (SVMs), LIME may struggle. These models i
 Naive Bayes, on the other hand, is based on strong independence assumptions between features, and its predictions are typically straightforward. While LIME can be applied, it is not as useful as for more complex models. LIME may provide explanations, but these explanations may not offer much added value since Naive Bayes is already interpretable by design.
 
 
-
-
-
-
-
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 What Insights Are There?
@@ -127,6 +120,7 @@ Excluded Alternatives / Methodological Decisions
 
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 Intra-model feature importance methods comparisons: logistic regression
@@ -144,6 +138,7 @@ In short, feature importance gives a broad view, SHAP adds class-level detail, a
 
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 Intra-model feature importance methods comparisons: neural network
@@ -155,8 +150,7 @@ In summary, feature importance offers a broad and frequency-based view, SHAP add
 
 
 
-
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 Model Calibration Analysis: Reliability Diagram
@@ -175,18 +169,7 @@ A perfectly calibrated classifier will have:
 Which appears on the diagonal line in the reliability diagram: y = x.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 What Insights Are There?
@@ -210,8 +193,7 @@ We are using isotonic regression over Platt scaling (sigmoid method) for probabi
 
 
 
-
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 Model Calibration for All Models
