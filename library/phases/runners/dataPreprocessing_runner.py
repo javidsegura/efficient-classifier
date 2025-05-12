@@ -70,13 +70,14 @@ class DataPreprocessingRunner(PhaseRunner):
 
             # 2) Outlier detection & bounding
             print(f"\nPreprocessing --- Bounds & Outliers - {pipeline_name}\n")
+            #COMMENTED DOWN CAUSE ITS INTRODUCING SOME WEIRD ERROR -- ISNT IMPLEMENTED CORRECTED ANYWAY 
             out_res = preprocessing.outliers_bounds_obj.get_outliers(
                   detection_type=self.variables["data_preprocessing_runner"]["outliers"]["detection_type"],
                   save_plots=False, # HARDCODED FOR DEBUGGING. REMOVE IN PRODUCTION.
                   save_path=save_path
             )
             preprocessing.outliers_bounds_obj.bound_checking()
-            messages.append(f"Outliers detected by {self.variables['data_preprocessing_runner']['outliers']['detection_type']} : {out_res}")
+            messages.append(f"Outliers detected by {self.variables['data_preprocessing_runner']['outliers']['detection_type']} : {None}")
 
             # 3) Feature scaling
             print(f"\nPreprocessing --- Feature Scaling - {pipeline_name}\n")
@@ -92,7 +93,7 @@ class DataPreprocessingRunner(PhaseRunner):
                   )
             messages.append(f"Features scaled with {scaler} : {scale_res}")
 
-
+            # COMMENTED DOWN CAUSE IT GOES TOO SLOW
             # 4) Class imbalance correction
             print(f"\nPreprocessing --- Class Imbalance - {pipeline_name}\n")
             imbalancer = self.variables["data_preprocessing_runner"]["pipeline_specific_configurations"]["imbalancer"][pipeline_name]

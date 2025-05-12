@@ -19,7 +19,7 @@ class EDA:
     self.dataset = dataset
     
 
-  def plot_correlation_matrix(self, size: str = "small", splitted_sets: bool = False, title: str = "", save_plots: bool = False, save_path: str = "", **kwargs) -> None:
+  def plot_correlation_matrix(self, size: str = "small", numerical_df: pd.DataFrame = None, title: str = "", save_plots: bool = False, save_path: str = "", **kwargs) -> None:
     """
     Plots the correlation matrix of the dataframe
 
@@ -32,12 +32,7 @@ class EDA:
     -------
       None
     """
-    if splitted_sets:
-      only_numerical_df = self.dataset.X_train.select_dtypes(include=["number"])
-      corr = only_numerical_df.corr()
-    else:
-      only_numerical_df = self.dataset.df.select_dtypes(include=["number"])
-      corr = only_numerical_df.corr()
+    corr = numerical_df.corr()
     mask = np.triu(np.ones_like(corr, dtype=bool)) # avoid redundancy
     if size == "s":
       f, ax = plt.subplots(figsize=(5, 3))
@@ -50,7 +45,8 @@ class EDA:
     cmap = sns.diverging_palette(230, 20, as_cmap=True)
     vmin, vmax = corr.min().min(), corr.max().max()
     sns.heatmap(corr, mask=mask, cmap=cmap, center=0,
-              square=True, linewidths=.5, cbar_kws={"shrink": .8}, vmin=vmin, vmax=vmax, **kwargs)
+              square=True, linewidths=.5, cbar_kws={"shrink": .8}, vmin=vmin, vmax=vmax,
+              xticklabels=corr.columns, yticklabels=corr.index, **kwargs)
     plt.title(f"{title}")
     save_or_store_plot(f, save_plots, save_path + "/feature_selection/manual/multicollinearity", f"{title}.png")
 

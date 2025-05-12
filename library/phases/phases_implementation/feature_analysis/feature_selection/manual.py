@@ -72,7 +72,7 @@ class VIFElimination(ManualFeatureSelectionFactory):
             if save_plots:
                 fig, axes = plt.subplots(1, 2, figsize=(12, 6))
                 eda = EDA(self.dataset)
-                eda.plot_correlation_matrix(size="l", splitted_sets=True, title="Prior-Elimination", save_plots=save_plots, save_path=save_path)
+                eda.plot_correlation_matrix(size="l", numerical_df=self.dataset.X_train.select_dtypes(include=["number"]), title="Prior-Elimination", save_plots=save_plots, save_path=save_path)
             while True:
                 number_of_iterations += 1
                 vif_data = self.__calculate_vif()
@@ -89,8 +89,9 @@ class VIFElimination(ManualFeatureSelectionFactory):
                 else:
                     print(f"Feature with highest VIF: '{feature_to_drop}' with VIF: {max_vif}")
                     break
+            
             if save_plots:
-                eda.plot_correlation_matrix(size="l", splitted_sets=True, title="Post-Elimination", save_plots=save_plots, save_path=save_path)
+                eda.plot_correlation_matrix(size="l", numerical_df=self.dataset.X_train.select_dtypes(include=["number"]), title="Post-Elimination", save_plots=save_plots, save_path=save_path)
 
 
 

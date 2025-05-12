@@ -171,14 +171,14 @@ class PipelineRunner:
                               if phase_result is not None:
                                     self.logger.info(f"'{phase_name}' returned: {phase_result}")
                                     time.sleep(1) # This is to avoid sending too many messages to the slack channel at once 
-                                    # self.slack_bot.send_message(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}\
-                                    #                         Result: {str(phase_result)}",
-                                    #                         channel=self.variables["BOT"]["channel"])
+                                    self.slack_bot.send_message(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}\
+                                                            Result: {str(phase_result)}",
+                                                            channel=self.variables["BOT"]["channel"])
                         except Exception as e:
                               error_occured = True
                               self.logger.error(f"Error running phase '{phase_name}': {e}")
                               print(f"ERROR RUNNING PHASE '{phase_name}': {e}")
-                              self.slack_bot.send_message(f"Error running phase '{phase_name}': {e}",
+                              self.slack_bot.send_message(f"🚨 Error running phase '{phase_name}': {e}",
                                                       channel=self.variables["BOT"]["channel"])
                               raise e
 
@@ -201,7 +201,7 @@ class PipelineRunner:
                                                             initial_comment="Here is the results progress log")
                   except Exception as e:
                         self.logger.error(f"Error sending slack bot the results progress: {e}")
-                        self.slack_bot.send_message(f"Error sending slack bot the results progress: {e}",
+                        self.slack_bot.send_message(f"🚨 Error sending slack bot the results progress: {e}",
                                                             channel=self.variables["BOT"]["channel"])
 
 
