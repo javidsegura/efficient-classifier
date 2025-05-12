@@ -11,6 +11,7 @@ import yaml
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 from sklearn.metrics import classification_report
 
+from scipy import stats
 import matplotlib.pyplot as plt
 import seaborn as sns
 import math
@@ -340,6 +341,8 @@ class PipelinesAnalysis:
                   plt.tight_layout(rect=[0, 0, 1, 0.96])
                   save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/feature_importance", filename=f"feature_importance_{self.phase}.png")
             return importances_dfs
+      
+      
 
       def plot_confusion_matrix(self, save_plots: bool = False, save_path: str = None):
             """
@@ -418,6 +421,81 @@ class PipelinesAnalysis:
             save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"confusion_matrices_{self.phase}.png")
 
             return residuals, confusion_matrices
+      
+      def plot_residuals(self, save_plots: bool = False, save_path: str = None):
+            
+            assert self.phase in ["pre", "in", "post"], "Phase must be pre, in or post"
+
+            # Gather preds, actuals, residuals per model
+            results = {}
+            for category in self.pipelines:
+                  for pipe_name, pipe in self.pipelines[category].items():
+                        m = pipe.modelling
+                        for modelName in m.list_of_models:
+                              if modelName in m.models_to_exclude:
+                                    continue
+                              if category=="not_baseline" and self.phase=="post" \
+                                 and modelName!=self.best_performing_model["modelName"]:
+                                    continue
+                              if self.phase=="in" and category=="baseline":
+                                    continue
+
+                              # pick the right split
+                              if self.phase!="post":
+                                    preds  = m.tuning_states[self.phase].assesment["predictions_val"]
+                                    actuals= m.dataset.y_val
+                              else:
+                                    preds  = m.tuning_states[self.phase].assesment["predictions_test"]
+                                    actuals= m.dataset.y_test
+
+                              assert preds is not None and actuals is not None
+                              assert len(preds)==len(actuals)
+
+                              res = actuals - preds
+                              results[modelName] = {"preds": preds, "actuals": actuals, "res": res}
+
+            # Now plot separately for each model
+            for modelName, data in results.items():
+                  preds, actuals, res = data["preds"], data["actuals"], data["res"]
+
+                  fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+                  axes = axes.flatten()
+                  fig.suptitle(f"Residual plots for {modelName} in {self.phase} phase")
+
+                  # 1) Residuals vs Predicted
+                  axes[0].scatter(preds, res, alpha=0.6)
+                  axes[0].axhline(0, linestyle="--")
+                  axes[0].set_xlabel("Predicted")
+                  axes[0].set_ylabel("Residual")
+                  axes[0].set_title("Residuals vs Predicted")
+
+                  # 2) Residuals vs Observed
+                  axes[1].scatter(actuals, res, alpha=0.6)
+                  axes[1].axhline(0, linestyle="--")
+                  axes[1].set_xlabel("Observed")
+                  axes[1].set_ylabel("Residual")
+                  axes[1].set_title("Residuals vs Observed")
+
+                  # 3) Histogram of Residuals
+                  sns.histplot(res, kde=True, ax=axes[2])
+                  axes[2].set_title("Histogram of Residuals")
+
+                  # 4) QQ-Plot
+                  stats.probplot(res, dist="norm", plot=axes[3])
+                  axes[3].set_title("QQ-Plot of Residuals")
+
+                  plt.tight_layout(rect=[0, 0, 1, 0.95])
+
+                  # save or store each figure separately
+                  save_or_store_plot(
+                        fig,
+                        save_plots,
+                        save_path or self.variables.get("save_plots_path"),
+                        filename=f"residuals_{modelName}_{self.phase}.png"
+                  )
+                  plt.close(fig)
+
+            return results
       
       def plot_results_summary(self, training_metric: str, performance_metric: str, save_plots: bool = False, save_path: str = None):
             """

@@ -1,9 +1,11 @@
 
 from library.phases.runners.modelling.utils.states.modelling_runner_states_base import ModellingRunnerStates
 from library.pipeline.pipeline_manager import PipelineManager
+from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
 
 from sklearn.ensemble import StackingClassifier
 from sklearn.linear_model import LogisticRegression
+
 
 class PreTuningRunner(ModellingRunnerStates):
       def __init__(self, pipeline_manager: PipelineManager, save_plots: bool = False, save_path: str = None):
@@ -47,12 +49,17 @@ class PreTuningRunner(ModellingRunnerStates):
             residuals, confusion_matrices = self.pipeline_manager.pipelines_analysis.plot_confusion_matrix(save_plots=self.save_plots,
                                                                                                           save_path=self.save_path)
             
+            # Plot residuals 
+            print("Plotting Residuals")
+            residual_results = self.pipeline_manager.pipelines_analysis.plot_residuals(save_plots=self.save_plots,
+                                                                                    save_path=self.save_path)
+            print("DONEE!!!!!")
 
             # Feature importance
             importances_dfs = self.pipeline_manager.pipelines_analysis.plot_feature_importance(save_plots=self.save_plots,
                                                                                                 save_path=self.save_path)
 
-            return metrics_df.to_dict(), residuals, confusion_matrices, importances_dfs
+            return metrics_df.to_dict(), residuals, confusion_matrices, importances_dfs, residual_results
 
       def _set_up_stacking_model(self):
             """

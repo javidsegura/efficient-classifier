@@ -26,6 +26,7 @@ class ModellingRunner(PhaseRunner):
       def __init__(self, pipeline_manager: PipelineManager, include_plots: bool = False, save_path: str = "", serialize_results: bool = False) -> None:
             super().__init__(pipeline_manager, include_plots, save_path)
             self.serialize_results = serialize_results
+            self.variables = pipeline_manager.variables
       
       def _model_initializers(self):
             """
@@ -34,7 +35,7 @@ class ModellingRunner(PhaseRunner):
             Finally we call the function that excludes all the models that we do not want the training to run (either because we are trying to debug and want to run as fast as possible or
             because we have observed that a certain model is not performing well and taking too long to fit/predict)
             """
-            #self._create_pipelines_divergences()
+
             nn_pipeline = self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"]
             
             # Check for predefined weights in config file

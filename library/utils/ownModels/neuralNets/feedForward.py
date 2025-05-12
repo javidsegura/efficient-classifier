@@ -168,6 +168,10 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
             if self.class_weights is not None:
                  fit_args["class_weight"] = self.class_weights
             
+            
+            if self.class_weights is not None:
+                 fit_args["class_weight"] = self.class_weights
+            
             if "X_val" in kwargs and "y_val" in kwargs:
                   fit_args["validation_data"] = (kwargs["X_val"], kwargs["y_val"])
             self.history = self.model.fit(**fit_args)
