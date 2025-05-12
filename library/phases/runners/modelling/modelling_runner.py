@@ -1,4 +1,4 @@
-
+import numpy as np
 # Scikit-learn models
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import GradientBoostingClassifier
@@ -9,6 +9,7 @@ from sklearn.svm import LinearSVC
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import StackingClassifier
+from sklearn.utils.class_weight import compute_class_weight
 # Self-developed models
 from library.utils.ownModels.majorityClassModel import MajorityClassClassifier 
 from library.utils.ownModels.neuralNets.feedForward import FeedForwardNeuralNetwork
@@ -25,6 +26,7 @@ class ModellingRunner(PhaseRunner):
       def __init__(self, pipeline_manager: PipelineManager, include_plots: bool = False, save_path: str = "", serialize_results: bool = False) -> None:
             super().__init__(pipeline_manager, include_plots, save_path)
             self.serialize_results = serialize_results
+            self.variables = pipeline_manager.variables
       
       def _model_initializers(self):
             """
@@ -33,17 +35,39 @@ class ModellingRunner(PhaseRunner):
             Finally we call the function that excludes all the models that we do not want the training to run (either because we are trying to debug and want to run as fast as possible or
             because we have observed that a certain model is not performing well and taking too long to fit/predict)
             """
-            #self._create_pipelines_divergences()
+
             nn_pipeline = self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"]
+            
+            # Check for predefined weights in config file
+            cw = self.variables["modelling_runner"]["class_weights"]
+            y = nn_pipeline.dataset.y_train.values 
+            if cw is not None:
+                  print("----\nSpecific weights have been provided! Will use them to fit the models\n----")
+                  classes = np.array(list(cw.keys()), dtype=y.dtype)
+                  class_weight_dict = {int(k): v for k, v in cw.items()}
+                  priors = np.array([class_weight_dict[c] for c in classes])
+                  priors = priors / priors.sum()
+            else:
+                  # Compute weights with sklearn function (balanced)
+                  print("----\nNo specific weights have been provided. Will create balanced weights authomatically.\n----")
+                  classes = np.unique(y)
+                  weights_array = compute_class_weight('balanced', classes=classes, y=y)
+                  class_weight_dict = dict(zip(classes, weights_array)) # to dict for scikit and keras
+                  priors = weights_array / weights_array.sum() # For Naive Bayes (must add to 1)
+            
 
             # Ensembled models
             self.pipeline_manager.pipelines["not_baseline"]["ensembled"].modelling.add_model("Gradient Boosting", 
                                                                                              GradientBoostingClassifier())
             self.pipeline_manager.pipelines["not_baseline"]["ensembled"].modelling.add_model("Random Forest",
-                                                                                             RandomForestClassifier())
+                                                                                             RandomForestClassifier(
+                                                                                                   class_weight=class_weight_dict
+                                                                                             ))
             # Tree-based models
             self.pipeline_manager.pipelines["not_baseline"]["tree_based"].modelling.add_model("Decision Tree",
-                                                                                             DecisionTreeClassifier())
+                                                                                             DecisionTreeClassifier(
+                                                                                                   class_weight=class_weight_dict
+                                                                                             ))
             # Support Vector Machines models
             self.pipeline_manager.pipelines["not_baseline"]["support_vector_machine"].modelling.add_model("Non-linear Support Vector Machine",
                                                                                              SVC())
@@ -51,7 +75,9 @@ class ModellingRunner(PhaseRunner):
                                                                                              LinearSVC())
             # Naive Bayes model
             self.pipeline_manager.pipelines["not_baseline"]["naive_bayes"].modelling.add_model("Naive Bayes",
-                                                                                             GaussianNB())
+                                                                                             GaussianNB(
+                                                                                                   priors=priors
+                                                                                             ))
             # Neural Network model
             self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"].modelling.add_model("Feed Forward Neural Network",
                                                                                              FeedForwardNeuralNetwork(
@@ -63,7 +89,8 @@ class ModellingRunner(PhaseRunner):
                                                                                                 units_per_layer=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["units_per_layer"],
                                                                                                 learning_rate=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["learning_rate"],
                                                                                                 activations=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["activations"],
-                                                                                                kernel_initializer=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["kernel_initializer"]
+                                                                                                kernel_initializer=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["kernel_initializer"],
+                                                                                                class_weights=class_weight_dict
                                                                                                 ),
                                                                                              model_type="neural_network")
             # Baseline models
