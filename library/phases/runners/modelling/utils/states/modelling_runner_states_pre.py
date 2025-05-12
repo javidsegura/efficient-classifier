@@ -48,18 +48,12 @@ class PreTuningRunner(ModellingRunnerStates):
             # Residual analyisis 
             residuals, confusion_matrices = self.pipeline_manager.pipelines_analysis.plot_confusion_matrix(save_plots=self.save_plots,
                                                                                                           save_path=self.save_path)
-            
-            # Plot residuals 
-            print("Plotting Residuals")
-            residual_results = self.pipeline_manager.pipelines_analysis.plot_residuals(save_plots=self.save_plots,
-                                                                                    save_path=self.save_path)
-            print("DONEE!!!!!")
 
             # Feature importance
             importances_dfs = self.pipeline_manager.pipelines_analysis.plot_feature_importance(save_plots=self.save_plots,
                                                                                                 save_path=self.save_path)
 
-            return metrics_df.to_dict(), residuals, confusion_matrices, importances_dfs, residual_results
+            return metrics_df.to_dict(), residuals, confusion_matrices, importances_dfs
 
       def _set_up_stacking_model(self):
             """

@@ -43,6 +43,11 @@ class InTuningRunner(ModellingRunnerStates):
             # Residual analyisis 
             residuals, confusion_matrices = self.pipeline_manager.pipelines_analysis.plot_confusion_matrix(save_plots=self.save_plots,
                                                                                                           save_path=self.save_path)
+            
+            # Plot residuals 
+            self.pipeline_manager.pipelines_analysis.plot_residuals(save_plots=self.save_plots,
+                                                                  save_path=self.save_path)
+            print("DONE")
    
 
             return metrics_df.to_dict(), residuals, confusion_matrices
