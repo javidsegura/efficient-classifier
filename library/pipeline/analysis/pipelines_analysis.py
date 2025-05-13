@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+
 from library.pipeline.pipeline import Pipeline
 from library.pipeline.analysis.neuralNets.neuralNetsPlots import NeuralNetsPlots
 
@@ -10,6 +14,10 @@ import yaml
 
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 from sklearn.metrics import classification_report
+from sklearn.inspection import permutation_importance
+
+import lime
+import lime.lime_tabular
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -309,9 +317,6 @@ class PipelinesAnalysis:
             return metrics_df
       
       def plot_feature_importance(self, save_plots: bool = False, save_path: str = None):
-            """
-            This needs to be expanded by @Juan and/or @Irina currently just using feature_importances_ attribute for tree-based models
-            """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             importances_dfs = {}
             for pipeline in self.pipelines["not_baseline"]:
@@ -321,7 +326,12 @@ class PipelinesAnalysis:
                         if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
                                           continue
                         if modelName not in self.pipelines["not_baseline"][pipeline].modelling.models_to_exclude:
-                              importances = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["model_sklearn"].feature_importances_
+                              model = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName]
+                              if hasattr(model, "feature_importances_"):
+                                    importances = model.feature_importances_
+                              else:
+                                    result = permutation_importance(model, self.pipelines["not_baseline"][pipeline].dataset.X_train, self.pipelines["not_baseline"][pipeline].dataset.y_train, n_repeats=10, random_state=42)
+                                    importances = result.importances_mean
                               feature_importance_df = pd.DataFrame({
                                                                             'Feature': self.pipelines["not_baseline"][pipeline].dataset.X_train.columns,
                                                                             'Importance': importances
@@ -340,6 +350,49 @@ class PipelinesAnalysis:
                   plt.tight_layout(rect=[0, 0, 1, 0.96])
                   save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/feature_importance", filename=f"feature_importance_{self.phase}.png")
             return importances_dfs
+
+      def lime_feature_importance(self, save_plots: bool = False, save_path: str = None):
+            assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
+            lime_importances_dfs = {}
+            for pipeline in self.pipelines["not_baseline"]:
+                  if pipeline not in ["ensembled", "tree_based"]:
+                        continue
+                  for modelName in self.pipelines["not_baseline"][pipeline].modelling.list_of_models:
+                        if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
+                                          continue
+                        if modelName not in self.pipelines["not_baseline"][pipeline].modelling.models_to_exclude:
+                              model = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName]
+                              X_train = self.pipelines["not_baseline"][pipeline].dataset.X_train
+                              X_sample = X_train.iloc[0]
+                              
+                              explainer = lime.lime_tabular.LimeTabularExplainer(
+                                    training_data=X_train.values,
+                                    feature_names=X_train.columns.tolist(),
+                                    mode="classification" if len(set(model.predict(X_train))) > 2 else "regression"
+                              )
+                              explanation = explainer.explain_instance(X_sample.values, model.predict_proba)
+                              explanation_list = explanation.as_list()
+                              feature_importances = {feature: weight for feature, weight in explanation_list}
+
+                              feature_importance_df = pd.DataFrame({
+                                     'Feature': list(feature_importances.keys()),
+                                     'Importance': list(feature_importances.values())
+                              }).sort_values(by='Importance', ascending=False)
+                              lime_importances_dfs[pipeline] = feature_importance_df
+
+            for pipeline in lime_importances_dfs:
+                  fig, ax = plt.subplots(figsize=(10, 10))
+                  sns.barplot(
+                        x="Importance",
+                        y="Feature",
+                        data=lime_importances_dfs[pipeline],
+                        ax=ax
+                        )
+                  ax.set_title(f"LIME explanation for {pipeline} model")
+                  plt.tight_layout()
+                  plt.tight_layout(rect=[0, 0, 1, 0.96])
+                  save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/feature_importance", filename=f"feature_importance_{self.phase}.png")
+            return lime_importances_dfs
 
       def plot_confusion_matrix(self, save_plots: bool = False, save_path: str = None):
             """
