@@ -148,61 +148,58 @@ class PipelineRunner:
             self.logs_path = "results/logs/"
 
       def run(self):
-            """
-            All the runners have a .run method. We execute them sequentially for each of the phase runners in phase_runners dictionary. 
-            We then also send a message to the slack channel with the results and write to the log file.
+                  """
+                  All the runners have a .run method. We execute them sequentially for each of the phase runners in phase_runners dictionary. 
+                  We then also send a message to the slack channel with the results and write to the log file.
 
-            Parameters
-            ----------
-            None
+                  Parameters
+                  ----------
+                  None
 
-            Returns
-            -------
-            None
-            """
-            error_occured = False
-            for phase_name, phase_runner in self.phase_runners.items():
-                  @timer(phase_name)
-                  def run_phase():
+                  Returns
+                  -------
+                  None
+                  """
+                  error_occured = False
+                  for phase_name, phase_runner in self.phase_runners.items():
+                        @timer(phase_name)
+                        def run_phase():
+                              try:
+                                    start_time = time.time()
+                                    phase_result = phase_runner.run()
+                                    #self.logger.info(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+                                    if phase_result is not None:
+                                          self.logger.info(f"'{phase_name}' returned: {phase_result}")
+                                          time.sleep(1) # This is to avoid sending too many messages to the slack channel at once 
+                                          # self.slack_bot.send_message(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}\
+                                          #                         Result: {str(phase_result)}",
+                                          #                         channel=self.variables["BOT"]["channel"])
+                              except Exception as e:
+                                    error_occured = True
+                                    self.logger.error(f"Error running phase '{phase_name}': {e}")
+                                    print(f"ERROR RUNNING PHASE '{phase_name}': {e}")
+                                    self.slack_bot.send_message(f"Error running phase '{phase_name}': {e}",
+                                                            channel=self.variables["BOT"]["channel"])
+                                    raise e
+
+                        run_phase()
+                  if not error_occured and self.variables["BOT"]["send_images"]:
                         try:
-                              start_time = time.time()
-                              phase_result = phase_runner.run()
-                              #self.logger.info(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}")
-                              if phase_result is not None:
-                                    self.logger.info(f"'{phase_name}' returned: {phase_result}")
-                                    time.sleep(1) # This is to avoid sending too many messages to the slack channel at once 
-                                    self.slack_bot.send_message(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}\
-                                                            Result: {str(phase_result)}",
-                                                            channel=self.variables["BOT"]["channel"])
+                              #Send slack bot all the images in the results/plots folder
+                              for root, dirs, files in os.walk(self.plots_path):
+                                    for file in files:
+                                          file_path = os.path.join(root, file)
+                                          time.sleep(1) # This is to avoid sending too many messages to the slack channel at once 
+                                          self.slack_bot.send_file(file_path,
+                                                                  channel=self.variables["BOT"]["channel"],
+                                                                  title=file,
+                                                                  initial_comment="")
+                              # Send slack bot the results progress
+                              self.slack_bot.send_file(self.model_results_path,
+                                                                  channel=self.variables["BOT"]["channel"],
+                                                                  title=self.model_results_path,
+                                                                  initial_comment="Here is the results progress log")
                         except Exception as e:
-                              error_occured = True
-                              self.logger.error(f"Error running phase '{phase_name}': {e}")
-                              print(f"ERROR RUNNING PHASE '{phase_name}': {e}")
-                              self.slack_bot.send_message(f"🚨 Error running phase '{phase_name}': {e}",
-                                                      channel=self.variables["BOT"]["channel"])
-                              raise e
-
-                  run_phase()
-            if not error_occured and self.variables["BOT"]["send_images"]:
-                  try:
-                        #Send slack bot all the images in the results/plots folder
-                        for root, dirs, files in os.walk(self.plots_path):
-                              for file in files:
-                                    file_path = os.path.join(root, file)
-                                    time.sleep(1) # This is to avoid sending too many messages to the slack channel at once 
-                                    self.slack_bot.send_file(file_path,
-                                                            channel=self.variables["BOT"]["channel"],
-                                                            title=file,
-                                                            initial_comment="")
-                        # Send slack bot the results progress
-                        self.slack_bot.send_file(self.model_results_path,
-                                                            channel=self.variables["BOT"]["channel"],
-                                                            title=self.model_results_path,
-                                                            initial_comment="Here is the results progress log")
-                  except Exception as e:
-                        self.logger.error(f"Error sending slack bot the results progress: {e}")
-                        self.slack_bot.send_message(f"🚨 Error sending slack bot the results progress: {e}",
-                                                            channel=self.variables["BOT"]["channel"])
-
-
-
+                              self.logger.error(f"Error sending slack bot the results progress: {e}")
+                              self.slack_bot.send_message(f"Error sending slack bot the results progress: {e}",
+                                                                  channel=self.variables["BOT"]["channel"])

@@ -15,6 +15,8 @@ import yaml
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.inspection import permutation_importance
+from sklearn.calibration import CalibratedClassifierCV, calibration_curve
+from sklearn.model_selection import train_test_split
 
 import lime
 import lime.lime_tabular
@@ -348,7 +350,7 @@ class PipelinesAnalysis:
                   ax.set_title(f"Feature Importances for {pipeline} model")
                   plt.tight_layout()
                   plt.tight_layout(rect=[0, 0, 1, 0.96])
-                  save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/feature_importance", filename=f"feature_importance_{self.phase}.png")
+                  save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/modelName/feature_importance", filename=f"feature_importance_{self.phase}.png")
             return importances_dfs
 
       def lime_feature_importance(self, save_plots: bool = False, save_path: str = None):
@@ -368,7 +370,7 @@ class PipelinesAnalysis:
                               explainer = lime.lime_tabular.LimeTabularExplainer(
                                     training_data=X_train.values,
                                     feature_names=X_train.columns.tolist(),
-                                    mode="classification" if len(set(model.predict(X_train))) > 2 else "regression"
+                                    mode = "classification" if len(set(model.predict_default(X_train))) > 2 else "regression"
                               )
                               explanation = explainer.explain_instance(X_sample.values, model.predict_proba)
                               explanation_list = explanation.as_list()
@@ -391,8 +393,58 @@ class PipelinesAnalysis:
                   ax.set_title(f"LIME explanation for {pipeline} model")
                   plt.tight_layout()
                   plt.tight_layout(rect=[0, 0, 1, 0.96])
-                  save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/feature_importance", filename=f"feature_importance_{self.phase}.png")
+                  save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/modelName/feature_importance", filename=f"lime_feature_importance_{self.phase}.png")
             return lime_importances_dfs
+
+      def plot_multiclass_reliability_diagram(self, save_plots: bool = False, save_path: str = None):
+            """
+            Plot reliability diagrams for each class in a multiclass setting using one-vs-rest calibration curves.
+            The plot is generated for each pipeline model.
+            """
+            assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
+            
+            for pipeline in self.pipelines["not_baseline"]:
+                  if pipeline not in ["ensembled", "tree_based"]:
+                        continue
+                  for modelName in self.pipelines["not_baseline"][pipeline].modelling.list_of_models:
+                        if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
+                              continue
+                        if modelName not in self.pipelines["not_baseline"][pipeline].modelling.models_to_exclude:
+                              model = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName]
+                              X_train = self.pipelines["not_baseline"][pipeline].dataset.X_train
+                              y_train = self.pipelines["not_baseline"][pipeline].dataset.y_train
+                              X_calib = self.pipelines["not_baseline"][pipeline].dataset.X_calib
+                              y_calib = self.pipelines["not_baseline"][pipeline].dataset.y_calib
+
+                        # Split data if not already split (you can modify this part to fit your needs)
+                        if X_calib is None or y_calib is None:
+                              X_train, X_calib, y_train, y_calib = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
+
+                        # Calibrate the model
+                        calibrated_model = CalibratedClassifierCV(estimator=model, method='sigmoid', cv=3)
+                        calibrated_model.fit(X_train, y_train)
+                        y_probs = calibrated_model.predict_proba(X_calib)
+
+                        n_classes = y_probs.shape[1]
+                        class_labels = self.pipelines["not_baseline"][pipeline].dataset.class_labels if hasattr(self.pipelines["not_baseline"][pipeline].dataset, 'class_labels') else list(range(n_classes))
+
+                        fig, ax = plt.subplots(figsize=(8, 6))
+                        for i in range(n_classes):
+                              y_true_bin = (y_calib == i).astype(int)
+                              prob_true, prob_pred = calibration_curve(y_true_bin, y_probs[:, i], n_bins=10)
+                              ax.plot(prob_pred, prob_true, marker='o', label=f"Class {class_labels[i]}")
+
+                        ax.plot([0, 1], [0, 1], linestyle='--', color='gray', label='Perfectly Calibrated')
+                        ax.set_xlabel("Mean Predicted Probability")
+                        ax.set_ylabel("True Fraction of Positives")
+                        ax.legend(loc="best")
+                        ax.grid(True)
+
+                        plt.tight_layout()
+                        plt.suptitle(f"Reliability Diagram - {modelName} ({pipeline}) - {self.phase} phase", fontsize=14)
+                        plt.tight_layout(rect=[0, 0, 1, 0.96])
+                        save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"reliability_diagram_{self.phase}.png")
+
 
       def plot_confusion_matrix(self, save_plots: bool = False, save_path: str = None):
             """
