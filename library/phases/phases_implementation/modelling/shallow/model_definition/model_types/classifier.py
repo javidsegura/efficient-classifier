@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 from sklearn.metrics import classification_report, confusion_matrix, cohen_kappa_score
 import concurrent.futures
+from sklearn.metrics import accuracy_score 
 
 from library.phases.phases_implementation.modelling.shallow.model_definition.model_base import Model
 from library.phases.phases_implementation.dataset.dataset import Dataset
@@ -92,3 +93,32 @@ class Classifier(Model):
             # Storing results to assesment attribute
             self.tuning_states[current_phase].assesment["metrics"] = results
 
+
+      def score(self, X, y):
+            """
+            Returns the accuracy score of the model on the given data.
+
+            Parameters
+            ----------
+            X : array-like
+                  Feature matrix.
+            y : array-like
+                  True labels.
+
+            Returns
+            -------
+            float
+                  Accuracy score.
+            """
+            y_pred = self.model_sklearn.predict(X)
+            return accuracy_score(y, y_pred)
+
+      def predict_default(self, X):
+            """
+            Sklearn-compatible predict method (for LIME, cross_val_score, etc.).
+            Uses the trained model directly.
+            """
+            return self.model_sklearn.predict(X)
+      
+      def predict_proba(self, X):
+            return self.model_sklearn.predict_proba(X)
