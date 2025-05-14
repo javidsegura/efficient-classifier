@@ -321,36 +321,55 @@ class PipelinesAnalysis:
       def plot_feature_importance(self, save_plots: bool = False, save_path: str = None):
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             importances_dfs = {}
+
             for pipeline in self.pipelines["not_baseline"]:
-                  if pipeline not in ["ensembled", "tree_based"]:
-                        continue
                   for modelName in self.pipelines["not_baseline"][pipeline].modelling.list_of_models:
                         if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
-                                          continue
-                        if modelName not in self.pipelines["not_baseline"][pipeline].modelling.models_to_exclude:
-                              model = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName]
-                              if hasattr(model, "feature_importances_"):
-                                    importances = model.feature_importances_
-                              else:
-                                    result = permutation_importance(model, self.pipelines["not_baseline"][pipeline].dataset.X_train, self.pipelines["not_baseline"][pipeline].dataset.y_train, n_repeats=10, random_state=42)
-                                    importances = result.importances_mean
-                              feature_importance_df = pd.DataFrame({
-                                                                            'Feature': self.pipelines["not_baseline"][pipeline].dataset.X_train.columns,
-                                                                            'Importance': importances
-                                                                            }).sort_values(by='Importance', ascending=False)
-                              importances_dfs[pipeline] = feature_importance_df
-            for pipeline in importances_dfs:
-                  fig, ax = plt.subplots(figsize=(10, 10))
-                  sns.barplot(
+                              continue
+
+                        if modelName in self.pipelines["not_baseline"][pipeline].modelling.models_to_exclude:
+                              continue
+
+                        model = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName]
+                        X = self.pipelines["not_baseline"][pipeline].dataset.X_train
+                        y = self.pipelines["not_baseline"][pipeline].dataset.y_train
+
+                        # Selección de método más rápido para calcular importancias
+                        if hasattr(model, "feature_importances_"):
+                              importances = model.feature_importances_
+                        elif hasattr(model, "coef_"):
+                              importances = np.abs(model.coef_).flatten()
+                        else:
+                              result = permutation_importance(model, X, y, n_repeats=3, random_state=42)
+                              importances = result.importances_mean
+
+                        feature_importance_df = pd.DataFrame({
+                        'Feature': X.columns,
+                        'Importance': importances
+                        }).sort_values(by='Importance', ascending=False)
+
+                        importances_dfs[(pipeline, modelName)] = feature_importance_df
+
+                        # Guardar plot
+                        fig, ax = plt.subplots(figsize=(10, 10))
+                        sns.barplot(
                         x="Importance",
                         y="Feature",
-                        data=importances_dfs[pipeline],
+                        data=feature_importance_df,
                         ax=ax
                         )
-                  ax.set_title(f"Feature Importances for {pipeline} model")
-                  plt.tight_layout()
-                  plt.tight_layout(rect=[0, 0, 1, 0.96])
-                  save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/modelName/feature_importance", filename=f"feature_importance_{self.phase}.png")
+                        ax.set_title(f"Feature Importances for {modelName} ({pipeline})")
+                        plt.tight_layout()
+                        plt.tight_layout(rect=[0, 0, 1, 0.96])
+
+                        save_or_store_plot(fig, save_plots, directory_path=f"{save_path}/{self.phase}/{modelName}/feature_importance", filename=f"feature_importance_{self.phase}_{pipeline}_{modelName}.png")
+
+                        # Guardar CSV
+                        csv_dir = f"{save_path}/{self.phase}/{modelName}/feature_importance"
+                        os.makedirs(csv_dir, exist_ok=True)
+                        csv_path = os.path.join(csv_dir, f"feature_importance_{self.phase}_{pipeline}_{modelName}.csv")
+                        feature_importance_df.to_csv(csv_path, index=False)
+
             return importances_dfs
 
       def lime_feature_importance(self, save_plots: bool = False, save_path: str = None):
@@ -393,40 +412,40 @@ class PipelinesAnalysis:
                   ax.set_title(f"LIME explanation for {pipeline} model")
                   plt.tight_layout()
                   plt.tight_layout(rect=[0, 0, 1, 0.96])
-                  save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/modelName/feature_importance", filename=f"lime_feature_importance_{self.phase}.png")
+                  save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/modelName/lime_feature_importance", filename=f"lime_feature_importance_{self.phase}.png")
             return lime_importances_dfs
 
       def plot_multiclass_reliability_diagram(self, save_plots: bool = False, save_path: str = None):
             """
             Plot reliability diagrams for each class in a multiclass setting using one-vs-rest calibration curves.
-            The plot is generated for each pipeline model.
+            The plot is generated for each model in each pipeline.
             """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
-            
+
             for pipeline in self.pipelines["not_baseline"]:
-                  if pipeline not in ["ensembled", "tree_based"]:
-                        continue
                   for modelName in self.pipelines["not_baseline"][pipeline].modelling.list_of_models:
                         if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
                               continue
-                        if modelName not in self.pipelines["not_baseline"][pipeline].modelling.models_to_exclude:
-                              model = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName]
-                              X_train = self.pipelines["not_baseline"][pipeline].dataset.X_train
-                              y_train = self.pipelines["not_baseline"][pipeline].dataset.y_train
-                              X_calib = self.pipelines["not_baseline"][pipeline].dataset.X_calib
-                              y_calib = self.pipelines["not_baseline"][pipeline].dataset.y_calib
+                        if modelName in self.pipelines["not_baseline"][pipeline].modelling.models_to_exclude:
+                              continue
 
-                        # Split data if not already split (you can modify this part to fit your needs)
+                        model = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName]
+                        X_train = self.pipelines["not_baseline"][pipeline].dataset.X_train
+                        y_train = self.pipelines["not_baseline"][pipeline].dataset.y_train
+                        X_calib = self.pipelines["not_baseline"][pipeline].dataset.X_calib
+                        y_calib = self.pipelines["not_baseline"][pipeline].dataset.y_calib
+
+                        # If no calib split exists, create it
                         if X_calib is None or y_calib is None:
                               X_train, X_calib, y_train, y_calib = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
-
                         # Calibrate the model
                         calibrated_model = CalibratedClassifierCV(estimator=model, method='sigmoid', cv=3)
                         calibrated_model.fit(X_train, y_train)
                         y_probs = calibrated_model.predict_proba(X_calib)
 
                         n_classes = y_probs.shape[1]
-                        class_labels = self.pipelines["not_baseline"][pipeline].dataset.class_labels if hasattr(self.pipelines["not_baseline"][pipeline].dataset, 'class_labels') else list(range(n_classes))
+                        class_labels = self.pipelines["not_baseline"][pipeline].dataset.class_labels if hasattr(
+                        self.pipelines["not_baseline"][pipeline].dataset, 'class_labels') else list(range(n_classes))
 
                         fig, ax = plt.subplots(figsize=(8, 6))
                         for i in range(n_classes):
@@ -437,14 +456,14 @@ class PipelinesAnalysis:
                         ax.plot([0, 1], [0, 1], linestyle='--', color='gray', label='Perfectly Calibrated')
                         ax.set_xlabel("Mean Predicted Probability")
                         ax.set_ylabel("True Fraction of Positives")
+                        ax.set_title(f"Reliability Diagram - {modelName} ({pipeline}) - {self.phase} phase")
                         ax.legend(loc="best")
                         ax.grid(True)
 
                         plt.tight_layout()
-                        plt.suptitle(f"Reliability Diagram - {modelName} ({pipeline}) - {self.phase} phase", fontsize=14)
                         plt.tight_layout(rect=[0, 0, 1, 0.96])
-                        save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"reliability_diagram_{self.phase}.png")
 
+                        save_or_store_plot(fig, save_plots, directory_path=f"{save_path}/{self.phase}/{modelName}/model_performance", filename=f"reliability_diagram_{self.phase}_{pipeline}_{modelName}.png")
 
       def plot_confusion_matrix(self, save_plots: bool = False, save_path: str = None):
             """
