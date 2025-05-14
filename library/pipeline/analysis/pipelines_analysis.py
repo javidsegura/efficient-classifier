@@ -376,7 +376,7 @@ class PipelinesAnalysis:
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             lime_importances_dfs = {}
             for pipeline in self.pipelines["not_baseline"]:
-                  if pipeline not in ["ensembled", "tree_based"]:
+                  if pipeline not in ["ensembled"]:
                         continue
                   for modelName in self.pipelines["not_baseline"][pipeline].modelling.list_of_models:
                         if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
