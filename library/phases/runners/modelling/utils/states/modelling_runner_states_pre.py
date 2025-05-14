@@ -49,20 +49,21 @@ class PreTuningRunner(ModellingRunnerStates):
             
 
             # Feature importance
-            importances_dfs = self.pipeline_manager.pipelines_analysis.plot_feature_importance(save_plots=self.save_plots,
+            self.pipeline_manager.pipelines_analysis.plot_feature_importance(save_plots=self.save_plots,
                                                                                                 save_path=self.save_path)
+            print("DONE")
 
             # LIME
             lime_importances_dfs = self.pipeline_manager.pipelines_analysis.lime_feature_importance(save_plots=self.save_plots,
                                                                                                 save_path=self.save_path) 
             
-            # Reliability diagram
-            reliability_diagram = self.pipeline_manager.pipelines_analysis.plot_multiclass_reliability_diagram(save_plots=self.save_plots,
-                                                                                                save_path=self.save_path)
+            # # Reliability diagram
+            # reliability_diagram = self.pipeline_manager.pipelines_analysis.plot_multiclass_reliability_diagram(save_plots=self.save_plots,
+            #                                                                                     save_path=self.save_path)
 
 
 
-            return metrics_df.to_dict(), residuals, confusion_matrices, importances_dfs, lime_importances_dfs, reliability_diagram
+            return metrics_df.to_dict(), residuals, confusion_matrices, lime_importances_dfs
 
       def _set_up_stacking_model(self):
             """

@@ -323,54 +323,92 @@ class PipelinesAnalysis:
             importances_dfs = {}
 
             for pipeline in self.pipelines["not_baseline"]:
-                  for modelName in self.pipelines["not_baseline"][pipeline].modelling.list_of_models:
+                  models = self.pipelines["not_baseline"][pipeline].modelling
+
+                  for modelName in models.list_of_models:
+                        # only keep the best model in post-phase
                         if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
                               continue
-
-                        if modelName in self.pipelines["not_baseline"][pipeline].modelling.models_to_exclude:
+                        # skip excluded models
+                        if modelName in models.models_to_exclude:
                               continue
 
-                        model = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName]
-                        X = self.pipelines["not_baseline"][pipeline].dataset.X_train
-                        y = self.pipelines["not_baseline"][pipeline].dataset.y_train
+                        model = models.list_of_models[modelName]
+                        ds = self.pipelines["not_baseline"][pipeline].dataset
 
-                        # Selección de método más rápido para calcular importancias
+                        # pick the right split
+                        if self.phase == "in":
+                              X, y = ds.X_val, ds.y_val
+                        elif self.phase == "post":
+                              X, y = ds.X_test, ds.y_test
+                        else:
+                              X, y = ds.X_train, ds.y_train
+
+                        # compute importances
                         if hasattr(model, "feature_importances_"):
                               importances = model.feature_importances_
                         elif hasattr(model, "coef_"):
-                              importances = np.abs(model.coef_).flatten()
+                              importances = np.abs(model.coef_).ravel()
                         else:
-                              result = permutation_importance(model, X, y, n_repeats=3, random_state=42)
+                              # if your dataset is huge, sample by POSITION not by label
+                              if len(X) > 1000:
+                                    # get 1 000 random *positions* 
+                                    pos = np.random.RandomState(42).choice(len(X), size=1000, replace=False)
+                                    # .iloc will slice by position
+                                    X_sub = X.iloc[pos]
+                                    y_sub = y.iloc[pos] if hasattr(y, "iloc") else y[pos]
+                                    result = permutation_importance(
+                                          model,
+                                          X_sub, y_sub,
+                                          n_repeats=3,
+                                          random_state=42,
+                                          n_jobs=-1                # ← use all your cores
+                                    )
+                              else:
+                                    result = permutation_importance(
+                                          model, X, y,
+                                          n_repeats=3,
+                                          random_state=42,
+                                          n_jobs=-1
+                                    )
                               importances = result.importances_mean
 
-                        feature_importance_df = pd.DataFrame({
-                        'Feature': X.columns,
-                        'Importance': importances
-                        }).sort_values(by='Importance', ascending=False)
 
-                        importances_dfs[(pipeline, modelName)] = feature_importance_df
+                        # sort
+                        idx = np.argsort(importances)[::-1]
+                        feats_sorted = X.columns.values[idx]
+                        imps_sorted = importances[idx]
+                        importances_dfs[(pipeline, modelName)] = (feats_sorted, imps_sorted)
 
-                        # Guardar plot
-                        fig, ax = plt.subplots(figsize=(10, 10))
-                        sns.barplot(
-                        x="Importance",
-                        y="Feature",
-                        data=feature_importance_df,
-                        ax=ax
-                        )
+                        # only plot top_n bars
+                        top_n = 30
+                        feats_plot = feats_sorted[:top_n]
+                        imps_plot = imps_sorted[:top_n]
+
+                        # cap the figure height
+                        height = min(12, max(4, len(feats_plot) * 0.3))
+                        fig, ax = plt.subplots(figsize=(8, height))
+
+                        y_pos = np.arange(len(feats_plot))
+                        ax.barh(y_pos, imps_plot)
+                        ax.set_yticks(y_pos)
+                        ax.set_yticklabels(feats_plot)
+                        ax.invert_yaxis()
+                        ax.set_xlabel("Importance")
                         ax.set_title(f"Feature Importances for {modelName} ({pipeline})")
                         plt.tight_layout()
-                        plt.tight_layout(rect=[0, 0, 1, 0.96])
 
-                        save_or_store_plot(fig, save_plots, directory_path=f"{save_path}/{self.phase}/{modelName}/feature_importance", filename=f"feature_importance_{self.phase}_{pipeline}_{modelName}.png")
+                        if save_plots:
+                              save_or_store_plot(
+                                    fig,
+                                    save_plots,
+                                    directory_path=save_path + f"/{self.phase}/feature_importance",
+                                    filename=f"feature_importance_{self.phase}_{pipeline}_{modelName}.png"
+                              )
 
-                        # Guardar CSV
-                        csv_dir = f"{save_path}/{self.phase}/{modelName}/feature_importance"
-                        os.makedirs(csv_dir, exist_ok=True)
-                        csv_path = os.path.join(csv_dir, f"feature_importance_{self.phase}_{pipeline}_{modelName}.csv")
-                        feature_importance_df.to_csv(csv_path, index=False)
+                              plt.close(fig)
 
-            return importances_dfs
+            return None
 
       def lime_feature_importance(self, save_plots: bool = False, save_path: str = None):
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
