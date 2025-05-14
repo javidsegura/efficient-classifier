@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>library.phases.runners.modelling.utils.states.modelling_runner_states_in &#8212; Efficient Malware Classfier May 2025 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../../../../../_static/documentation_options.js?v=8d170800"></script>
+    <script src="../../../../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for library.phases.runners.modelling.utils.states.modelling_runner_states_in</h1><div class="highlight"><pre>
+<span></span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">library.phases.runners.modelling.utils.states.modelling_runner_states_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModellingRunnerStates</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">library.pipeline.pipeline_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">skopt.space</span><span class="w"> </span><span class="kn">import</span> <span class="n">Real</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">StackingClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+
+<div class="viewcode-block" id="InTuningRunner">
+<a class="viewcode-back" href="../../../../../../../api/library.phases.runners.modelling.utils.states.modelling_runner_states_in.html#library.phases.runners.modelling.utils.states.modelling_runner_states_in.InTuningRunner">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">InTuningRunner</span><span class="p">(</span><span class="n">ModellingRunnerStates</span><span class="p">):</span>
+      <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_manager</span><span class="p">:</span> <span class="n">PipelineManager</span><span class="p">,</span> <span class="n">save_plots</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pipeline_manager</span><span class="p">,</span> <span class="n">save_plots</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
+
+      <span class="k">def</span><span class="w"> </span><span class="nf">_general_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="c1"># Evaluating and storing models</span>
+            <span class="n">comments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;model_assesment&quot;</span><span class="p">][</span><span class="s2">&quot;comments&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">all_pipelines_execute</span><span class="p">(</span><span class="n">methodName</span><span class="o">=</span><span class="s2">&quot;modelling.evaluate_and_store_models&quot;</span><span class="p">,</span> 
+                                                       <span class="n">exclude_category</span><span class="o">=</span><span class="s2">&quot;baseline&quot;</span><span class="p">,</span>
+                                                       <span class="n">comments</span><span class="o">=</span><span class="n">comments</span><span class="p">,</span> 
+                                                       <span class="n">current_phase</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipeline_state</span><span class="p">)</span>
+            
+            
+            <span class="c1"># Cross model comparison</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines_analysis</span><span class="o">.</span><span class="n">plot_cross_model_comparison</span><span class="p">(</span>
+                  <span class="n">save_plots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_plots</span><span class="p">,</span>
+                  <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_path</span><span class="p">)</span>
+            
+            <span class="c1"># Time based model performance</span>
+            <span class="n">metrics_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines_analysis</span><span class="o">.</span><span class="n">plot_results_df</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;model_assesment&quot;</span><span class="p">][</span><span class="s2">&quot;results_df_metrics&quot;</span><span class="p">],</span>
+                                                                                 <span class="n">save_plots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_plots</span><span class="p">,</span>
+                                                                                 <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_path</span><span class="p">)</span>
+
+            <span class="c1"># Results summary</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines_analysis</span><span class="o">.</span><span class="n">plot_results_summary</span><span class="p">(</span><span class="n">training_metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;model_assesment&quot;</span><span class="p">][</span><span class="s2">&quot;results_summary&quot;</span><span class="p">][</span><span class="s2">&quot;training_metric&quot;</span><span class="p">],</span>
+                                                                         <span class="n">performance_metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;model_assesment&quot;</span><span class="p">][</span><span class="s2">&quot;results_summary&quot;</span><span class="p">][</span><span class="s2">&quot;performance_metric&quot;</span><span class="p">],</span>
+                                                                         <span class="n">save_plots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_plots</span><span class="p">,</span>
+                                                                         <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_path</span><span class="p">)</span>
+            <span class="c1"># Intra model comparison</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines_analysis</span><span class="o">.</span><span class="n">plot_intra_model_comparison</span><span class="p">(</span>
+                                                                                 <span class="n">save_plots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_plots</span><span class="p">,</span>
+                                                                                 <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_path</span><span class="p">)</span>
+            
+            <span class="c1"># Residual analyisis </span>
+            <span class="n">residuals</span><span class="p">,</span> <span class="n">confusion_matrices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines_analysis</span><span class="o">.</span><span class="n">plot_confusion_matrix</span><span class="p">(</span><span class="n">save_plots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_plots</span><span class="p">,</span>
+                                                                                                          <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_path</span><span class="p">)</span>
+            
+            <span class="c1"># Plot residuals </span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines_analysis</span><span class="o">.</span><span class="n">plot_residuals</span><span class="p">(</span><span class="n">save_plots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_plots</span><span class="p">,</span>
+                                                                  <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_path</span><span class="p">)</span>
+   
+
+            <span class="k">return</span> <span class="n">metrics_df</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">residuals</span><span class="p">,</span> <span class="n">confusion_matrices</span>
+
+      <span class="k">def</span><span class="w"> </span><span class="nf">_get_grid_space</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="c1"># Ensembled models</span>
+            <span class="n">gradient_boosting_grid</span> <span class="o">=</span> <span class="p">{</span>
+                  <span class="s1">&#39;learning_rate&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;gradient_boosting&quot;</span><span class="p">][</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">],</span>
+                  <span class="s1">&#39;subsample&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;gradient_boosting&quot;</span><span class="p">][</span><span class="s2">&quot;subsample&quot;</span><span class="p">],</span>
+                  <span class="s1">&#39;n_estimators&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;gradient_boosting&quot;</span><span class="p">][</span><span class="s2">&quot;n_estimators&quot;</span><span class="p">],</span> 
+                  <span class="s1">&#39;max_depth&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;gradient_boosting&quot;</span><span class="p">][</span><span class="s2">&quot;max_depth&quot;</span><span class="p">],</span> 
+                  <span class="s1">&#39;min_samples_split&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;gradient_boosting&quot;</span><span class="p">][</span><span class="s2">&quot;min_samples_split&quot;</span><span class="p">],</span> 
+                  <span class="s1">&#39;min_samples_leaf&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;gradient_boosting&quot;</span><span class="p">][</span><span class="s2">&quot;min_samples_leaf&quot;</span><span class="p">]</span>
+            <span class="p">}</span>
+            <span class="n">random_forest_grid</span> <span class="o">=</span> <span class="p">{</span>
+                  <span class="s1">&#39;n_estimators&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;random_forest&quot;</span><span class="p">][</span><span class="s2">&quot;n_estimators&quot;</span><span class="p">],</span> 
+                  <span class="s1">&#39;max_depth&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;random_forest&quot;</span><span class="p">][</span><span class="s2">&quot;max_depth&quot;</span><span class="p">],</span> 
+                  <span class="s1">&#39;min_samples_split&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;random_forest&quot;</span><span class="p">][</span><span class="s2">&quot;min_samples_split&quot;</span><span class="p">],</span> 
+                  <span class="s1">&#39;min_samples_leaf&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;random_forest&quot;</span><span class="p">][</span><span class="s2">&quot;min_samples_leaf&quot;</span><span class="p">]</span>
+            <span class="p">}</span>
+            <span class="c1"># Tree-based models</span>
+            <span class="n">decision_tree_grid</span> <span class="o">=</span> <span class="p">{</span>
+                  <span class="s1">&#39;criterion&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;decision_tree&quot;</span><span class="p">][</span><span class="s2">&quot;criterion&quot;</span><span class="p">],</span>
+                  <span class="s1">&#39;max_depth&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;decision_tree&quot;</span><span class="p">][</span><span class="s2">&quot;max_depth&quot;</span><span class="p">],</span>
+                  <span class="s1">&#39;min_samples_split&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;decision_tree&quot;</span><span class="p">][</span><span class="s2">&quot;min_samples_split&quot;</span><span class="p">],</span>
+                  <span class="s1">&#39;min_samples_leaf&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;decision_tree&quot;</span><span class="p">][</span><span class="s2">&quot;min_samples_leaf&quot;</span><span class="p">],</span>
+                  <span class="s1">&#39;max_features&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;decision_tree&quot;</span><span class="p">][</span><span class="s2">&quot;max_features&quot;</span><span class="p">],</span>
+                  <span class="s1">&#39;ccp_alpha&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;decision_tree&quot;</span><span class="p">][</span><span class="s2">&quot;ccp_alpha&quot;</span><span class="p">]</span>
+            <span class="p">}</span> 
+
+            <span class="c1"># Support Vector Machines models (not doing it cause it goes too slow and underperforms)</span>
+
+            
+            <span class="c1"># Naiva Bayes model</span>
+            <span class="n">naive_bayes_grid</span> <span class="o">=</span> <span class="p">{</span> <span class="c1"># has to be hard-coded =&gt; Real datatype is not supported</span>
+                  <span class="s1">&#39;var_smoothing&#39;</span><span class="p">:</span> <span class="n">Real</span><span class="p">(</span><span class="mf">1e-12</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="s1">&#39;log-uniform&#39;</span><span class="p">)</span>
+            <span class="p">}</span>
+
+            <span class="c1"># Feed Forward Neural Network model (hard-coded)</span>
+
+            <span class="c1"># Stacking</span>
+            <span class="n">stacking_grid</span> <span class="o">=</span> <span class="p">{</span>
+                  <span class="s1">&#39;final_estimator__C&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;stacking&quot;</span><span class="p">][</span><span class="s2">&quot;final_estimator__C&quot;</span><span class="p">],</span>
+                  <span class="s1">&#39;final_estimator__penalty&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;stacking&quot;</span><span class="p">][</span><span class="s2">&quot;final_estimator__penalty&quot;</span><span class="p">],</span>
+                  <span class="s1">&#39;final_estimator__solver&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;stacking&quot;</span><span class="p">][</span><span class="s2">&quot;final_estimator__solver&quot;</span><span class="p">],</span>
+                  <span class="s1">&#39;passthrough&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;grid_space&quot;</span><span class="p">][</span><span class="s2">&quot;stacking&quot;</span><span class="p">][</span><span class="s2">&quot;passthrough&quot;</span><span class="p">]</span>
+            <span class="p">}</span>
+
+            <span class="k">return</span> <span class="n">gradient_boosting_grid</span><span class="p">,</span> <span class="n">random_forest_grid</span><span class="p">,</span> <span class="n">decision_tree_grid</span><span class="p">,</span> <span class="n">naive_bayes_grid</span><span class="p">,</span> <span class="n">stacking_grid</span>
+      
+      <span class="k">def</span><span class="w"> </span><span class="nf">_get_grid_search_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">gradient_boosting_grid</span><span class="p">,</span> <span class="n">random_forest_grid</span><span class="p">,</span> <span class="n">decision_tree_grid</span><span class="p">,</span> <span class="n">naive_bayes_grid</span><span class="p">,</span> <span class="n">stacking_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_grid_space</span><span class="p">()</span>
+            <span class="n">modelNameToOptimizer</span> <span class="o">=</span> <span class="p">{</span>
+                  <span class="s2">&quot;Gradient Boosting&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;optimizer_type&quot;</span><span class="p">:</span> <span class="s2">&quot;bayes&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;param_grid&quot;</span><span class="p">:</span> <span class="n">gradient_boosting_grid</span><span class="p">,</span>
+                        <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;tuner_params&quot;</span><span class="p">][</span><span class="s2">&quot;max_iter&quot;</span><span class="p">]</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;Random Forest&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;optimizer_type&quot;</span><span class="p">:</span> <span class="s2">&quot;bayes&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;param_grid&quot;</span><span class="p">:</span> <span class="n">random_forest_grid</span><span class="p">,</span>
+                        <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;tuner_params&quot;</span><span class="p">][</span><span class="s2">&quot;max_iter&quot;</span><span class="p">]</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;Decision Tree&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;optimizer_type&quot;</span><span class="p">:</span> <span class="s2">&quot;bayes&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;param_grid&quot;</span><span class="p">:</span> <span class="n">decision_tree_grid</span><span class="p">,</span>
+                        <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;tuner_params&quot;</span><span class="p">][</span><span class="s2">&quot;max_iter&quot;</span><span class="p">]</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;Naive Bayes&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;optimizer_type&quot;</span><span class="p">:</span> <span class="s2">&quot;bayes&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;param_grid&quot;</span><span class="p">:</span> <span class="n">naive_bayes_grid</span><span class="p">,</span>
+                        <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;tuner_params&quot;</span><span class="p">][</span><span class="s2">&quot;max_iter&quot;</span><span class="p">]</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;Feed Forward Neural Network&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;optimizer_type&quot;</span><span class="p">:</span> <span class="s2">&quot;bayes_nn&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;param_grid&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># its hardcoded</span>
+                        <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;tuner_params&quot;</span><span class="p">][</span><span class="s2">&quot;max_iter&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;tuner_params&quot;</span><span class="p">][</span><span class="s2">&quot;epochs&quot;</span><span class="p">]</span>
+                  <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="n">modelNameToOptimizerStacking</span> <span class="o">=</span> <span class="p">{</span>
+                  <span class="s2">&quot;Stacking&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;optimizer_type&quot;</span><span class="p">:</span> <span class="s2">&quot;bayes&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;param_grid&quot;</span><span class="p">:</span> <span class="n">stacking_grid</span><span class="p">,</span>
+                        <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;hyperparameters&quot;</span><span class="p">][</span><span class="s2">&quot;tuner_params&quot;</span><span class="p">][</span><span class="s2">&quot;max_iter&quot;</span><span class="p">]</span>
+                  <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">modelNameToOptimizer</span><span class="p">,</span> <span class="n">modelNameToOptimizerStacking</span>
+      
+      <span class="k">def</span><span class="w"> </span><span class="nf">_set_up_stacking_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimized_models</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">modelNameToOptimizerStacking</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            We have to get the base estimators. In this case there are the ones that were tuned</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">estimators</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">pipelineName</span><span class="p">,</span> <span class="n">results</span> <span class="ow">in</span> <span class="n">optimized_models</span><span class="p">[</span><span class="s2">&quot;not_baseline&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span> <span class="c1"># If the model was in pre-tuning but not in in-tuning the result for its pipeline is None, not a dict</span>
+                        <span class="k">for</span> <span class="n">modelName</span><span class="p">,</span> <span class="n">modelObject</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                              <span class="n">estimators</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">modelName</span><span class="p">,</span> <span class="n">modelObject</span><span class="p">))</span>
+            
+            <span class="c1">#Stacking model</span>
+            <span class="n">stackingModel</span> <span class="o">=</span> <span class="n">StackingClassifier</span><span class="p">(</span>
+                  <span class="n">estimators</span><span class="o">=</span><span class="n">estimators</span><span class="p">,</span>
+                  <span class="n">final_estimator</span><span class="o">=</span><span class="n">LogisticRegression</span><span class="p">(),</span>
+                  <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                  <span class="n">verbose</span><span class="o">=</span><span class="mi">3</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines</span><span class="p">[</span><span class="s2">&quot;not_baseline&quot;</span><span class="p">][</span><span class="s2">&quot;stacking&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">modelling</span><span class="o">.</span><span class="n">list_of_models</span><span class="p">[</span><span class="s2">&quot;Stacking&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tuning_states</span><span class="p">[</span><span class="s2">&quot;in&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">assesment</span><span class="p">[</span><span class="s2">&quot;model_sklearn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stackingModel</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines</span><span class="p">[</span><span class="s2">&quot;not_baseline&quot;</span><span class="p">][</span><span class="s2">&quot;stacking&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">modelling</span><span class="o">.</span><span class="n">list_of_models</span><span class="p">[</span><span class="s2">&quot;Stacking&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tuning_states</span><span class="p">[</span><span class="s2">&quot;post&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">assesment</span><span class="p">[</span><span class="s2">&quot;model_sklearn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stackingModel</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines</span><span class="p">[</span><span class="s2">&quot;not_baseline&quot;</span><span class="p">][</span><span class="s2">&quot;stacking&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">modelling</span><span class="o">.</span><span class="n">list_of_models</span><span class="p">[</span><span class="s2">&quot;Stacking&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tuning_states</span><span class="p">[</span><span class="s2">&quot;in&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">model_sklearn</span> <span class="o">=</span> <span class="n">stackingModel</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines</span><span class="p">[</span><span class="s2">&quot;not_baseline&quot;</span><span class="p">][</span><span class="s2">&quot;stacking&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">modelling</span><span class="o">.</span><span class="n">list_of_models</span><span class="p">[</span><span class="s2">&quot;Stacking&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tuning_states</span><span class="p">[</span><span class="s2">&quot;post&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">model_sklearn</span> <span class="o">=</span> <span class="n">stackingModel</span>
+
+            <span class="n">all_pipelines_to_exclude</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">pipelineName</span><span class="p">,</span> <span class="n">pipelineObject</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines</span><span class="p">[</span><span class="s2">&quot;not_baseline&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                  <span class="k">if</span> <span class="n">pipelineName</span> <span class="o">==</span> <span class="s2">&quot;stacking&quot;</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                  <span class="n">all_pipelines_to_exclude</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pipelineName</span><span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">all_pipelines_execute</span><span class="p">(</span><span class="n">methodName</span><span class="o">=</span><span class="s2">&quot;modelling.fit_models&quot;</span><span class="p">,</span> 
+                                       <span class="n">current_phase</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipeline_state</span><span class="p">,</span>
+                                       <span class="n">modelNameToOptimizer</span><span class="o">=</span><span class="n">modelNameToOptimizerStacking</span>
+                                       <span class="p">)</span>
+            
+<div class="viewcode-block" id="InTuningRunner.run">
+<a class="viewcode-back" href="../../../../../../../api/library.phases.runners.modelling.utils.states.modelling_runner_states_in.html#library.phases.runners.modelling.utils.states.modelling_runner_states_in.InTuningRunner.run">[docs]</a>
+      <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipeline_state</span> <span class="o">=</span> <span class="s2">&quot;in&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;In tuning runner&quot;</span><span class="p">)</span>
+            <span class="c1"># Fitting models</span>
+            <span class="n">modelNameToOptimizer</span><span class="p">,</span> <span class="n">modelNameToOptimizerStacking</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_grid_search_params</span><span class="p">()</span>
+            <span class="n">optimized_models</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">all_pipelines_execute</span><span class="p">(</span><span class="n">methodName</span><span class="o">=</span><span class="s2">&quot;modelling.fit_models&quot;</span><span class="p">,</span> 
+                                                                           <span class="n">exclude_pipeline_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;stacking&quot;</span><span class="p">],</span>
+                                                                           <span class="n">current_phase</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipeline_state</span><span class="p">,</span>
+                                                                           <span class="n">modelNameToOptimizer</span><span class="o">=</span><span class="n">modelNameToOptimizer</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;models_to_exclude&quot;</span><span class="p">][</span><span class="s2">&quot;stacking&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">_set_up_stacking_model</span><span class="p">(</span><span class="n">optimized_models</span><span class="p">,</span> <span class="n">modelNameToOptimizerStacking</span><span class="p">)</span>
+            <span class="n">general_analysis_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_general_analysis</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">general_analysis_results</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../../../../index.html">Efficient Malware Classfier</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../api/modules.html">library</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, BCSAI 4A G1.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

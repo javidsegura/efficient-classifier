@@ -52,8 +52,15 @@ class PipelinesAnalysis:
 
 
       def _create_report_dataframe(self, report: dict, modelName: str, include_training: bool = False):
-            """
-            Adds accuracy to the report as its own column instead of as an index (as it is by default)
+            """_summary_
+
+            Args:
+                report (dict): _description_
+                modelName (str): _description_
+                include_training (bool, optional): _description_. Defaults to False.
+
+            Returns:
+                _type_: _description_
             """
             accuracy = report.pop('accuracy')
             report['modelName'] = modelName + ("_train" if include_training else "")
@@ -64,8 +71,16 @@ class PipelinesAnalysis:
             return df
       
       def _add_additional_metrics_to_report(self, df: pd.DataFrame, modelName: str, additional_metrics: dict, include_training: bool = False):
-            """
-            Adds metrics to the report as its own columns instead of as an index (as it is by default)
+            """_summary_
+
+            Args:
+                df (pd.DataFrame): _description_
+                modelName (str): _description_
+                additional_metrics (dict): _description_
+                include_training (bool, optional): _description_. Defaults to False.
+
+            Returns:
+                _type_: _description_
             """
             if not include_training:
                   for key, value in additional_metrics["not_train"].items():
