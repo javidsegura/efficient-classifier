@@ -21,6 +21,7 @@ from sklearn.model_selection import train_test_split
 import lime
 import lime.lime_tabular
 
+from scipy import stats
 import matplotlib.pyplot as plt
 import seaborn as sns
 import math
@@ -61,8 +62,15 @@ class PipelinesAnalysis:
 
 
       def _create_report_dataframe(self, report: dict, modelName: str, include_training: bool = False):
-            """
-            Adds accuracy to the report as its own column instead of as an index (as it is by default)
+            """_summary_
+
+            Args:
+                report (dict): _description_
+                modelName (str): _description_
+                include_training (bool, optional): _description_. Defaults to False.
+
+            Returns:
+                _type_: _description_
             """
             accuracy = report.pop('accuracy')
             report['modelName'] = modelName + ("_train" if include_training else "")
@@ -73,8 +81,16 @@ class PipelinesAnalysis:
             return df
       
       def _add_additional_metrics_to_report(self, df: pd.DataFrame, modelName: str, additional_metrics: dict, include_training: bool = False):
-            """
-            Adds metrics to the report as its own columns instead of as an index (as it is by default)
+            """_summary_
+
+            Args:
+                df (pd.DataFrame): _description_
+                modelName (str): _description_
+                additional_metrics (dict): _description_
+                include_training (bool, optional): _description_. Defaults to False.
+
+            Returns:
+                _type_: _description_
             """
             if not include_training:
                   for key, value in additional_metrics["not_train"].items():
@@ -450,6 +466,7 @@ class PipelinesAnalysis:
                   ax.set_title(f"LIME explanation for {pipeline} model")
                   plt.tight_layout()
                   plt.tight_layout(rect=[0, 0, 1, 0.96])
+
                   save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/modelName/lime_feature_importance", filename=f"lime_feature_importance_{self.phase}.png")
             return lime_importances_dfs
 
@@ -501,7 +518,9 @@ class PipelinesAnalysis:
                         plt.tight_layout()
                         plt.tight_layout(rect=[0, 0, 1, 0.96])
 
-                        save_or_store_plot(fig, save_plots, directory_path=f"{save_path}/{self.phase}/{modelName}/model_performance", filename=f"reliability_diagram_{self.phase}_{pipeline}_{modelName}.png")
+                        
+                        save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/feature_importance", filename=f"feature_importance_{self.phase}.png")
+            return importances_dfs
 
       def plot_confusion_matrix(self, save_plots: bool = False, save_path: str = None):
             """
@@ -580,6 +599,92 @@ class PipelinesAnalysis:
             save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"confusion_matrices_{self.phase}.png")
 
             return residuals, confusion_matrices
+      
+      
+      def plot_residuals(self, save_plots: bool = False, save_path: str = None):
+            """
+            For each model in this phase, produce:
+              1) Residuals vs. Predicted
+              2) Residuals vs. Observed
+              3) Histogram of residuals
+              4) QQ-plot of residuals
+
+            Titles each figure “Residual plots for {modelName} in {phase} phase”
+            """
+            assert self.phase in ["pre", "in", "post"], "Phase must be pre, in or post"
+
+            residuals = {}
+
+            for category in self.pipelines:
+                  for pipeline in self.pipelines[category]:
+                        m = self.pipelines[category][pipeline].modelling
+
+                        for modelName in m.list_of_models:
+                              # same include/exclude logic as plot_confusion_matrix
+                              if modelName in m.models_to_exclude:
+                                    continue
+                              if category == "not_baseline" and self.phase == "post" \
+                                 and modelName != self.best_performing_model["modelName"]:
+                                    continue
+                              if self.phase == "in" and category == "baseline":
+                                    continue
+
+                              # exactly like plot_confusion_matrix:
+                              model_obj = m.list_of_models[modelName]
+                              if self.phase != "post":
+                                    preds = model_obj.tuning_states[self.phase].assesment["predictions_val"]
+                                    actuals = m.dataset.y_val
+                              else:
+                                    preds = model_obj.tuning_states[self.phase].assesment["predictions_test"]
+                                    actuals = m.dataset.y_test
+
+                              assert preds is not None,   f"No predictions for {modelName}"
+                              assert actuals is not None, f"No actuals for {modelName}"
+                              assert len(preds) == len(actuals)
+
+                              res = actuals - preds
+                              residuals[modelName] = res
+
+                              # build 2×2 figure
+                              fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+                              axes = axes.flatten()
+                              fig.suptitle(f"Residual plots for {modelName} in {self.phase} phase")
+
+                              # 1) vs Predicted
+                              axes[0].scatter(preds, res, alpha=0.6)
+                              axes[0].axhline(0, linestyle="--")
+                              axes[0].set_xlabel("Predicted")
+                              axes[0].set_ylabel("Residual")
+                              axes[0].set_title("Residuals vs Predicted")
+
+                              # 2) vs Observed
+                              axes[1].scatter(actuals, res, alpha=0.6)
+                              axes[1].axhline(0, linestyle="--")
+                              axes[1].set_xlabel("Observed")
+                              axes[1].set_ylabel("Residual")
+                              axes[1].set_title("Residuals vs Observed")
+
+                              # 3) Histogram
+                              sns.histplot(res, kde=True, ax=axes[2])
+                              axes[2].set_title("Histogram of Residuals")
+
+                              # 4) QQ-Plot
+                              stats.probplot(res, dist="norm", plot=axes[3])
+                              axes[3].set_title("QQ-Plot of Residuals")
+
+                              plt.tight_layout(rect=[0,0,1,0.95])
+
+                              # save using same structure as confusion_matrix
+                              save_or_store_plot(
+                                    fig,
+                                    save_plots,
+                                    directory_path=save_path + f"/{self.phase}/model_performance",
+                                    filename=f"residuals_{modelName}_{self.phase}.png"
+                              )
+                              plt.close(fig)
+
+            return None
+
       
       def plot_results_summary(self, training_metric: str, performance_metric: str, save_plots: bool = False, save_path: str = None):
             """

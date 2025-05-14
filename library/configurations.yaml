@@ -85,6 +85,9 @@ feature_analysis_runner:
         delete_features: True
 
 modelling_runner:
+    class_weights:
+      # Add here as many classes as needed, if you want default weights (balanced), leave this list EMPTY
+
     models_to_exclude:
       ensembled: ["Gradient Boosting", "Random Forest"]
       tree_based: [] # ALWAYS KEEP TREE, ITS USED AS REFERENCE FOR FEATURE SELECTION
