@@ -129,7 +129,7 @@ class Classifier(Model):
             normalized_weights = weights_array / weights_array.sum()
 
             # dictionary of normalized weights
-            normalized_weights_dict = {cls: normalized_weights[i] for i, cls in enumerate(class_weights.keys())}y
+            normalized_weights_dict = {cls: normalized_weights[i] for i, cls in enumerate(class_weights.keys())}
             per_class_accuracy = {}
             weightedaccuracy = 0.0
             total_weight = 0.0
