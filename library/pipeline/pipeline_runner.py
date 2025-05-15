@@ -61,7 +61,7 @@ class PipelineRunner:
                                                 save_path=self.plots_path + "modelling/",
                                                 serialize_results=serialize_results)  
             }
-            self.slack_bot = SlackBot()
+            #self.slack_bot = SlackBot()
       
       def _dataset_specific_set_up(self, default_pipeline: Pipeline) -> None:
             """
