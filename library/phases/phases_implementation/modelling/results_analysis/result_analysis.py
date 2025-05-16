@@ -15,6 +15,26 @@ class ResultAnalysis(ABC):
             self.phase_results_df = phase_results_df
 
       def plot_multiple_model_metrics(self, feature_list):
+            """
+            Plots bar charts of multiple performance metrics across different models.
+
+            Parameters
+            ----------
+            feature_list : list of str
+            List of metric names (features) to plot.
+
+            Behavior
+            --------
+            - Creates a grid of bar plots with 2 columns, adjusting rows as needed.
+            - Each subplot shows the metric values for each model from `phase_results_df`.
+            - Bars are annotated with their numeric values.
+            - Unused subplots are removed for a cleaner layout.
+            - X-axis labels are rotated for better readability.
+
+            Returns
+            -------
+            None
+            """
             num_features = len(feature_list)
             cols = 2
             rows = math.ceil(num_features / cols)

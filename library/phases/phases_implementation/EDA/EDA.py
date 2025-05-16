@@ -52,7 +52,18 @@ class EDA:
 
   def plot_categorical_distributions(self, features: list[str], n_cols: int = 2):
     """
-    Plots the distribution of categorical features using count plots
+    Plots the distributions of specified categorical features as count plots.
+
+    Parameters
+    ----------
+    features : list of str
+        List of categorical feature names to plot.
+    n_cols : int, optional
+        Number of columns for the subplot grid. Default is 2.
+
+    Returns
+    -------
+    None
     """
     n_rows = len(features)
 
@@ -72,7 +83,16 @@ class EDA:
   
   def count_boxplot_descriptive(self, features: list[str]):
     """
-    Plots the count and boxplot of a feature
+    Plots the distribution histogram, boxplot, and descriptive statistics summary for each specified feature.
+
+    Parameters
+    ----------
+    features : list of str
+        List of feature names to analyze and plot.
+
+    Returns
+    -------
+    None
     """
     n_rows = len(features)
     n_cols = 3
@@ -138,8 +158,23 @@ class EDA:
 
   def scatterplot_bivariate(self, features: list[str], target: str, n_cols: int = 3):
       """
-      Plots the line plot of a feature against the target with maximized x-axis ticks
-      and stretched figure size.
+      Plots line plots for each specified feature against the target variable.
+
+      The plots have an expanded figure size and enhanced x-axis ticks for better readability.
+      If multiple features are provided, plots are arranged in a grid with the specified number of columns.
+
+      Parameters
+      ----------
+      features : list of str
+          List of feature names to plot on the x-axis.
+      target : str
+          The target variable name to plot on the y-axis.
+      n_cols : int, optional (default=3)
+          Number of columns in the subplot grid.
+
+      Returns
+      -------
+      None
       """
       n_rows = math.ceil(len(features) / n_cols)
       
@@ -173,8 +208,24 @@ class EDA:
 
   def barplot_bivariate(self, features: list[str], target: str, n_cols: int = 3):
       """
-      Plots the bar plot of a feature against the target with maximized x-axis ticks
-      and stretched figure size.
+      Plots bar plots for each specified feature against the target variable.
+
+      The function adjusts the figure size for better visibility and optimizes the x-axis ticks,
+      including handling interval-type features by converting them to strings.
+      Plots are arranged in a grid layout based on the specified number of columns.
+
+      Parameters
+      ----------
+      features : list of str
+          List of feature names to plot on the x-axis.
+      target : str
+          The target variable name to plot on the y-axis.
+      n_cols : int, optional (default=3)
+          Number of columns in the subplot grid.
+
+      Returns
+      -------
+      None
       """
       n_rows = math.ceil(len(features) / n_cols)
       

@@ -107,9 +107,18 @@ class PipelinesAnalysis:
       
       def _compute_classification_report(self, include_training: bool = False):
             """
-            Plots the classification report of a given model
+            Computes the classification report for each model in the pipelines for the current phase.
+            Optionally includes training data evaluation and maps encoded class labels.
 
-            Note: adding to the class report kappa score 
+            Parameters
+            ----------
+            include_training : bool, optional
+                  Whether to include classification reports for training data (default is False).
+
+            Returns
+            -------
+            pd.DataFrame
+                  Merged classification report for all evaluated models in the current phase.
             """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             classification_reports = []
@@ -174,7 +183,23 @@ class PipelinesAnalysis:
       
       def plot_cross_model_comparison(self, metrics: list[str] = None, cols: int = 2, save_plots: bool = False, save_path: str = None):
                   """
-                  Plots the classification report of a given model
+                  Plots a comparison of classification metrics across different models for the current phase.
+                  Generates subplots for each selected metric and optionally saves the result.
+
+                  Parameters
+                  ----------
+                  metrics : list of str, optional
+                        List of metric names to include in the plots. If None, default classification metrics are used.
+                  cols : int, optional
+                        Number of columns in the subplot grid (default is 2).
+                  save_plots : bool, optional
+                        Whether to save the generated plots to disk (default is False).
+                  save_path : str, optional
+                        Directory path where plots should be saved if save_plots is True.
+
+                  Returns
+                  -------
+                  None
                   """
                   assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
                   if not metrics:
@@ -232,7 +257,21 @@ class PipelinesAnalysis:
       
       def plot_intra_model_comparison(self, metrics: list[str] = None, save_plots: bool = False, save_path: str = None):
             """
-            3 cols each with two trends. As many rows as unique models
+            Plots training vs validation/test performance for each model across selected metrics.
+            One row per model, each with side-by-side metric trends for comparison.
+
+            Parameters
+            ----------
+            metrics : list of str, optional
+                  List of metric names to plot. If None, uses default classification metrics.
+            save_plots : bool, optional
+                  Whether to save the generated plots to disk (default is False).
+            save_path : str, optional
+                  Directory path where plots should be saved if save_plots is True.
+
+            Returns
+            -------
+            None
             """
             print(f"METRICS IS {metrics}")
             if not metrics:
@@ -293,7 +332,22 @@ class PipelinesAnalysis:
 
       def plot_results_df(self, metrics: list[str], save_plots: bool = False, save_path: str = None):
             """
-            Results df is the dataframe with some general performance metrics + time-based metrics (time to fit, time to predict)
+            Plots general and time-based performance metrics (e.g., fit/predict time) for all models in the current phase.
+            Displays bar charts per metric and optionally saves the results.
+
+            Parameters
+            ----------
+            metrics : list of str
+                  List of metrics to visualize (e.g., accuracy, time_to_fit).
+            save_plots : bool, optional
+                  Whether to save the generated plots to disk (default is False).
+            save_path : str, optional
+                  Directory path where plots should be saved if save_plots is True.
+
+            Returns
+            -------
+            pd.DataFrame
+                  Concatenated dataframe with the selected metrics for all models.
             """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             dataframes = []
@@ -335,6 +389,21 @@ class PipelinesAnalysis:
             return metrics_df
       
       def plot_feature_importance(self, save_plots: bool = False, save_path: str = None):
+            """
+            Plots feature importance for each model in the current phase. Uses built-in importance attributes or permutation importance.
+            Only plots top features and optionally saves the results to disk.
+
+            Parameters
+            ----------
+            save_plots : bool, optional
+                  Whether to save the generated plots to disk (default is False).
+            save_path : str, optional
+                  Directory path where plots should be saved if save_plots is True.
+
+            Returns
+            -------
+            None
+            """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             importances_dfs = {}
 
@@ -427,6 +496,22 @@ class PipelinesAnalysis:
             return None
 
       def lime_feature_importance(self, save_plots: bool = False, save_path: str = None):
+            """
+            Computes and plots LIME-based feature importances for ensembled models in the current phase.
+            Generates barplots of the top contributing features for a single sample.
+
+            Parameters
+            ----------
+            save_plots : bool, optional
+                  Whether to save the generated LIME plots to disk (default is False).
+            save_path : str, optional
+                  Directory path where plots should be saved if save_plots is True.
+
+            Returns
+            -------
+            dict
+                  Dictionary mapping each pipeline to its LIME feature importance DataFrame.
+            """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             lime_importances_dfs = {}
             for pipeline in self.pipelines["not_baseline"]:
@@ -472,35 +557,48 @@ class PipelinesAnalysis:
 
       def plot_multiclass_reliability_diagram(self, save_plots: bool = False, save_path: str = None):
             """
-            Plot reliability diagrams for each class in a multiclass setting using one-vs-rest calibration curves.
-            The plot is generated for each model in each pipeline.
+            Plots multiclass reliability diagrams (one-vs-rest) for ensembled or tree-based models.
+            Each class's calibration curve is displayed to assess probabilistic calibration quality.
+
+            Parameters
+            ----------
+            save_plots : bool, optional
+                  Whether to save the generated plots to disk (default is False).
+            save_path : str, optional
+                  Directory path where plots should be saved if save_plots is True.
+
+            Returns
+            -------
+            None
             """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
 
             for pipeline in self.pipelines["not_baseline"]:
+                  if pipeline not in ["ensembled", "tree_based"]:
+                        continue
                   for modelName in self.pipelines["not_baseline"][pipeline].modelling.list_of_models:
                         if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
                               continue
                         if modelName in self.pipelines["not_baseline"][pipeline].modelling.models_to_exclude:
                               continue
-
                         model = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName]
                         X_train = self.pipelines["not_baseline"][pipeline].dataset.X_train
                         y_train = self.pipelines["not_baseline"][pipeline].dataset.y_train
-                        X_calib = self.pipelines["not_baseline"][pipeline].dataset.X_calib
-                        y_calib = self.pipelines["not_baseline"][pipeline].dataset.y_calib
 
-                        # If no calib split exists, create it
+                        # Attempt to retrieve X_calib and y_calib; if not present, perform train_test_split
+                        X_calib = getattr(self.pipelines["not_baseline"][pipeline].dataset, 'X_calib', None)
+                        y_calib = getattr(self.pipelines["not_baseline"][pipeline].dataset, 'y_calib', None)
+
                         if X_calib is None or y_calib is None:
                               X_train, X_calib, y_train, y_calib = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
+
                         # Calibrate the model
                         calibrated_model = CalibratedClassifierCV(estimator=model, method='sigmoid', cv=3)
                         calibrated_model.fit(X_train, y_train)
                         y_probs = calibrated_model.predict_proba(X_calib)
 
                         n_classes = y_probs.shape[1]
-                        class_labels = self.pipelines["not_baseline"][pipeline].dataset.class_labels if hasattr(
-                        self.pipelines["not_baseline"][pipeline].dataset, 'class_labels') else list(range(n_classes))
+                        class_labels = getattr(self.pipelines["not_baseline"][pipeline].dataset, 'class_labels', list(range(n_classes)))
 
                         fig, ax = plt.subplots(figsize=(8, 6))
                         for i in range(n_classes):
@@ -511,20 +609,39 @@ class PipelinesAnalysis:
                         ax.plot([0, 1], [0, 1], linestyle='--', color='gray', label='Perfectly Calibrated')
                         ax.set_xlabel("Mean Predicted Probability")
                         ax.set_ylabel("True Fraction of Positives")
-                        ax.set_title(f"Reliability Diagram - {modelName} ({pipeline}) - {self.phase} phase")
                         ax.legend(loc="best")
                         ax.grid(True)
 
                         plt.tight_layout()
+                        plt.suptitle(f"Reliability Diagram - {modelName} ({pipeline}) - {self.phase} phase", fontsize=14)
                         plt.tight_layout(rect=[0, 0, 1, 0.96])
-
-                        
-                        save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/feature_importance", filename=f"feature_importance_{self.phase}.png")
-            return importances_dfs
+                        save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"reliability_diagram_{self.phase}.png")
+            return None
 
       def plot_confusion_matrix(self, save_plots: bool = False, save_path: str = None):
             """
-            Plots the confusion matrix of a given model
+            Plots both absolute and relative confusion matrices for all models in the current phase.
+
+            For each applicable model, this function computes and displays:
+            - An absolute confusion matrix (raw counts).
+            - A relative confusion matrix (normalized by actual class totals, in %).
+
+            Conditions such as model exclusions, phase-specific logic, and baseline filtering
+            are handled internally.
+
+            Parameters
+            ----------
+            save_plots : bool, optional
+                  Whether to save the generated plot to disk. Default is False.
+            save_path : str, optional
+                  Path to the directory where plots will be saved (if save_plots is True).
+
+            Returns
+            -------
+            residuals : dict
+                  Dictionary mapping each pipeline to its residuals (misclassified examples).
+            confusion_matrices : dict
+                  Dictionary mapping each model name to its absolute and relative confusion matrices.
             """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             confusion_matrices = {}
@@ -599,17 +716,32 @@ class PipelinesAnalysis:
             save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"confusion_matrices_{self.phase}.png")
 
             return residuals, confusion_matrices
-      
-      
+           
       def plot_residuals(self, save_plots: bool = False, save_path: str = None):
             """
-            For each model in this phase, produce:
-              1) Residuals vs. Predicted
-              2) Residuals vs. Observed
-              3) Histogram of residuals
-              4) QQ-plot of residuals
+            Generates diagnostic plots of residuals for each model in the current phase.
 
-            Titles each figure “Residual plots for {modelName} in {phase} phase”
+            For each applicable model, this function computes residuals and produces a 2x2 grid of:
+                  1. Residuals vs. Predicted values
+                  2. Residuals vs. Observed values
+                  3. Histogram of residuals with KDE
+                  4. QQ-plot of residuals to assess normality
+
+            Titles each figure as: “Residual plots for {modelName} in {phase} phase”.
+
+            Filters models according to phase, category, and exclusion rules.
+            Saves plots if `save_plots` is True.
+
+            Parameters
+            ----------
+            save_plots : bool, optional
+                  Whether to save the generated plots to disk. Default is False.
+            save_path : str, optional
+                  Directory path where plots should be saved (used if save_plots is True).
+
+            Returns
+            -------
+            None
             """
             assert self.phase in ["pre", "in", "post"], "Phase must be pre, in or post"
 
@@ -684,11 +816,32 @@ class PipelinesAnalysis:
                               plt.close(fig)
 
             return None
-
       
       def plot_results_summary(self, training_metric: str, performance_metric: str, save_plots: bool = False, save_path: str = None):
             """
-            Scatterplot: x-axis is either timeToFit or timeToPredict and y-axis is a performance metric
+            Generates a scatterplot relating a training or prediction time metric
+            to a classification performance metric for models in the current phase.
+
+            The x-axis represents the time metric ("timeToFit" or "timeToPredict") on a log scale,
+            and the y-axis shows the classification performance metric, adjusted based on the phase
+            ("pre", "in", or "post") to use either validation or test evaluation.
+
+            Each point represents a model and is labeled with its name.
+
+            Parameters
+            ----------
+            training_metric : str
+            Time metric for the x-axis. Must be either "timeToFit" or "timeToPredict".
+            performance_metric : str
+            Performance metric for the y-axis. Must be a valid classification metric.
+            save_plots : bool, optional
+            Whether to save the plot to disk. Default is False.
+            save_path : str, optional
+            Directory path where plots will be saved if `save_plots` is True.
+
+            Returns
+            -------
+            None
             """
             assert training_metric in ["timeToFit", "timeToPredict"], "training_metric must be either timeToFit or timeToPredict"
             assert performance_metric in self.variables["dataset_runner"]["metrics_to_evaluate"]["classification"], "performance_metric must be a classification metric"
@@ -735,6 +888,26 @@ class PipelinesAnalysis:
             save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"results_summary_{self.phase}.png")
 
       def plot_per_epoch_progress(self, metrics: list[str], save_plots: bool = False, save_path: str = None):
+            """
+            Plots the progression of specified metrics over training epochs for a neural network model.
+
+            This function initializes a NeuralNetsPlots object for the feed-forward neural network model
+            corresponding to the current phase, and delegates the plotting of per-epoch metric progress
+            to that object.
+
+            Parameters
+            ----------
+            metrics : list of str
+            List of metric names to plot over epochs.
+            save_plots : bool, optional
+            Whether to save the generated plots. Default is False.
+            save_path : str, optional
+            Directory path where plots will be saved if `save_plots` is True.
+
+            Returns
+            -------
+            None
+            """
             self.neural_nets_plots = NeuralNetsPlots(self.pipelines["not_baseline"]["feed_forward_neural_network"].modelling.list_of_models["Feed Forward Neural Network"].tuning_states[self.phase].assesment["model_sklearn"])
             self.neural_nets_plots.plot_per_epoch_progress(metrics, phase=self.phase, save_plots=save_plots, save_path=save_path)
 
