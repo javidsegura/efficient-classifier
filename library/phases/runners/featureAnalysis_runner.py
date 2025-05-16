@@ -173,7 +173,7 @@ class FeatureAnalysisRunner(PhaseRunner):
                   "support_vector_machine": [],
                   "naive_bayes": [],  # No interactions for Naive Bayes
                   "feed_forward_neural_network": [],
-                  "stacking": [],
+                  "stacking": [ ('API_Network_java.net.URL_openConnection', 'API_Binder_android.app.Activity_startActivity')],
                   "ensembled": [
                         ("Network_TotalTransmittedBytes", "API_Network_java.net.URL_openConnection"),
                         ("API_DeviceInfo_android.net.wifi.WifiInfo_getMa", "API_Network_java.net.URL_openConnection")

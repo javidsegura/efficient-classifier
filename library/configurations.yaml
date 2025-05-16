@@ -65,13 +65,13 @@ feature_analysis_runner:
     features_to_encode: ["Reboot"]
     manual_feature_selection:
       mutual_information:
-        threshold: 0.2
+        threshold: 0.1
         delete_features: True
       low_variances:
-        threshold: 0.01
+        threshold: 0.2
         delete_features: True
       vif:
-        threshold: 10
+        threshold: 15
         delete_features: True
       pca:
         threshold: 0.95
@@ -100,10 +100,10 @@ modelling_runner:
       11: 8  # Trojan Spy 
 
     models_to_exclude:
-      ensembled: ["Gradient Boosting", "Random Forest"]
+      ensembled: ["Gradient Boosting"]
       tree_based: [] # ALWAYS KEEP TREE, ITS USED AS REFERENCE FOR FEATURE SELECTION
       support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
-      naive_bayes: []
+      naive_bayes: ["Naive Bayes"]
       feed_forward_neural_network: ["Feed Forward Neural Network"] 
       stacking: []
       baselines: ["Logistic Regression (baseline)"]
