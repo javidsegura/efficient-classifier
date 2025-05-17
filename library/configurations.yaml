@@ -53,7 +53,7 @@ data_preprocessing_runner:
       stacking: robust
     imbalancer:
       baselines: ADASYN
-      ensembled: ADASYN # We dont want to balance the classes for ensembled models
+      ensembled: ADASYN #ADASYN # We dont want to balance the classes for ensembled models
       tree_based: ADASYN
       support_vector_machine: ADASYN
       naive_bayes: ADASYN
@@ -68,20 +68,20 @@ feature_analysis_runner:
         threshold: 0.1
         delete_features: True
       low_variances:
-        threshold: 0.2
+        threshold: 0.3
         delete_features: True
       vif:
         threshold: 15
         delete_features: True
       pca:
-        threshold: 0.95
+        threshold: 0.99
         delete_features: True
     automatic_feature_selection:
       l1:
         max_iter: 1000
         delete_features: True
       boruta:
-        max_iter: 10
+        max_iter: 5
         delete_features: True
 
 modelling_runner:
@@ -91,7 +91,7 @@ modelling_runner:
       2: 6   # File Infector 
       3: 3   # PUA 
       4: 10   # Ransomware 
-      5: 3   # Riskware
+      5: 6   # Riskware
       6: 4   # Scareware 
       7: 6   # Trojan
       8: 9   # Trojan Banker 
@@ -116,11 +116,13 @@ modelling_runner:
           max_depth: [10, 20, 30]
           min_samples_split: [2, 5, 10]
           min_samples_leaf: [1, 2, 4]
+
         random_forest:
           n_estimators: [50, 100, 150, 200]
           max_depth: [10, 20, 30]
           min_samples_split: [2, 5, 10]
           min_samples_leaf: [1, 2, 4]
+
         decision_tree:
           criterion: ['gini', 'entropy']
           max_depth: [10, 20, 30]
@@ -128,11 +130,13 @@ modelling_runner:
           min_samples_leaf: [1, 2, 5]
           max_features: ['sqrt', 'log2']
           ccp_alpha: [0.0, 0.01, 0.1]
+          
         stacking:
           final_estimator__C: [0.001, 0.01, 0.1, 1, 10]
           final_estimator__penalty: ['l2']
           final_estimator__solver: ['lbfgs']
           passthrough: [True, False]
+
       tuner_params:
         max_iter: 1 # CHANGE THIS TO MAKE IT RUN FASTER 
         epochs: 1 # CHANGE THIS TO MAKE IT RUN FASTER 

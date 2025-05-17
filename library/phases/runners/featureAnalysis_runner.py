@@ -59,13 +59,13 @@ class FeatureAnalysisRunner(PhaseRunner):
                   save_path=self.save_path
             )
             # # 4) PCA
-            # self.pipeline_manager.pipelines["not_baseline"]["tree_based"].feature_analysis.feature_selection.manual_feature_selection.fit(
-            #       type="PCA",
-            #       threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["pca"]["threshold"],
-            #       delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["pca"]["delete_features"],
-            #       save_plots=self.include_plots,
-            #       save_path=self.save_path
-            # )
+            #self.pipeline_manager.pipelines["not_baseline"]["tree_based"].feature_analysis.feature_selection.manual_feature_selection.fit(
+            #      type="PCA",
+            #      threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["pca"]["threshold"],
+            #      delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["pca"]["delete_features"],
+            #      save_plots=self.include_plots,
+            #      save_path=self.save_path
+            #)
             
 
 
@@ -173,10 +173,12 @@ class FeatureAnalysisRunner(PhaseRunner):
                   "support_vector_machine": [],
                   "naive_bayes": [],  # No interactions for Naive Bayes
                   "feed_forward_neural_network": [],
-                  "stacking": [ ('API_Network_java.net.URL_openConnection', 'API_Binder_android.app.Activity_startActivity')],
+                  "stacking": [ ('API_Network_java.net.URL_openConnection', 'API_Binder_android.app.Activity_startActivity'),
+                               ('Memory_PssTotal','API_Crypto-Hash_java.security.MessageDigest_digest')],
                   "ensembled": [
                         ("Network_TotalTransmittedBytes", "API_Network_java.net.URL_openConnection"),
-                        ("API_DeviceInfo_android.net.wifi.WifiInfo_getMa", "API_Network_java.net.URL_openConnection")
+                        ("API_DeviceInfo_android.net.wifi.WifiInfo_getMa", "API_Network_java.net.URL_openConnection"),
+                        ('Memory_PssTotal','API_Crypto-Hash_java.security.MessageDigest_digest')
                   ]
             }
             
@@ -193,6 +195,29 @@ class FeatureAnalysisRunner(PhaseRunner):
                                     pipeline_name=pipeline_name
                               )
                               interaction_results[pipeline_name] = result
+            for pipeline_name in ["stacking", "tree_based", "ensembled"]:
+                  if pipeline_name in self.pipeline_manager.pipelines["not_baseline"]:
+                        pipeline = self.pipeline_manager.pipelines["not_baseline"][pipeline_name]
+                        
+                        # Check if the required features exist
+                        required_features = ['API_IPC_android.content.ContextWrapper_startService', 'API_Network_java.net.URL_openConnection']
+                        if all(feature in pipeline.dataset.X_train.columns for feature in required_features):
+                        # Add the Riskware_Adware_Ratio feature
+                        # Help distinguish Riskware from Adware
+                              pipeline.dataset.X_train['Riskware_Adware_Ratio'] = pipeline.dataset.X_train['API_IPC_android.content.ContextWrapper_startService'] / \
+                                                (pipeline.dataset.X_train['API_Network_java.net.URL_openConnection'] + 1)
+                        
+                        if pipeline.dataset.X_val is not None:
+                              pipeline.dataset.X_val['Riskware_Adware_Ratio'] = pipeline.dataset.X_val['API_IPC_android.content.ContextWrapper_startService'] / \
+                                                (pipeline.dataset.X_val['API_Network_java.net.URL_openConnection'] + 1)
+                        
+                        if pipeline.dataset.X_test is not None:
+                              pipeline.dataset.X_test['Riskware_Adware_Ratio'] = pipeline.dataset.X_test['API_IPC_android.content.ContextWrapper_startService'] / \
+                                                (pipeline.dataset.X_test['API_Network_java.net.URL_openConnection'] + 1)
+                        
+                              print(f"Added Riskware_Adware_Ratio feature to {pipeline_name} pipeline")
+                        else:
+                              print(f"Cannot add Riskware_Adware_Ratio to {pipeline_name} - required features missing")
             
             '''
             # Define pipeline-specific feature engineering approaches for clustering
