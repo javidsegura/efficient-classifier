@@ -24,6 +24,8 @@ from library.phases.phases_implementation.dev_ops.slackBot.bot import SlackBot
 
 import yaml
 
+from dag import DAG
+
 
 """ Phases are: 
 - Splitting
@@ -96,6 +98,7 @@ class PipelineRunner:
                   combined_pipelines[category_name] = {}
                   for pipeline_name in pipelines:
                         combined_pipelines[category_name][pipeline_name] = default_pipeline
+            
             self.pipeline_manager = PipelineManager(combined_pipelines, variables=self.variables)
 
       

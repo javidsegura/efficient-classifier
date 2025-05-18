@@ -146,7 +146,7 @@ class FeatureAnalysisRunner(PhaseRunner):
 
       def run(self) -> None:
             feature_transformation_results = self._run_feature_transformation() 
-            manual_feature_selection_results = self._run_manual_feature_selection() # Comment out cause it goes too slow
+            #manual_feature_selection_results = self._run_manual_feature_selection() # Comment out cause it goes too slow
             #automatic_feature_selection_results = self._run_automatic_feature_selection() # Comment out cause it goes too slow
             self._run_feature_engineering_after_split()
             return {

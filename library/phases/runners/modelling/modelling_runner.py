@@ -25,6 +25,8 @@ class ModellingRunner(PhaseRunner):
       def __init__(self, pipeline_manager: PipelineManager, include_plots: bool = False, save_path: str = "", serialize_results: bool = False) -> None:
             super().__init__(pipeline_manager, include_plots, save_path)
             self.serialize_results = serialize_results
+
+
       
       def _model_initializers(self):
             """
@@ -33,6 +35,38 @@ class ModellingRunner(PhaseRunner):
             Finally we call the function that excludes all the models that we do not want the training to run (either because we are trying to debug and want to run as fast as possible or
             because we have observed that a certain model is not performing well and taking too long to fit/predict)
             """
+            # model_name_to_model_object = {
+            #       "not_baseline": {
+            #             "Gradient Boosting": GradientBoostingClassifier(),
+            #             "Random Forest": RandomForestClassifier(),
+            #             "Decision Tree": DecisionTreeClassifier(),
+            #             "Linear Support Vector Machine": LinearSVC(),
+            #             "Non-linear Support Vector Machine": SVC(),
+            #             "Gaussian Naive Bayes": GaussianNB(),
+            #             "Feed Forward Neural Network": FeedForwardNeuralNetwork(
+            #                   num_features=self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"].dataset.X_train.shape[1], 
+            #                   num_classes=self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"].dataset.y_train.value_counts().shape[0],
+            #                   batch_size=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["batch_size"],
+            #                   epochs=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["epochs"],
+            #                   n_layers=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["n_layers"],
+            #             ),
+            #       },
+            #       "baseline": {
+            #             "Logistic Regression (baseline)": LogisticRegression(),
+            #             "Majority Class (baseline)": MajorityClassClassifier(),
+            #       }
+            # }
+
+            # for category in self.pipeline_manager.pipelines:
+            #       for pipeline in self.pipeline_manager.pipelines[category]:
+            #             if pipeline == "stacking":
+            #                   continue
+            #             print(f"Category: {category}, Pipeline: {pipeline}")
+            #             print(self.pipeline_manager.variables["modelling_runner"]["models_names_per_pipeline"][category][pipeline])
+            #             for model_name in self.pipeline_manager.variables["modelling_runner"]["models_names_per_pipeline"][category][pipeline]:
+            #                   self.pipeline_manager.pipelines[category][pipeline].modelling.add_model(model_name, model_name_to_model_object[category][model_name])
+      
+
             #self._create_pipelines_divergences()
             nn_pipeline = self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"]
 

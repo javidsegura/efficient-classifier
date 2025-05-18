@@ -123,12 +123,12 @@ class DataPreprocessingRunner(PhaseRunner):
             
             results = {}
 
-            for category_name, pipelines in self.pipeline_manager.pipelines.items():
-                  results[category_name] = {}
-                  for pipeline_name, pipeline in pipelines.items():
-                        print(f"--> Running preprocessing on pipeline: {category_name} / {pipeline_name}")
-                        print("-"*30)
-                        summary = self._execute_preprocessing(preprocessing=pipeline.preprocessing, pipeline_name=pipeline_name)
-                        print(summary)
-                        results[category_name][pipeline_name] = summary
+            # for category_name, pipelines in self.pipeline_manager.pipelines.items():
+            #       results[category_name] = {}
+            #       for pipeline_name, pipeline in pipelines.items():
+            #             print(f"--> Running preprocessing on pipeline: {category_name} / {pipeline_name}")
+            #             print("-"*30)
+            #             summary = self._execute_preprocessing(preprocessing=pipeline.preprocessing, pipeline_name=pipeline_name)
+            #             print(summary)
+            #             results[category_name][pipeline_name] = summary
             return results

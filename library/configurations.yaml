@@ -60,7 +60,6 @@ data_preprocessing_runner:
       feed_forward_neural_network: ADASYN
       stacking: no_imbalancer
 
-
 feature_analysis_runner:
     features_to_encode: ["Reboot"]
     manual_feature_selection:
@@ -85,13 +84,22 @@ feature_analysis_runner:
         delete_features: True
 
 modelling_runner:
+    models_names_per_pipeline:
+      not_baseline: 
+        ensembled: ["Gradient Boosting", "Random Forest"]
+        tree_based: ["Decision Tree"]
+        support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
+        naive_bayes: ["Gaussian Naive Bayes"]
+        feed_forward_neural_network: ["Feed Forward Neural Network"] 
+      baseline: 
+        baselines: ["Logistic Regression (baseline)", "Majority Class (baseline)"]
     models_to_exclude:
       ensembled: ["Gradient Boosting", "Random Forest"]
       tree_based: [] # ALWAYS KEEP TREE, ITS USED AS REFERENCE FOR FEATURE SELECTION
       support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
       naive_bayes: []
       feed_forward_neural_network: [] 
-      stacking: []
+      stacking: ["Stacking"]
       baselines: ["Logistic Regression (baseline)"]
     hyperparameters:
       grid_space:
@@ -145,8 +153,6 @@ modelling_runner:
       serialize_best_performing_model: True
       models_to_serialize: []
       pipelines_to_serialize: []
-
-
 
 BOT:
   channel: "#general"
