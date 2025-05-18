@@ -1,6 +1,6 @@
 import pandas as pd
 
-PATH = "results/model_evaluation/results.csv"
+PATH = "results/model_evaluation/prior_csvs/april_15.csv"
 
 
 def add_new_metric(new_metric_name):
@@ -24,4 +24,4 @@ def add_new_metric(new_metric_name):
       df.to_csv(PATH, index=False, lineterminator=',\n')
 
 
-add_new_metric("your_great_new_metric") # Example
+add_new_metric("kappa") # Example

@@ -309,9 +309,7 @@ class PipelinesAnalysis:
             return metrics_df
       
       def plot_feature_importance(self, save_plots: bool = False, save_path: str = None):
-            """
-            This needs to be expanded by @Juan and/or @Irina currently just using feature_importances_ attribute for tree-based models
-            """
+            
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             importances_dfs = {}
             for pipeline in self.pipelines["not_baseline"]:
