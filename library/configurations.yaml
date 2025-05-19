@@ -86,11 +86,11 @@ feature_analysis_runner:
 
 modelling_runner:
     class_weights:
-      0: 3  # Adware 
+      0: 3   # Adware 
       1: 9   # Backdoor 
       2: 6   # File Infector 
       3: 3   # PUA 
-      4: 10   # Ransomware 
+      4: 10  # Ransomware 
       5: 3   # Riskware
       6: 4   # Scareware 
       7: 6   # Trojan
