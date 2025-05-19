@@ -57,7 +57,7 @@ data_preprocessing_runner:
       tree_based: ADASYN
       support_vector_machine: ADASYN
       naive_bayes: ADASYN
-      feed_forward_neural_network: ADASYN
+      feed_forward_neural_network: SMOTE #ADASYN
       stacking: no_imbalancer
 
 
@@ -97,7 +97,7 @@ modelling_runner:
       8: 6  # Trojan SMS
       9: 8  # Trojan Spy 
 
-      #      0: 3  # Adware 
+      # 0: 3  # Adware 
       #1: 9   # Backdoor 
       #2: 6   # File Infector 
       #3: 3   # PUA 
