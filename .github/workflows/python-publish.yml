@@ -29,7 +29,8 @@ jobs:
 
       - name: Build release distributions
         run: |
-          # No cd command needed - we're already in the right directory
+          cd efficient-classifier
+          ls -la # One last time lets check
           python -m build
 
       - name: Upload distributions
