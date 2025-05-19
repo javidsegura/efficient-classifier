@@ -25,7 +25,10 @@ jobs:
 
       - name: Build release distributions
         run: |
-          cd efficient-classifier  # Add this line to change to your package directory
+          cd efficient-classifier
+          # Verify files exist
+          ls -la
+          # Build the package
           python -m build
 
       - name: Upload distributions
