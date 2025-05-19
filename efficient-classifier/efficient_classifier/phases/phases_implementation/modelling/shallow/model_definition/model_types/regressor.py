@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from library.phases.phases_implementation.modelling.shallow.model_definition.model_base import Model
-from library.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.modelling.shallow.model_definition.model_base import Model
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 
 import concurrent.futures 
 

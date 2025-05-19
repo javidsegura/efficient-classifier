@@ -1,12 +1,12 @@
-from library.phases.phases_implementation.data_preprocessing.bounds_config import BOUNDS
-from library.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.data_preprocessing.bounds_config import BOUNDS
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
+from efficient_classifier.utils.miscellaneous.save_or_store_plot import save_or_store_plot
 
 
 class OutliersBounds:

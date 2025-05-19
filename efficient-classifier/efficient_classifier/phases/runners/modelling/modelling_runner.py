@@ -10,16 +10,16 @@ from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import StackingClassifier
 # Self-developed models
-from library.utils.ownModels.majorityClassModel import MajorityClassClassifier 
-from library.utils.ownModels.neuralNets.feedForward import FeedForwardNeuralNetwork
+from efficient_classifier.utils.ownModels.majorityClassModel import MajorityClassClassifier 
+from efficient_classifier.utils.ownModels.neuralNets.feedForward import FeedForwardNeuralNetwork
 
 
-from library.utils.phase_runner_definition.phase_runner import PhaseRunner
-from library.pipeline.pipeline_manager import PipelineManager
+from efficient_classifier.utils.phase_runner_definition.phase_runner import PhaseRunner
+from efficient_classifier.pipeline.pipeline_manager import PipelineManager
 
-from library.phases.runners.modelling.utils.states.modelling_runner_states_pre import PreTuningRunner
-from library.phases.runners.modelling.utils.states.modelling_runner_states_in import InTuningRunner
-from library.phases.runners.modelling.utils.states.modelling_runner_states_post import PostTuningRunner
+from efficient_classifier.phases.runners.modelling.utils.states.modelling_runner_states_pre import PreTuningRunner
+from efficient_classifier.phases.runners.modelling.utils.states.modelling_runner_states_in import InTuningRunner
+from efficient_classifier.phases.runners.modelling.utils.states.modelling_runner_states_post import PostTuningRunner
 
 class ModellingRunner(PhaseRunner):
       def __init__(self, pipeline_manager: PipelineManager, include_plots: bool = False, save_path: str = "", serialize_results: bool = False) -> None:

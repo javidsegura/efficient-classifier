@@ -1,8 +1,8 @@
-from library.phases.phases_implementation.dataset.dataset import Dataset
-from library.phases.phases_implementation.EDA.EDA import EDA
-from library.phases.phases_implementation.data_preprocessing.data_preprocessing import Preprocessing
-from library.phases.phases_implementation.feature_analysis.feature_analysis import FeatureAnalysis
-from library.phases.phases_implementation.modelling.modelling import Modelling
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.EDA.EDA import EDA
+from efficient_classifier.phases.phases_implementation.data_preprocessing.data_preprocessing import Preprocessing
+from efficient_classifier.phases.phases_implementation.feature_analysis.feature_analysis import FeatureAnalysis
+from efficient_classifier.phases.phases_implementation.modelling.modelling import Modelling
 
 # Global variables
 RANDOM_STATE = 99

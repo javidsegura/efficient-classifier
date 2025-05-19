@@ -10,15 +10,15 @@ import matplotlib.dates as mdates
 import seaborn as sns
 import time, sys
 
-from library.phases.phases_implementation.modelling.shallow.model_definition.model_base import Model
-from library.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.modelling.shallow.model_definition.model_base import Model
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 
 import yaml
 
 
 class ResultsDF:
       def __init__(self, model_results_path: str, dataset: Dataset):
-            self.variables = yaml.load(open("library/configurations.yaml"), Loader=yaml.FullLoader)
+            self.variables = yaml.load(open("efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
 
             if dataset.modelTask == "classification":
                   metrics_to_evaluate = self.variables["dataset_runner"]["metrics_to_evaluate"]["classification"]

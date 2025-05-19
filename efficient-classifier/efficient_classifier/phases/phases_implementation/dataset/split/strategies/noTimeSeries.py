@@ -11,8 +11,8 @@ import numpy as np
 import pandas as pd
 import os
 
-from library.phases.phases_implementation.dataset.split.strategies.base import Split
-from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
+from efficient_classifier.phases.phases_implementation.dataset.split.strategies.base import Split
+from efficient_classifier.utils.miscellaneous.save_or_store_plot import save_or_store_plot
 
 
 class NoTimeSeries(Split):

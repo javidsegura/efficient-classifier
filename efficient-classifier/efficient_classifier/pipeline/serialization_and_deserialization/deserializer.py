@@ -1,7 +1,7 @@
 
 
 
-from library.utils.decorators.timer import timer
+from efficient_classifier.utils.decorators.timer import timer
 
 import joblib
 import pickle

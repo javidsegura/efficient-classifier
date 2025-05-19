@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
 import time
-from library.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from library.phases.phases_implementation.modelling.shallow.model_definition.model_states.model_state import PreTuningState, PostTuningState, InTuningState
+from efficient_classifier.phases.phases_implementation.modelling.shallow.model_definition.model_states.model_state import PreTuningState, PostTuningState, InTuningState
 
 class Model(ABC):
       def __init__(self, modelName: str, model_sklearn: object, model_type: str, results_header: list[str], dataset: Dataset):

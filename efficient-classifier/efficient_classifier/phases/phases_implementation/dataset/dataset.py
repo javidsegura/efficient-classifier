@@ -19,8 +19,8 @@ from boruta import BorutaPy
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 
-from library.phases.phases_implementation.dataset.split.strategies.noTimeSeries import NoTimeSeries
-from library.phases.phases_implementation.dataset.split.strategies.timeSeries import TimeSeries
+from efficient_classifier.phases.phases_implementation.dataset.split.strategies.noTimeSeries import NoTimeSeries
+from efficient_classifier.phases.phases_implementation.dataset.split.strategies.timeSeries import TimeSeries
 
 
 # Global variables

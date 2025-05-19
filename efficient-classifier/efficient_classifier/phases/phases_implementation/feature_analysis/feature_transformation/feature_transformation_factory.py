@@ -1,5 +1,5 @@
-from library.phases.phases_implementation.dataset.dataset import Dataset
-from library.phases.phases_implementation.feature_analysis.feature_transformation.strategies.main import LogStrategy
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.feature_analysis.feature_transformation.strategies.main import LogStrategy
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 
 import pandas as pd

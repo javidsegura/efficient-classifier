@@ -1,8 +1,8 @@
 
-from library.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 from sklearn.preprocessing import PolynomialFeatures
 
-from library.phases.phases_implementation.data_preprocessing.data_preprocessing import Preprocessing
+from efficient_classifier.phases.phases_implementation.data_preprocessing.data_preprocessing import Preprocessing
 
 import pandas as pd
 

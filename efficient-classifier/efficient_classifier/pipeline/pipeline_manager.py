@@ -1,4 +1,4 @@
-from library.pipeline.pipeline import Pipeline
+from efficient_classifier.pipeline.pipeline import Pipeline
 
 from copy import deepcopy
 import concurrent.futures
@@ -6,9 +6,9 @@ import threading
 from typing import Any
 import os
 
-from library.pipeline.analysis.pipelines_analysis import PipelinesAnalysis
-from library.pipeline.serialization_and_deserialization.serializer import SerializationPickle, SerializationJoblib
-from library.pipeline.serialization_and_deserialization.deserializer import DeserializationPickle, DeserializationJoblib
+from efficient_classifier.pipeline.analysis.pipelines_analysis import PipelinesAnalysis
+from efficient_classifier.pipeline.serialization_and_deserialization.serializer import SerializationPickle, SerializationJoblib
+from efficient_classifier.pipeline.serialization_and_deserialization.deserializer import DeserializationPickle, DeserializationJoblib
 
 from dag import DAG
 

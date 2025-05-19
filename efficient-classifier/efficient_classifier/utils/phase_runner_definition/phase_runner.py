@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import os
 
-from library.pipeline.pipeline_manager import PipelineManager
+from efficient_classifier.pipeline.pipeline_manager import PipelineManager
 
 
 """ Defiens the abstarct class for phase runners """

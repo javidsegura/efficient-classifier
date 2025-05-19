@@ -1,6 +1,6 @@
 
 
-from library.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 import pandas as pd 
 
 import matplotlib.pyplot as plt

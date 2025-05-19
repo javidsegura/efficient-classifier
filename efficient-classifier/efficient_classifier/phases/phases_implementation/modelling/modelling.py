@@ -1,10 +1,10 @@
-from library.phases.phases_implementation.modelling.results_analysis.results_df import ResultsDF
-from library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier import Classifier
-from library.phases.phases_implementation.modelling.shallow.model_definition.model_types.regressor import Regressor
-from library.phases.phases_implementation.modelling.shallow.model_definition.model_base import Model
-from library.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.modelling.results_analysis.results_df import ResultsDF
+from efficient_classifier.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier import Classifier
+from efficient_classifier.phases.phases_implementation.modelling.shallow.model_definition.model_types.regressor import Regressor
+from efficient_classifier.phases.phases_implementation.modelling.shallow.model_definition.model_base import Model
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 
-from library.phases.phases_implementation.modelling.results_analysis.result_analysis import PreTuningResultAnalysis, InTuningResultAnalysis, PostTuningResultAnalysis
+from efficient_classifier.phases.phases_implementation.modelling.results_analysis.result_analysis import PreTuningResultAnalysis, InTuningResultAnalysis, PostTuningResultAnalysis
 
 import concurrent.futures
 import pandas as pd

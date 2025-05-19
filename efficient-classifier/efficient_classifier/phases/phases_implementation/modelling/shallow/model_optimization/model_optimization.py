@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from library.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 
-from library.utils.ownModels.neuralNets.utils.earlyStopping import get_early_stopping
+from efficient_classifier.utils.ownModels.neuralNets.utils.earlyStopping import get_early_stopping
 
 import pandas as pd
 import matplotlib.pyplot as plt

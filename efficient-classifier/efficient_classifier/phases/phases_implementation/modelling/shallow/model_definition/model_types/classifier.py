@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix, cohen_kappa_score
 import concurrent.futures
 
-from library.phases.phases_implementation.modelling.shallow.model_definition.model_base import Model
-from library.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.modelling.shallow.model_definition.model_base import Model
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 
 class Classifier(Model):
       def __init__(self,  modelName: str, model_sklearn: object, model_type: str, results_header: list[str], dataset: Dataset):

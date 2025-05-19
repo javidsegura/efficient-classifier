@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from library.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 import numpy as np
 import matplotlib.pyplot as plt
 

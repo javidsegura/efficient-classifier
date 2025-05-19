@@ -1,7 +1,7 @@
 import numpy as np
 
-from library.utils.phase_runner_definition.phase_runner import PhaseRunner
-from library.pipeline.pipeline_manager import PipelineManager
+from efficient_classifier.utils.phase_runner_definition.phase_runner import PhaseRunner
+from efficient_classifier.pipeline.pipeline_manager import PipelineManager
 
 class DatasetRunner(PhaseRunner):
       def __init__(self, pipeline_manager: PipelineManager, include_plots: bool = False, save_path: str = "") -> None:

@@ -1,7 +1,7 @@
 
-from library.phases.phases_implementation.dataset.dataset import Dataset
-from library.phases.phases_implementation.feature_analysis.feature_selection.automatic import AutomaticFeatureSelection
-from library.phases.phases_implementation.feature_analysis.feature_selection.manual import ManualFeatureSelection
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.feature_analysis.feature_selection.automatic import AutomaticFeatureSelection
+from efficient_classifier.phases.phases_implementation.feature_analysis.feature_selection.manual import ManualFeatureSelection
 
 class FeatureSelection:
       """

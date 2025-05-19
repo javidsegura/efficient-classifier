@@ -1,9 +1,9 @@
-from library.pipeline.pipeline import Pipeline
-from library.pipeline.analysis.neuralNets.neuralNetsPlots import NeuralNetsPlots
+from efficient_classifier.pipeline.pipeline import Pipeline
+from efficient_classifier.pipeline.analysis.neuralNets.neuralNetsPlots import NeuralNetsPlots
 
 
-from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
-from library.utils.miscellaneous.eliminate_unsued_plots import eliminate_unused_plots
+from efficient_classifier.utils.miscellaneous.save_or_store_plot import save_or_store_plot
+from efficient_classifier.utils.miscellaneous.eliminate_unsued_plots import eliminate_unused_plots
 
 import yaml
 
@@ -23,7 +23,7 @@ class PipelinesAnalysis:
             self.phase = None
             self.best_performing_model = None
             self.neural_nets_plots = None
-            self.variables = yaml.load(open("library/configurations.yaml"), Loader=yaml.FullLoader)
+            self.variables = yaml.load(open("efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
 
             # Below you can find two attributes that are used to store the results of the analysis.
             self.merged_report_per_phase = {

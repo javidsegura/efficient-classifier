@@ -1,5 +1,5 @@
 
-from library.phases.phases_implementation.dataset.split.strategies.base import Split
+from efficient_classifier.phases.phases_implementation.dataset.split.strategies.base import Split
 
 import numpy as np
 import pandas as pd 

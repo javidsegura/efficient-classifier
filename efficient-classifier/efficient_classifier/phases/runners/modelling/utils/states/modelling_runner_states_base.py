@@ -1,7 +1,7 @@
 
 from abc import ABC, abstractmethod
 
-from library.pipeline.pipeline_manager import PipelineManager
+from efficient_classifier.pipeline.pipeline_manager import PipelineManager
 
 class ModellingRunnerStates(ABC):
       """

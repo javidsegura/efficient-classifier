@@ -3,8 +3,8 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
-from library.phases.phases_implementation.dataset.dataset import Dataset
-from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.utils.miscellaneous.save_or_store_plot import save_or_store_plot
 
 
 class UncompleteData:

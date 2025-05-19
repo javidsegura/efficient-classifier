@@ -1,6 +1,6 @@
-from library.utils.phase_runner_definition.phase_runner import PhaseRunner
-from library.pipeline.pipeline_manager import PipelineManager
-from library.phases.phases_implementation.data_preprocessing.data_preprocessing import Preprocessing
+from efficient_classifier.utils.phase_runner_definition.phase_runner import PhaseRunner
+from efficient_classifier.pipeline.pipeline_manager import PipelineManager
+from efficient_classifier.phases.phases_implementation.data_preprocessing.data_preprocessing import Preprocessing
 import yaml
 from pathlib import Path
 

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
+from efficient_classifier.utils.miscellaneous.save_or_store_plot import save_or_store_plot
 import yaml
 """
 
@@ -14,7 +14,7 @@ import yaml
 class Split(ABC):
       def __init__(self, dataset) -> None:
             self.dataset = dataset
-            self.variables = yaml.load(open("library/configurations.yaml"), Loader=yaml.FullLoader)
+            self.variables = yaml.load(open("efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
       @abstractmethod
       def split_data(self,
                      y_column: str,

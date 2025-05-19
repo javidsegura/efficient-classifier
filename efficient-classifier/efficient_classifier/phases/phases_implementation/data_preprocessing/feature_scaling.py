@@ -1,15 +1,15 @@
-from library.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
-from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
+from efficient_classifier.utils.miscellaneous.save_or_store_plot import save_or_store_plot
 
 import yaml
 
 class FeatureScaling:
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
-        self.variables = yaml.load(open("library/configurations.yaml"), Loader=yaml.FullLoader)
+        self.variables = yaml.load(open("efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
 
     def scale_features(
         self,

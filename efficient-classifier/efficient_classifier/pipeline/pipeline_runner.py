@@ -9,18 +9,18 @@ import time
 import os
 
 
-from library.pipeline.pipeline import Pipeline
-from library.pipeline.pipeline_manager import PipelineManager
+from efficient_classifier.pipeline.pipeline import Pipeline
+from efficient_classifier.pipeline.pipeline_manager import PipelineManager
 
 # Runners
-from library.phases.runners.dataset_runner import DatasetRunner
-from library.phases.runners.featureAnalysis_runner import FeatureAnalysisRunner
-from library.phases.runners.dataPreprocessing_runner import DataPreprocessingRunner
-from library.phases.runners.modelling.modelling_runner import ModellingRunner
+from efficient_classifier.phases.runners.dataset_runner import DatasetRunner
+from efficient_classifier.phases.runners.featureAnalysis_runner import FeatureAnalysisRunner
+from efficient_classifier.phases.runners.dataPreprocessing_runner import DataPreprocessingRunner
+from efficient_classifier.phases.runners.modelling.modelling_runner import ModellingRunner
 
 # Utils
-from library.utils.decorators.timer import timer
-from library.phases.phases_implementation.dev_ops.slackBot.bot import SlackBot
+from efficient_classifier.utils.decorators.timer import timer
+from efficient_classifier.phases.phases_implementation.dev_ops.slackBot.bot import SlackBot
 
 import yaml
 

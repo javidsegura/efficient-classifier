@@ -1,9 +1,9 @@
 
 
-from library.phases.dataset.dataset import Dataset
-from library.phases.data_preprocessing.data_preprocessing import Preprocessing
-from library.phases.feature_analysis.feature_engineering.feature_engineering import FeatureEngineering
-from library.phases.feature_analysis.feature_selection.feature_selection import FeatureSelection
+from efficient_classifier.phases.dataset.dataset import Dataset
+from efficient_classifier.phases.data_preprocessing.data_preprocessing import Preprocessing
+from efficient_classifier.phases.feature_analysis.feature_engineering.feature_engineering import FeatureEngineering
+from efficient_classifier.phases.feature_analysis.feature_selection.feature_selection import FeatureSelection
 import pandas as pd
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
@@ -18,9 +18,9 @@ from sklearn.decomposition import PCA
 
 import matplotlib.pyplot as plt
 
-from library.phases.feature_analysis.feature_transformation.feature_transformation_factory import FeatureTransformation
+from efficient_classifier.phases.feature_analysis.feature_transformation.feature_transformation_factory import FeatureTransformation
 
-from library.phases.EDA.EDA import EDA
+from efficient_classifier.phases.EDA.EDA import EDA
 
 
 class FeatureAnalysis:

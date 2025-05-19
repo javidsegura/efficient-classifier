@@ -1,4 +1,4 @@
-from library.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 
 from sklearn.linear_model import Lasso, LogisticRegression
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier

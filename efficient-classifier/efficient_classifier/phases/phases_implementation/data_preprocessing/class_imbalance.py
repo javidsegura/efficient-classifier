@@ -1,9 +1,9 @@
-from library.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 import matplotlib.pyplot as plt
 import seaborn as sns
 from imblearn.over_sampling import SMOTE, ADASYN
 from sklearn.preprocessing import LabelEncoder
-from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
+from efficient_classifier.utils.miscellaneous.save_or_store_plot import save_or_store_plot
 class ClassImbalance:
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset

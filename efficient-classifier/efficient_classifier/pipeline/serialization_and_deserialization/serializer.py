@@ -1,9 +1,9 @@
 
 
-from library.pipeline.pipeline import Pipeline
-from library.phases.phases_implementation.modelling.shallow.model_definition.model_base import Model
+from efficient_classifier.pipeline.pipeline import Pipeline
+from efficient_classifier.phases.phases_implementation.modelling.shallow.model_definition.model_base import Model
 
-from library.utils.decorators.timer import timer
+from efficient_classifier.utils.decorators.timer import timer
 
 import joblib
 import pickle

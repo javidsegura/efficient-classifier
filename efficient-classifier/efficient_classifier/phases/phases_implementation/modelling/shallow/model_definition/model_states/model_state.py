@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import time
-from library.phases.phases_implementation.dataset.dataset import Dataset
-from library.phases.phases_implementation.modelling.shallow.model_optimization.model_optimization import Optimizer
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.modelling.shallow.model_optimization.model_optimization import Optimizer
 
-from library.utils.ownModels.neuralNets.feedForward import FeedForwardNeuralNetwork
+from efficient_classifier.utils.ownModels.neuralNets.feedForward import FeedForwardNeuralNetwork
 
-from library.utils.decorators.timer import timer
+from efficient_classifier.utils.decorators.timer import timer
 
 
 """

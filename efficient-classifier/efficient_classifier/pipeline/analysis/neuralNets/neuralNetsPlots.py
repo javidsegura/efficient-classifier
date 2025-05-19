@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import math
 
-from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
+from efficient_classifier.utils.miscellaneous.save_or_store_plot import save_or_store_plot
 
 class NeuralNetsPlots:
       def __init__(self, model_sklearn: object):

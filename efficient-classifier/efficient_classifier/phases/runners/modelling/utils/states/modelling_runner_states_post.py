@@ -1,6 +1,6 @@
 
-from library.phases.runners.modelling.utils.states.modelling_runner_states_base import ModellingRunnerStates
-from library.pipeline.pipeline_manager import PipelineManager
+from efficient_classifier.phases.runners.modelling.utils.states.modelling_runner_states_base import ModellingRunnerStates
+from efficient_classifier.pipeline.pipeline_manager import PipelineManager
 
            
 class PostTuningRunner(ModellingRunnerStates):

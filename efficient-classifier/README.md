@@ -27,6 +27,3 @@ Complete feature context and malware descriptions (In progress): https://docs.go
 First Iteration Revision: https://docs.google.com/document/d/10R3KM5mM6B9hlxaJ1DYlJZg84UExSFz1kMUTtvPc8fo/edit?usp=sharing
 
 Contributions validation process: https://docs.google.com/spreadsheets/d/1tS9fax-VACRaC3rOBaCBGlC893oibwpqQq_D2NFLN_0/edit?usp=sharing
-
-
-AM I WORKING?

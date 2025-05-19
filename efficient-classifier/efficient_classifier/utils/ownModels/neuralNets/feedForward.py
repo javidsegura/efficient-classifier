@@ -1,4 +1,4 @@
-from library.utils.ownModels.neuralNets.utils.earlyStopping import get_early_stopping
+from efficient_classifier.utils.ownModels.neuralNets.utils.earlyStopping import get_early_stopping
 
 
 import tensorflow as tf
@@ -38,7 +38,7 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
 
                   This model class also contains part of the optimizer for the model itself. This is different to scikit-learn native models.
             """
-            variables = yaml.load(open("library/configurations.yaml"), Loader=yaml.FullLoader)
+            variables = yaml.load(open("efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
             nn_config = variables["modelling_runner"]["neural_network"]["initial_architecture"]
 
             

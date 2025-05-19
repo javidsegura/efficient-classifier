@@ -3,11 +3,11 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
-from library.phases.phases_implementation.dataset.dataset import Dataset
-from library.phases.phases_implementation.data_preprocessing.uncomplete_data import UncompleteData
-from library.phases.phases_implementation.data_preprocessing.class_imbalance import ClassImbalance
-from library.phases.phases_implementation.data_preprocessing.feature_scaling import FeatureScaling
-from library.phases.phases_implementation.data_preprocessing.outliers_bounds import OutliersBounds
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.data_preprocessing.uncomplete_data import UncompleteData
+from efficient_classifier.phases.phases_implementation.data_preprocessing.class_imbalance import ClassImbalance
+from efficient_classifier.phases.phases_implementation.data_preprocessing.feature_scaling import FeatureScaling
+from efficient_classifier.phases.phases_implementation.data_preprocessing.outliers_bounds import OutliersBounds
 import random
 
 class Preprocessing:

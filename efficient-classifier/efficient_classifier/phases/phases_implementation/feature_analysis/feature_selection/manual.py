@@ -7,9 +7,9 @@ from sklearn.feature_selection import mutual_info_regression
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 
-from library.phases.phases_implementation.dataset.dataset import Dataset
-from library.phases.phases_implementation.EDA.EDA import EDA
-from library.utils.miscellaneous.save_or_store_plot import save_or_store_plot
+from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
+from efficient_classifier.phases.phases_implementation.EDA.EDA import EDA
+from efficient_classifier.utils.miscellaneous.save_or_store_plot import save_or_store_plot
 
 class ManualFeatureSelection():
       """
