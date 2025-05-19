@@ -24,7 +24,7 @@ dataset_runner:
       validation_size: 0.1
       test_size: 0.1
     metrics_to_evaluate:
-      classification: ["accuracy", "precision", "recall", "f1-score", "kappa"]
+      classification: ["accuracy", "precision", "recall", "f1-score", "kappa", "weightedaccuracy"]
       regression: ["r2", "mae", "mse"]
     
 data_preprocessing_runner:
@@ -86,14 +86,25 @@ feature_analysis_runner:
 
 modelling_runner:
     class_weights:
-      # Add here as many classes as needed, if you want default weights (balanced), leave this list EMPTY
+      0: 3   # Adware 
+      1: 9   # Backdoor 
+      2: 6   # File Infector 
+      3: 3   # PUA 
+      4: 10  # Ransomware 
+      5: 3   # Riskware
+      6: 4   # Scareware 
+      7: 6   # Trojan
+      8: 9   # Trojan Banker 
+      9: 7   # Trojan Dropper
+      10: 6  # Trojan SMS
+      11: 8  # Trojan Spy 
 
     models_to_exclude:
       ensembled: ["Gradient Boosting", "Random Forest"]
       tree_based: [] # ALWAYS KEEP TREE, ITS USED AS REFERENCE FOR FEATURE SELECTION
       support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
       naive_bayes: []
-      feed_forward_neural_network: [] 
+      feed_forward_neural_network: ["Feed Forward Neural Network"] 
       stacking: []
       baselines: ["Logistic Regression (baseline)"]
     hyperparameters:

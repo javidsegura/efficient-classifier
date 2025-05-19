@@ -572,50 +572,66 @@ class PipelinesAnalysis:
             None
             """
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
+            # Only iterate over non-baseline pipelines
+            for pipeline_name, pipeline_obj in self.pipelines.get("not_baseline", {}).items():
+                  m = pipeline_obj.modelling
+                  ds = pipeline_obj.dataset
 
-            for pipeline in self.pipelines["not_baseline"]:
-                  if pipeline not in ["ensembled", "tree_based"]:
-                        continue
-                  for modelName in self.pipelines["not_baseline"][pipeline].modelling.list_of_models:
-                        if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
+                  for model_name, model in m.list_of_models.items():
+                        # Exclude unwanted models
+                        if model_name in m.models_to_exclude:
                               continue
-                        if modelName in self.pipelines["not_baseline"][pipeline].modelling.models_to_exclude:
+                        if self.phase == "post" and model_name != self.best_performing_model["modelName"]:
                               continue
-                        model = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName]
-                        X_train = self.pipelines["not_baseline"][pipeline].dataset.X_train
-                        y_train = self.pipelines["not_baseline"][pipeline].dataset.y_train
 
-                        # Attempt to retrieve X_calib and y_calib; if not present, perform train_test_split
-                        X_calib = getattr(self.pipelines["not_baseline"][pipeline].dataset, 'X_calib', None)
-                        y_calib = getattr(self.pipelines["not_baseline"][pipeline].dataset, 'y_calib', None)
-
+                        # Grab train + (optional) calib splits
+                        X_train, y_train = ds.X_train, ds.y_train
+                        X_calib = getattr(ds, "X_calib", None)
+                        y_calib = getattr(ds, "y_calib", None)
                         if X_calib is None or y_calib is None:
-                              X_train, X_calib, y_train, y_calib = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
+                              X_train, X_calib, y_train, y_calib = train_test_split(
+                                    X_train, y_train, test_size=0.2, random_state=42
+                              )
 
-                        # Calibrate the model
-                        calibrated_model = CalibratedClassifierCV(estimator=model, method='sigmoid', cv=3)
-                        calibrated_model.fit(X_train, y_train)
-                        y_probs = calibrated_model.predict_proba(X_calib)
+                        # Ensure predict_proba exists
+                        if not hasattr(model, "predict_proba"):
+                              raise RuntimeError(f"Model {model_name!r} has no predict_proba—cannot plot reliability.")
 
+                        # Get raw probabilities on calibration set
+                        y_probs = model.predict_proba(X_calib)
+
+                        # Plot one curve per class
                         n_classes = y_probs.shape[1]
-                        class_labels = getattr(self.pipelines["not_baseline"][pipeline].dataset, 'class_labels', list(range(n_classes)))
+
+                        class_labels = getattr(ds, "class_labels", list(range(n_classes)))
+
 
                         fig, ax = plt.subplots(figsize=(8, 6))
                         for i in range(n_classes):
                               y_true_bin = (y_calib == i).astype(int)
                               prob_true, prob_pred = calibration_curve(y_true_bin, y_probs[:, i], n_bins=10)
-                              ax.plot(prob_pred, prob_true, marker='o', label=f"Class {class_labels[i]}")
+                              ax.plot(prob_pred, prob_true, marker="o", label=f"Class {class_labels[i]}")
 
-                        ax.plot([0, 1], [0, 1], linestyle='--', color='gray', label='Perfectly Calibrated')
+                        ax.plot([0, 1], [0, 1], linestyle="--", color="gray", label="Perfectly Calibrated")
                         ax.set_xlabel("Mean Predicted Probability")
                         ax.set_ylabel("True Fraction of Positives")
+
+                        ax.set_title(f"Reliability Diagram — {model_name} ({pipeline_name}) — {self.phase}")
                         ax.legend(loc="best")
                         ax.grid(True)
 
-                        plt.tight_layout()
-                        plt.suptitle(f"Reliability Diagram - {modelName} ({pipeline}) - {self.phase} phase", fontsize=14)
                         plt.tight_layout(rect=[0, 0, 1, 0.96])
-                        save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/model_performance", filename=f"reliability_diagram_{self.phase}.png")
+
+                        # Build output directory and filename
+                        if save_path:
+                              out_dir = os.path.join(save_path, self.phase, "model_calibration")
+                        else:
+                              out_dir = None
+                        filename = f"model_calibration_{model_name}_{self.phase}.png"
+
+                        save_or_store_plot(fig, save_plots, directory_path=out_dir, filename=filename)
+                        plt.close(fig)
+
             return None
 
       def plot_confusion_matrix(self, save_plots: bool = False, save_path: str = None):
