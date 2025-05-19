@@ -1,11 +1,30 @@
 import setuptools 
+import os
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-# Read requirements from requirements.txt
-with open("requirements.txt", "r", encoding="utf-8") as fh:
-    requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
+# Default requirements in case requirements.txt is not found
+default_requirements = [
+    "numpy>=2.0.0",
+    "pandas>=2.0.0",
+    "scikit-learn>=1.0.0",
+    "matplotlib>=3.0.0",
+    "seaborn>=0.11.0",
+    "tensorflow>=2.0.0",
+    "torch>=1.0.0",
+    "scipy>=1.0.0",
+    "slack_bolt>=1.0.0",
+    "slack_sdk>=3.0.0",
+    "joblib>=1.0.0"
+]
+
+# Try to read requirements from requirements.txt
+if os.path.exists("requirements.txt"):
+    with open("requirements.txt", "r", encoding="utf-8") as fh:
+        requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
+else:
+    requirements = default_requirements
 
 setuptools.setup(
     name="efficient-classifier",
@@ -23,6 +42,7 @@ setuptools.setup(
             "configurations.yaml"  
         ]
     },
+    include_package_data=True,
     install_requires=requirements,
     classifiers=[
         "Development Status :: 5 - Production/Stable",

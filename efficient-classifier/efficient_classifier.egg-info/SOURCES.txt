@@ -1,7 +1,0 @@
-README.md
-setup.py
-efficient_classifier.egg-info/PKG-INFO
-efficient_classifier.egg-info/SOURCES.txt
-efficient_classifier.egg-info/dependency_links.txt
-efficient_classifier.egg-info/requires.txt
-efficient_classifier.egg-info/top_level.txt
