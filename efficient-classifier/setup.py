@@ -28,7 +28,7 @@ else:
 
 setuptools.setup(
     name="efficient-classifier",
-    version="1.0.0",
+    version="1.0.1",
     author="Javier D. Segura",
     author_email="javier.dominguez.segura@gmail.com",
     description="A library for shallow and deep classifiers. Shows pipeline DAG, communicates with SlackBot stores results in database",
