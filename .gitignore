@@ -12,3 +12,4 @@ results/bayes_opt_results/*
 .env
 main.ipynb
 notebook.ipynb
+ml_venv

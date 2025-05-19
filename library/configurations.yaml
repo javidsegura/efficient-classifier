@@ -53,11 +53,11 @@ data_preprocessing_runner:
       stacking: robust
     imbalancer:
       baselines: ADASYN
-      ensembled: ADASYN # We dont want to balance the classes for ensembled models
+      ensembled: ADASYN #ADASYN # We dont want to balance the classes for ensembled models
       tree_based: ADASYN
       support_vector_machine: ADASYN
       naive_bayes: ADASYN
-      feed_forward_neural_network: ADASYN
+      feed_forward_neural_network: SMOTE #ADASYN
       stacking: no_imbalancer
 
 
@@ -65,46 +65,57 @@ feature_analysis_runner:
     features_to_encode: ["Reboot"]
     manual_feature_selection:
       mutual_information:
-        threshold: 0.2
+        threshold: 0.1
         delete_features: True
       low_variances:
-        threshold: 0.01
+        threshold: 0.3
         delete_features: True
       vif:
-        threshold: 10
+        threshold: 15
         delete_features: True
       pca:
-        threshold: 0.95
+        threshold: 0.99
         delete_features: True
     automatic_feature_selection:
       l1:
         max_iter: 1000
         delete_features: True
       boruta:
-        max_iter: 10
+        max_iter: 5
         delete_features: True
 
 modelling_runner:
     class_weights:
-      0: 3  # Adware 
-      1: 9   # Backdoor 
-      2: 6   # File Infector 
-      3: 3   # PUA 
-      4: 10   # Ransomware 
-      5: 3   # Riskware
-      6: 4   # Scareware 
-      7: 6   # Trojan
-      8: 9   # Trojan Banker 
-      9: 7   # Trojan Dropper
-      10: 6  # Trojan SMS
-      11: 8  # Trojan Spy 
+      0: 9   # Backdoor 
+      1: 6   # File Infector 
+      2: 3   # PUA 
+      3: 10   # Ransomware 
+      4: 6   # Riskware
+      5: 4   # Scareware 
+      6: 9   # Trojan Banker 
+      7: 7   # Trojan Dropper
+      8: 6  # Trojan SMS
+      9: 8  # Trojan Spy 
+
+      # 0: 3  # Adware 
+      #1: 9   # Backdoor 
+      #2: 6   # File Infector 
+      #3: 3   # PUA 
+      #4: 10   # Ransomware 
+      #5: 6   # Riskware
+      #6: 4   # Scareware 
+      #7: 6   # Trojan
+      #8: 9   # Trojan Banker 
+      #9: 7   # Trojan Dropper
+      #10: 6  # Trojan SMS
+      #11: 8  # Trojan Spy 
 
     models_to_exclude:
-      ensembled: ["Gradient Boosting", "Random Forest"]
+      ensembled: ["Gradient Boosting"]
       tree_based: [] # ALWAYS KEEP TREE, ITS USED AS REFERENCE FOR FEATURE SELECTION
       support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
-      naive_bayes: []
-      feed_forward_neural_network: ["Feed Forward Neural Network"] 
+      naive_bayes: [] #"Naive Bayes"
+      feed_forward_neural_network: [] #"Feed Forward Neural Network"
       stacking: []
       baselines: ["Logistic Regression (baseline)"]
     hyperparameters:
@@ -116,11 +127,13 @@ modelling_runner:
           max_depth: [10, 20, 30]
           min_samples_split: [2, 5, 10]
           min_samples_leaf: [1, 2, 4]
+
         random_forest:
           n_estimators: [50, 100, 150, 200]
           max_depth: [10, 20, 30]
           min_samples_split: [2, 5, 10]
           min_samples_leaf: [1, 2, 4]
+
         decision_tree:
           criterion: ['gini', 'entropy']
           max_depth: [10, 20, 30]
@@ -128,22 +141,24 @@ modelling_runner:
           min_samples_leaf: [1, 2, 5]
           max_features: ['sqrt', 'log2']
           ccp_alpha: [0.0, 0.01, 0.1]
+          
         stacking:
           final_estimator__C: [0.001, 0.01, 0.1, 1, 10]
           final_estimator__penalty: ['l2']
           final_estimator__solver: ['lbfgs']
           passthrough: [True, False]
+
       tuner_params:
         max_iter: 1 # CHANGE THIS TO MAKE IT RUN FASTER 
         epochs: 1 # CHANGE THIS TO MAKE IT RUN FASTER 
     neural_network:
        initial_architecture:
-          batch_size: 128
-          epochs: 1 # CHANGE THIS TO MAKE IT RUN FASTER 
-          n_layers: 4
-          units_per_layer: [512, 256, 128, 64]
+          batch_size: 32
+          epochs: 40 # CHANGE THIS TO MAKE IT RUN FASTER 
+          n_layers: 3
+          units_per_layer: [256, 256, 256]
           learning_rate: 0.001
-          activations: ['relu', 'relu', 'relu', 'relu']
+          activations: ['relu', 'relu', 'relu']
           kernel_initializer: 'glorot_uniform'
     model_assesment:
       comments: "UPDATED KAPPA NAME IN THE CSV, ONE SECOND TIME"
