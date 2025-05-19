@@ -18,7 +18,27 @@ class FeatureEngineering:
                                          standarize: bool = False, 
                                          scaler: str = "standard"):
         """
-        Computes the polynomial interaction effects of the features.
+        Generates polynomial and interaction features for the dataset.
+        
+        Parameters
+        ----------
+        degree : int, optional (default=2)
+            The degree of the polynomial features.
+        interaction_only : bool, optional (default=False)
+            If True, only interaction features are produced: features that are products of 
+            at most `degree` distinct input features, without powers of single features.
+        standarize : bool, optional (default=False)
+            Whether to standardize the resulting features after transformation.
+        scaler : str, optional (default="standard")
+            Type of scaler to use if `standarize` is True (e.g., "standard" for StandardScaler).
+        
+        Returns
+        -------
+        None.  
+        Transforms the training, validation, and test feature sets by adding polynomial and interaction terms,
+        and optionally scales these new features. Updates the dataset's feature DataFrames in place.
+        
+        Prints the number of new features added.
         """
         original_number_of_features = self.dataset.X_train.shape[1]
         pol_obj = PolynomialFeatures(degree=degree, interaction_only=interaction_only)

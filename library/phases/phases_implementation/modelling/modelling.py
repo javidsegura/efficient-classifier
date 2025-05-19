@@ -36,8 +36,30 @@ class Modelling:
       # 1) Adding models
       def add_model(self, model_name: str, model_sklearn: object, model_type: str = "classical"): 
             """
-            Warning: as soon you add a model you cant modify the dataset 
-            
+            Adds a new model to the list of models.
+
+            Parameters
+            ----------
+            model_name : str
+            The name to assign to the new model.
+
+            model_sklearn : object
+            The sklearn model object to be added.
+
+            model_type : str, optional (default="classical")
+            The type of model being added. Must be one of:
+            - "classical"
+            - "neural_network"
+            - "stacking"
+
+            Notes
+            -----
+            Once a model is added, the dataset cannot be modified.
+
+            Raises
+            ------
+            AssertionError
+            If `model_type` is not one of the accepted values.
             """
             assert model_type in ["classical", "neural_network", "stacking"]
             new_model = None
@@ -50,6 +72,23 @@ class Modelling:
       
       # 2) Fitting, predicting and optimizing models
       def _fit_and_predict(self, modelName, modelObject: Model, current_phase: str):
+            """
+            Fits the model and generates predictions for the specified phase.
+
+            Parameters
+            ----------
+            modelName : str
+                  The name of the model being fitted and predicted.
+            modelObject : Model
+                  The model object to fit and predict.
+            current_phase : str
+                  The current phase of the workflow (e.g., "pre", "in", or "post").
+
+            Returns
+            -------
+            tuple
+                  A tuple containing the model name and the fitted model object.
+            """
             modelObject.fit(modelName=modelName, current_phase=current_phase)
             modelObject.predict(modelName=modelName, current_phase=current_phase)
             print(f"Fitted and predicted model {modelName}")
@@ -60,6 +99,29 @@ class Modelling:
                           modelObject: Model, 
                           current_phase: str,
                           optimization_params: dict):
+            """
+            Optimizes the specified model during the 'in' phase using provided parameters.
+
+            Parameters
+            ----------
+            modelName : str
+                  The name of the model to optimize.
+            modelObject : Model
+                  The model object to be optimized.
+            current_phase : str
+                  The current phase of the workflow; must be "in" for optimization.
+            optimization_params : dict
+                  A dictionary containing optimization parameters, such as:
+                  - "optimizer_type": type of optimizer to use.
+                  - "param_grid": parameter grid for hyperparameter tuning.
+                  - "max_iter": maximum iterations for the optimizer.
+                  - "epochs" (optional): number of epochs (only for neural networks).
+
+            Returns
+            -------
+            tuple
+            A tuple containing the model name and the optimized model object.
+            """
             assert current_phase == "in", "Optimize model can only be used in the 'in' phase"
             modelObject.optimizer_type = optimization_params["optimizer_type"]
 
@@ -87,8 +149,19 @@ class Modelling:
 
       def fit_models(self, current_phase: str, **kwargs):
             """
-            Note: for the in phase, we need to optimize the models in parallel except for the bayes_nn models, which we need to optimize sequentially (keras-specific reasons).
-            
+            Fits or optimizes models depending on the current phase.
+
+            Parameters
+            ----------
+            current_phase : str
+                  Phase of operation: "pre", "in", or "post".
+            kwargs : dict
+                  Additional arguments for optimization or fitting (e.g., modelNameToOptimizer).
+
+            Notes
+            -----
+            - Models are optimized in parallel, except "bayes_nn" models which run sequentially.
+            - Returns optimized models dictionary during the "in" phase, else None.
             """
             assert current_phase in ["pre", "in", "post"], "Current phase must be one of the tuning states"
             print(f"Gonna start fitting models in {current_phase} phase")
