@@ -44,14 +44,36 @@ This design pattern allows for two classes to be able to share data (e.g: datase
 <dl class="py method">
 <dt class="sig sig-object py" id="library.phases.phases_implementation.EDA.EDA.EDA.barplot_bivariate">
 <span class="sig-name descname"><span class="pre">barplot_bivariate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/library/phases/phases_implementation/EDA/EDA.html#EDA.barplot_bivariate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#library.phases.phases_implementation.EDA.EDA.EDA.barplot_bivariate" title="Link to this definition">¶</a></dt>
-<dd><p>Plots the bar plot of a feature against the target with maximized x-axis ticks
-and stretched figure size.</p>
+<dd><p>Plots bar plots for each specified feature against the target variable.</p>
+<p>The function adjusts the figure size for better visibility and optimizes the x-axis ticks,
+including handling interval-type features by converting them to strings.
+Plots are arranged in a grid layout based on the specified number of columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<em>list</em><em> of </em><em>str</em>) – List of feature names to plot on the x-axis.</p></li>
+<li><p><strong>target</strong> (<em>str</em>) – The target variable name to plot on the y-axis.</p></li>
+<li><p><strong>n_cols</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default=3</em><em>)</em>) – Number of columns in the subplot grid.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="library.phases.phases_implementation.EDA.EDA.EDA.count_boxplot_descriptive">
 <span class="sig-name descname"><span class="pre">count_boxplot_descriptive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/library/phases/phases_implementation/EDA/EDA.html#EDA.count_boxplot_descriptive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#library.phases.phases_implementation.EDA.EDA.EDA.count_boxplot_descriptive" title="Link to this definition">¶</a></dt>
-<dd><p>Plots the count and boxplot of a feature</p>
+<dd><p>Plots the distribution histogram, boxplot, and descriptive statistics summary for each specified feature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>features</strong> (<em>list</em><em> of </em><em>str</em>) – List of feature names to analyze and plot.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -64,7 +86,18 @@ and stretched figure size.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="library.phases.phases_implementation.EDA.EDA.EDA.plot_categorical_distributions">
 <span class="sig-name descname"><span class="pre">plot_categorical_distributions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/library/phases/phases_implementation/EDA/EDA.html#EDA.plot_categorical_distributions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#library.phases.phases_implementation.EDA.EDA.EDA.plot_categorical_distributions" title="Link to this definition">¶</a></dt>
-<dd><p>Plots the distribution of categorical features using count plots</p>
+<dd><p>Plots the distributions of specified categorical features as count plots.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<em>list</em><em> of </em><em>str</em>) – List of categorical feature names to plot.</p></li>
+<li><p><strong>n_cols</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of columns for the subplot grid. Default is 2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -84,8 +117,21 @@ and stretched figure size.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="library.phases.phases_implementation.EDA.EDA.EDA.scatterplot_bivariate">
 <span class="sig-name descname"><span class="pre">scatterplot_bivariate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/library/phases/phases_implementation/EDA/EDA.html#EDA.scatterplot_bivariate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#library.phases.phases_implementation.EDA.EDA.EDA.scatterplot_bivariate" title="Link to this definition">¶</a></dt>
-<dd><p>Plots the line plot of a feature against the target with maximized x-axis ticks
-and stretched figure size.</p>
+<dd><p>Plots line plots for each specified feature against the target variable.</p>
+<p>The plots have an expanded figure size and enhanced x-axis ticks for better readability.
+If multiple features are provided, plots are arranged in a grid with the specified number of columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<em>list</em><em> of </em><em>str</em>) – List of feature names to plot on the x-axis.</p></li>
+<li><p><strong>target</strong> (<em>str</em>) – The target variable name to plot on the y-axis.</p></li>
+<li><p><strong>n_cols</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default=3</em><em>)</em>) – Number of columns in the subplot grid.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

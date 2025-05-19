@@ -55,7 +55,27 @@
                                          <span class="n">standarize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
                                          <span class="n">scaler</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;standard&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Computes the polynomial interaction effects of the features.</span>
+<span class="sd">        Generates polynomial and interaction features for the dataset.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        degree : int, optional (default=2)</span>
+<span class="sd">            The degree of the polynomial features.</span>
+<span class="sd">        interaction_only : bool, optional (default=False)</span>
+<span class="sd">            If True, only interaction features are produced: features that are products of </span>
+<span class="sd">            at most `degree` distinct input features, without powers of single features.</span>
+<span class="sd">        standarize : bool, optional (default=False)</span>
+<span class="sd">            Whether to standardize the resulting features after transformation.</span>
+<span class="sd">        scaler : str, optional (default=&quot;standard&quot;)</span>
+<span class="sd">            Type of scaler to use if `standarize` is True (e.g., &quot;standard&quot; for StandardScaler).</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None.  </span>
+<span class="sd">        Transforms the training, validation, and test feature sets by adding polynomial and interaction terms,</span>
+<span class="sd">        and optionally scales these new features. Updates the dataset&#39;s feature DataFrames in place.</span>
+<span class="sd">        </span>
+<span class="sd">        Prints the number of new features added.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">original_number_of_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">pol_obj</span> <span class="o">=</span> <span class="n">PolynomialFeatures</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="n">degree</span><span class="p">,</span> <span class="n">interaction_only</span><span class="o">=</span><span class="n">interaction_only</span><span class="p">)</span>

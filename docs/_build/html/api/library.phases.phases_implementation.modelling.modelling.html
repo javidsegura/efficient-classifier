@@ -42,7 +42,32 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="library.phases.phases_implementation.modelling.modelling.Modelling.add_model">
 <span class="sig-name descname"><span class="pre">add_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_sklearn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'classical'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/library/phases/phases_implementation/modelling/modelling.html#Modelling.add_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#library.phases.phases_implementation.modelling.modelling.Modelling.add_model" title="Link to this definition">¶</a></dt>
-<dd><p>Warning: as soon you add a model you cant modify the dataset</p>
+<dd><p>Adds a new model to the list of models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>model.</strong> (<em>The name to assign to the new</em>)</p></li>
+<li><p><strong>model_sklearn</strong> (<em>object</em>)</p></li>
+<li><p><strong>added.</strong> (<em>The sklearn model object to be</em>)</p></li>
+<li><p><strong>model_type</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default=&quot;classical&quot;</em><em>)</em>)</p></li>
+<li><p><strong>of</strong> (<em>The type</em><em> of </em><em>model being added. Must be one</em>)</p></li>
+<li><p><strong>&quot;classical&quot;</strong> (<em>-</em>)</p></li>
+<li><p><strong>&quot;neural_network&quot;</strong> (<em>-</em>)</p></li>
+<li><p><strong>&quot;stacking&quot;</strong> (<em>-</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Once a model is added, the dataset cannot be modified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>AssertionError</strong> – </p></li>
+<li><p><strong>If model_type is not one</strong><strong> of </strong><strong>the accepted values.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -69,7 +94,20 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="library.phases.phases_implementation.modelling.modelling.Modelling.fit_models">
 <span class="sig-name descname"><span class="pre">fit_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/library/phases/phases_implementation/modelling/modelling.html#Modelling.fit_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#library.phases.phases_implementation.modelling.modelling.Modelling.fit_models" title="Link to this definition">¶</a></dt>
-<dd><p>Note: for the in phase, we need to optimize the models in parallel except for the bayes_nn models, which we need to optimize sequentially (keras-specific reasons).</p>
+<dd><p>Fits or optimizes models depending on the current phase.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>current_phase</strong> (<em>str</em>) – Phase of operation: “pre”, “in”, or “post”.</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Additional arguments for optimization or fitting (e.g., modelNameToOptimizer).</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Models are optimized in parallel, except “bayes_nn” models which run sequentially.</p></li>
+<li><p>Returns optimized models dictionary during the “in” phase, else None.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py property">

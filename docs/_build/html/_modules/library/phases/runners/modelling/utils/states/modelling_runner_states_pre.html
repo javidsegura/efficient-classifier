@@ -85,10 +85,22 @@
                                                                                                           <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_path</span><span class="p">)</span>
 
             <span class="c1"># Feature importance</span>
-            <span class="n">importances_dfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines_analysis</span><span class="o">.</span><span class="n">plot_feature_importance</span><span class="p">(</span><span class="n">save_plots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_plots</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines_analysis</span><span class="o">.</span><span class="n">plot_feature_importance</span><span class="p">(</span><span class="n">save_plots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_plots</span><span class="p">,</span>
+                                                                                                <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_path</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DONE&quot;</span><span class="p">)</span>
+
+            <span class="c1"># LIME</span>
+            <span class="n">lime_importances_dfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines_analysis</span><span class="o">.</span><span class="n">lime_feature_importance</span><span class="p">(</span><span class="n">save_plots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_plots</span><span class="p">,</span>
+                                                                                                <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_path</span><span class="p">)</span> 
+            
+            <span class="c1"># # Reliability diagram</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CALIBRATION&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_manager</span><span class="o">.</span><span class="n">pipelines_analysis</span><span class="o">.</span><span class="n">plot_multiclass_reliability_diagram</span><span class="p">(</span><span class="n">save_plots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_plots</span><span class="p">,</span>
                                                                                                 <span class="n">save_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_path</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">metrics_df</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">residuals</span><span class="p">,</span> <span class="n">confusion_matrices</span><span class="p">,</span> <span class="n">importances_dfs</span>
+
+
+            <span class="k">return</span> <span class="n">metrics_df</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">residuals</span><span class="p">,</span> <span class="n">confusion_matrices</span><span class="p">,</span> <span class="n">lime_importances_dfs</span>
 
       <span class="k">def</span><span class="w"> </span><span class="nf">_set_up_stacking_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>

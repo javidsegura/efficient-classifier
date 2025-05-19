@@ -42,6 +42,38 @@
 <span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modelName</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/library/phases/phases_implementation/modelling/shallow/model_definition/model_types/classifier.html#Classifier.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.Classifier.evaluate" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.Classifier.predict_default">
+<span class="sig-name descname"><span class="pre">predict_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/library/phases/phases_implementation/modelling/shallow/model_definition/model_types/classifier.html#Classifier.predict_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.Classifier.predict_default" title="Link to this definition">¶</a></dt>
+<dd><p>Sklearn-compatible predict method (for LIME, cross_val_score, etc.).
+Uses the trained model directly.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.Classifier.predict_proba">
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/library/phases/phases_implementation/modelling/shallow/model_definition/model_types/classifier.html#Classifier.predict_proba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.Classifier.predict_proba" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.Classifier.score">
+<span class="sig-name descname"><span class="pre">score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/library/phases/phases_implementation/modelling/shallow/model_definition/model_types/classifier.html#Classifier.score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.Classifier.score" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the accuracy score of the model on the given data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array-like</em>) – Feature matrix.</p></li>
+<li><p><strong>y</strong> (<em>array-like</em>) – True labels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Accuracy score.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>

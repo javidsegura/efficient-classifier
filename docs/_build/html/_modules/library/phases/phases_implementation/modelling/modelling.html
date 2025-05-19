@@ -73,8 +73,30 @@
 <a class="viewcode-back" href="../../../../../api/library.phases.phases_implementation.modelling.modelling.html#library.phases.phases_implementation.modelling.modelling.Modelling.add_model">[docs]</a>
       <span class="k">def</span><span class="w"> </span><span class="nf">add_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_sklearn</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;classical&quot;</span><span class="p">):</span> 
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Warning: as soon you add a model you cant modify the dataset </span>
-<span class="sd">            </span>
+<span class="sd">            Adds a new model to the list of models.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            model_name : str</span>
+<span class="sd">            The name to assign to the new model.</span>
+
+<span class="sd">            model_sklearn : object</span>
+<span class="sd">            The sklearn model object to be added.</span>
+
+<span class="sd">            model_type : str, optional (default=&quot;classical&quot;)</span>
+<span class="sd">            The type of model being added. Must be one of:</span>
+<span class="sd">            - &quot;classical&quot;</span>
+<span class="sd">            - &quot;neural_network&quot;</span>
+<span class="sd">            - &quot;stacking&quot;</span>
+
+<span class="sd">            Notes</span>
+<span class="sd">            -----</span>
+<span class="sd">            Once a model is added, the dataset cannot be modified.</span>
+
+<span class="sd">            Raises</span>
+<span class="sd">            ------</span>
+<span class="sd">            AssertionError</span>
+<span class="sd">            If `model_type` is not one of the accepted values.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">assert</span> <span class="n">model_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;classical&quot;</span><span class="p">,</span> <span class="s2">&quot;neural_network&quot;</span><span class="p">,</span> <span class="s2">&quot;stacking&quot;</span><span class="p">]</span>
             <span class="n">new_model</span> <span class="o">=</span> <span class="kc">None</span>
@@ -88,6 +110,23 @@
       
       <span class="c1"># 2) Fitting, predicting and optimizing models</span>
       <span class="k">def</span><span class="w"> </span><span class="nf">_fit_and_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modelName</span><span class="p">,</span> <span class="n">modelObject</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span> <span class="n">current_phase</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Fits the model and generates predictions for the specified phase.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            modelName : str</span>
+<span class="sd">                  The name of the model being fitted and predicted.</span>
+<span class="sd">            modelObject : Model</span>
+<span class="sd">                  The model object to fit and predict.</span>
+<span class="sd">            current_phase : str</span>
+<span class="sd">                  The current phase of the workflow (e.g., &quot;pre&quot;, &quot;in&quot;, or &quot;post&quot;).</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            tuple</span>
+<span class="sd">                  A tuple containing the model name and the fitted model object.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">modelObject</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">modelName</span><span class="o">=</span><span class="n">modelName</span><span class="p">,</span> <span class="n">current_phase</span><span class="o">=</span><span class="n">current_phase</span><span class="p">)</span>
             <span class="n">modelObject</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">modelName</span><span class="o">=</span><span class="n">modelName</span><span class="p">,</span> <span class="n">current_phase</span><span class="o">=</span><span class="n">current_phase</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fitted and predicted model </span><span class="si">{</span><span class="n">modelName</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -98,6 +137,29 @@
                           <span class="n">modelObject</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span> 
                           <span class="n">current_phase</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                           <span class="n">optimization_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Optimizes the specified model during the &#39;in&#39; phase using provided parameters.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            modelName : str</span>
+<span class="sd">                  The name of the model to optimize.</span>
+<span class="sd">            modelObject : Model</span>
+<span class="sd">                  The model object to be optimized.</span>
+<span class="sd">            current_phase : str</span>
+<span class="sd">                  The current phase of the workflow; must be &quot;in&quot; for optimization.</span>
+<span class="sd">            optimization_params : dict</span>
+<span class="sd">                  A dictionary containing optimization parameters, such as:</span>
+<span class="sd">                  - &quot;optimizer_type&quot;: type of optimizer to use.</span>
+<span class="sd">                  - &quot;param_grid&quot;: parameter grid for hyperparameter tuning.</span>
+<span class="sd">                  - &quot;max_iter&quot;: maximum iterations for the optimizer.</span>
+<span class="sd">                  - &quot;epochs&quot; (optional): number of epochs (only for neural networks).</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            tuple</span>
+<span class="sd">            A tuple containing the model name and the optimized model object.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">assert</span> <span class="n">current_phase</span> <span class="o">==</span> <span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="s2">&quot;Optimize model can only be used in the &#39;in&#39; phase&quot;</span>
             <span class="n">modelObject</span><span class="o">.</span><span class="n">optimizer_type</span> <span class="o">=</span> <span class="n">optimization_params</span><span class="p">[</span><span class="s2">&quot;optimizer_type&quot;</span><span class="p">]</span>
 
@@ -127,8 +189,19 @@
 <a class="viewcode-back" href="../../../../../api/library.phases.phases_implementation.modelling.modelling.html#library.phases.phases_implementation.modelling.modelling.Modelling.fit_models">[docs]</a>
       <span class="k">def</span><span class="w"> </span><span class="nf">fit_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_phase</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Note: for the in phase, we need to optimize the models in parallel except for the bayes_nn models, which we need to optimize sequentially (keras-specific reasons).</span>
-<span class="sd">            </span>
+<span class="sd">            Fits or optimizes models depending on the current phase.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            current_phase : str</span>
+<span class="sd">                  Phase of operation: &quot;pre&quot;, &quot;in&quot;, or &quot;post&quot;.</span>
+<span class="sd">            kwargs : dict</span>
+<span class="sd">                  Additional arguments for optimization or fitting (e.g., modelNameToOptimizer).</span>
+
+<span class="sd">            Notes</span>
+<span class="sd">            -----</span>
+<span class="sd">            - Models are optimized in parallel, except &quot;bayes_nn&quot; models which run sequentially.</span>
+<span class="sd">            - Returns optimized models dictionary during the &quot;in&quot; phase, else None.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">assert</span> <span class="n">current_phase</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;pre&quot;</span><span class="p">,</span> <span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="s2">&quot;post&quot;</span><span class="p">],</span> <span class="s2">&quot;Current phase must be one of the tuning states&quot;</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gonna start fitting models in </span><span class="si">{</span><span class="n">current_phase</span><span class="si">}</span><span class="s2"> phase&quot;</span><span class="p">)</span>

@@ -82,9 +82,9 @@
                         <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
                         <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
       
-<div class="viewcode-block" id="ResultsDF.check_header_consitency">
-<a class="viewcode-back" href="../../../../../../api/library.phases.phases_implementation.modelling.results_analysis.results_df.html#library.phases.phases_implementation.modelling.results_analysis.results_df.ResultsDF.check_header_consitency">[docs]</a>
-      <span class="k">def</span><span class="w"> </span><span class="nf">check_header_consitency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="ResultsDF.check_header_consistency">
+<a class="viewcode-back" href="../../../../../../api/library.phases.phases_implementation.modelling.results_analysis.results_df.html#library.phases.phases_implementation.modelling.results_analysis.results_df.ResultsDF.check_header_consistency">[docs]</a>
+      <span class="k">def</span><span class="w"> </span><span class="nf">check_header_consistency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c1"># Temporary copy for the check</span>
             <span class="n">header_cols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
             <span class="n">metadata_cols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -108,9 +108,9 @@
                   <span class="c1"># Extracting the metadata from the assesment</span>
                   <span class="n">using_validation_set</span> <span class="o">=</span> <span class="n">current_phase</span> <span class="o">==</span> <span class="s2">&quot;pre&quot;</span> <span class="ow">or</span> <span class="n">current_phase</span> <span class="o">==</span> <span class="s2">&quot;in&quot;</span>
                   <span class="n">metadata</span> <span class="o">=</span> <span class="n">modelObject</span><span class="o">.</span><span class="n">tuning_states</span><span class="p">[</span><span class="n">current_phase</span><span class="p">]</span><span class="o">.</span><span class="n">assesment</span>
-                  
-                  <span class="bp">self</span><span class="o">.</span><span class="n">check_header_consitency</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
-            
+
+                  <span class="bp">self</span><span class="o">.</span><span class="n">check_header_consistency</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+
                   <span class="c1"># Extracting the model_log</span>
                   <span class="n">model_sklearn</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;model_sklearn&quot;</span><span class="p">]</span>      
                   <span class="n">model_log</span> <span class="o">=</span> <span class="p">{</span>

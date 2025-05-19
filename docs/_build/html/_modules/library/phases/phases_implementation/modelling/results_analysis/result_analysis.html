@@ -52,6 +52,26 @@
 <div class="viewcode-block" id="ResultAnalysis.plot_multiple_model_metrics">
 <a class="viewcode-back" href="../../../../../../api/library.phases.phases_implementation.modelling.results_analysis.result_analysis.html#library.phases.phases_implementation.modelling.results_analysis.result_analysis.ResultAnalysis.plot_multiple_model_metrics">[docs]</a>
       <span class="k">def</span><span class="w"> </span><span class="nf">plot_multiple_model_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_list</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Plots bar charts of multiple performance metrics across different models.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            feature_list : list of str</span>
+<span class="sd">            List of metric names (features) to plot.</span>
+
+<span class="sd">            Behavior</span>
+<span class="sd">            --------</span>
+<span class="sd">            - Creates a grid of bar plots with 2 columns, adjusting rows as needed.</span>
+<span class="sd">            - Each subplot shows the metric values for each model from `phase_results_df`.</span>
+<span class="sd">            - Bars are annotated with their numeric values.</span>
+<span class="sd">            - Unused subplots are removed for a cleaner layout.</span>
+<span class="sd">            - X-axis labels are rotated for better readability.</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            None</span>
+<span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">num_features</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_list</span><span class="p">)</span>
             <span class="n">cols</span> <span class="o">=</span> <span class="mi">2</span>
             <span class="n">rows</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">num_features</span> <span class="o">/</span> <span class="n">cols</span><span class="p">)</span>

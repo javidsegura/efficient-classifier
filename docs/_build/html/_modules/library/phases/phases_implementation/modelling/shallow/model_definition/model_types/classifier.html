@@ -37,9 +37,11 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">classification_report</span><span class="p">,</span> <span class="n">confusion_matrix</span><span class="p">,</span> <span class="n">cohen_kappa_score</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">concurrent.futures</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">accuracy_score</span> 
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">library.phases.phases_implementation.modelling.shallow.model_definition.model_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">library.phases.phases_implementation.dataset.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
@@ -47,10 +49,11 @@
 <div class="viewcode-block" id="Classifier">
 <a class="viewcode-back" href="../../../../../../../../api/library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.html#library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.Classifier">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Classifier</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-      <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">modelName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_sklearn</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">results_header</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span>   
+      <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modelName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_sklearn</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">results_header</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">):</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">modelName</span><span class="p">,</span> <span class="n">model_sklearn</span><span class="p">,</span> <span class="n">model_type</span><span class="p">,</span> <span class="n">results_header</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
-      
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;library/configurations.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">yaml_file</span><span class="p">:</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">yaml_file</span><span class="p">)</span>
 
       <span class="k">def</span><span class="w"> </span><span class="nf">__set_assesment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
                         <span class="n">y_actual</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
@@ -86,6 +89,7 @@
       <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modelName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">current_phase</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Evaluating </span><span class="si">{</span><span class="n">modelName</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">current_phase</span><span class="si">}</span><span class="s2"> phase&quot;</span><span class="p">)</span>
             <span class="k">assert</span> <span class="n">current_phase</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;pre&quot;</span><span class="p">,</span> <span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="s2">&quot;post&quot;</span><span class="p">],</span> <span class="s2">&quot;Current phase must be one of the tuning states&quot;</span>
+            
             <span class="k">if</span> <span class="n">current_phase</span> <span class="o">==</span> <span class="s2">&quot;pre&quot;</span> <span class="ow">or</span> <span class="n">current_phase</span> <span class="o">==</span> <span class="s2">&quot;in&quot;</span><span class="p">:</span>
                   <span class="n">y_actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">y_val</span>
                   <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuning_states</span><span class="p">[</span><span class="n">current_phase</span><span class="p">]</span><span class="o">.</span><span class="n">assesment</span><span class="p">[</span><span class="s2">&quot;predictions_val&quot;</span><span class="p">]</span>
@@ -109,25 +113,123 @@
             <span class="n">kappa_val</span> <span class="o">=</span> <span class="n">cohen_kappa_score</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
             <span class="n">kappa_train</span> <span class="o">=</span> <span class="n">cohen_kappa_score</span><span class="p">(</span><span class="n">y_actual_train</span><span class="p">,</span> <span class="n">y_pred_train</span><span class="p">)</span>
 
+            <span class="n">cw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;modelling_runner&quot;</span><span class="p">][</span><span class="s2">&quot;class_weights&quot;</span><span class="p">]</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                  <span class="n">class_weight_dict</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cw</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                  <span class="n">class_weight_dict</span> <span class="o">=</span> <span class="p">{}</span>
+           
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">class_weight_dict</span><span class="p">:</span>
+                  <span class="n">unique_classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_actual_train</span><span class="p">]))</span>
+                  <span class="n">class_weight_dict</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span> <span class="mf">1.0</span> <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">unique_classes</span><span class="p">}</span>
+
+            <span class="n">weightedaccuracy_val</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_weightedaccuracy</span><span class="p">(</span><span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">class_weight_dict</span><span class="p">)</span>
+            <span class="n">weightedaccuracy_train</span><span class="p">,</span> <span class="n">_</span> <span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_weightedaccuracy</span><span class="p">(</span><span class="n">y_actual_train</span><span class="p">,</span> <span class="n">y_pred_train</span><span class="p">,</span> <span class="n">class_weight_dict</span><span class="p">)</span>
+
             <span class="n">results</span> <span class="o">=</span> <span class="p">{</span>
                   <span class="s2">&quot;base_metrics&quot;</span><span class="p">:</span> <span class="p">{</span>
                         <span class="s2">&quot;accuracy&quot;</span><span class="p">:</span> <span class="n">accuracy</span><span class="p">,</span>
                         <span class="s2">&quot;precision&quot;</span><span class="p">:</span> <span class="n">precision</span><span class="p">,</span>
                         <span class="s2">&quot;recall&quot;</span><span class="p">:</span> <span class="n">recall</span><span class="p">,</span>
                         <span class="s2">&quot;f1-score&quot;</span><span class="p">:</span> <span class="n">f1_score</span><span class="p">,</span>
+
                   <span class="p">},</span>
                   <span class="s2">&quot;additional_metrics&quot;</span><span class="p">:</span> <span class="p">{</span>
                         <span class="s2">&quot;not_train&quot;</span><span class="p">:</span> <span class="p">{</span>
-                              <span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="n">kappa_val</span>
+                        <span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="n">kappa_val</span><span class="p">,</span>
+                        <span class="s2">&quot;weightedaccuracy&quot;</span><span class="p">:</span> <span class="n">weightedaccuracy_val</span><span class="p">,</span>
                         <span class="p">},</span>
                         <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="p">{</span>
-                              <span class="s2">&quot;kappa_train&quot;</span><span class="p">:</span> <span class="n">kappa_train</span> <span class="c1"># The _train postfix is always needed </span>
+                        <span class="s2">&quot;kappa_train&quot;</span><span class="p">:</span> <span class="n">kappa_train</span><span class="p">,</span>
+                        <span class="s2">&quot;weightedaccuracy_train&quot;</span><span class="p">:</span> <span class="n">weightedaccuracy_train</span><span class="p">,</span>
                         <span class="p">}</span>
                   <span class="p">}</span>
             <span class="p">}</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;METRIC RESULTS FOR </span><span class="si">{</span><span class="n">modelName</span><span class="si">}</span><span class="s2"> =&gt; F1: </span><span class="si">{</span><span class="n">f1_score</span><span class="si">}</span><span class="s2">, Precision: </span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s2">, Recall: </span><span class="si">{</span><span class="n">recall</span><span class="si">}</span><span class="s2">, Accuracy: </span><span class="si">{</span><span class="n">accuracy</span><span class="si">}</span><span class="s2">, Kappa: </span><span class="si">{</span><span class="n">kappa_val</span><span class="si">}</span><span class="s2"> (val), </span><span class="si">{</span><span class="n">kappa_train</span><span class="si">}</span><span class="s2"> (train)&quot;</span><span class="p">)</span>
+            
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;METRIC RESULTS FOR </span><span class="si">{</span><span class="n">modelName</span><span class="si">}</span><span class="s2"> =&gt; F1: </span><span class="si">{</span><span class="n">f1_score</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, Precision: </span><span class="si">{</span><span class="n">precision</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, &quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;Recall: </span><span class="si">{</span><span class="n">recall</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, Accuracy: </span><span class="si">{</span><span class="n">accuracy</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, Weighted Accuracy: </span><span class="si">{</span><span class="n">weightedaccuracy_val</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, &quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;Kappa: </span><span class="si">{</span><span class="n">kappa_val</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> (val), </span><span class="si">{</span><span class="n">kappa_train</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> (train)&quot;</span><span class="p">)</span>
+            
             <span class="c1"># Storing results to assesment attribute</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tuning_states</span><span class="p">[</span><span class="n">current_phase</span><span class="p">]</span><span class="o">.</span><span class="n">assesment</span><span class="p">[</span><span class="s2">&quot;metrics&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tuning_states</span><span class="p">[</span><span class="n">current_phase</span><span class="p">]</span><span class="o">.</span><span class="n">assesment</span><span class="p">[</span><span class="s2">&quot;metrics&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Metrics for </span><span class="si">{</span><span class="n">modelName</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">current_phase</span><span class="si">}</span><span class="s2"> phase: </span><span class="si">{</span><span class="n">results</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+      <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_weightedaccuracy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_actual</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">class_weights</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">class_weights</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">class_weights</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                  <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">{},</span> <span class="mf">0.0</span> 
+
+            <span class="n">y_actual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_actual</span><span class="p">)</span>
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
+
+            <span class="n">weights_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">class_weights</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">normalized_weights</span> <span class="o">=</span> <span class="n">weights_array</span> <span class="o">/</span> <span class="n">weights_array</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+            <span class="c1"># dictionary of normalized weights</span>
+            <span class="n">normalized_weights_dict</span> <span class="o">=</span> <span class="p">{</span><span class="bp">cls</span><span class="p">:</span> <span class="n">normalized_weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">class_weights</span><span class="o">.</span><span class="n">keys</span><span class="p">())}</span>
+            <span class="n">per_class_accuracy</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">weightedaccuracy</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">total_weight</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+            <span class="k">for</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">normalized_weights_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                  <span class="n">cls_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_actual</span> <span class="o">==</span> <span class="bp">cls</span><span class="p">)</span>
+                  <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">cls_mask</span><span class="p">):</span>
+                        <span class="c1"># accuracy for this class</span>
+                        <span class="n">cls_correct</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_pred</span><span class="p">[</span><span class="n">cls_mask</span><span class="p">]</span> <span class="o">==</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                        <span class="n">cls_total</span> <span class="o">=</span> <span class="n">cls_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                        <span class="n">cls_accuracy</span> <span class="o">=</span> <span class="n">cls_correct</span> <span class="o">/</span> <span class="n">cls_total</span> <span class="k">if</span> <span class="n">cls_total</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+
+                        <span class="n">per_class_accuracy</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls_accuracy</span>
+
+                        <span class="c1"># weighted contribution</span>
+                        <span class="n">weightedaccuracy</span> <span class="o">+=</span> <span class="n">cls_accuracy</span> <span class="o">*</span> <span class="n">weight</span>
+                        <span class="n">total_weight</span> <span class="o">+=</span> <span class="n">weight</span>
+
+            <span class="c1"># normalize the weighted accuracy</span>
+            <span class="k">if</span> <span class="n">total_weight</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                  <span class="n">weightedaccuracy</span> <span class="o">/=</span> <span class="n">total_weight</span>
+
+            <span class="k">return</span> <span class="n">weightedaccuracy</span><span class="p">,</span> <span class="n">per_class_accuracy</span><span class="p">,</span> <span class="n">total_weight</span>
+
+
+<div class="viewcode-block" id="Classifier.score">
+<a class="viewcode-back" href="../../../../../../../../api/library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.html#library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.Classifier.score">[docs]</a>
+      <span class="k">def</span><span class="w"> </span><span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Returns the accuracy score of the model on the given data.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            X : array-like</span>
+<span class="sd">                  Feature matrix.</span>
+<span class="sd">            y : array-like</span>
+<span class="sd">                  True labels.</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            float</span>
+<span class="sd">                  Accuracy score.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_sklearn</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Classifier.predict_default">
+<a class="viewcode-back" href="../../../../../../../../api/library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.html#library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.Classifier.predict_default">[docs]</a>
+      <span class="k">def</span><span class="w"> </span><span class="nf">predict_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Sklearn-compatible predict method (for LIME, cross_val_score, etc.).</span>
+<span class="sd">            Uses the trained model directly.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_sklearn</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
+
+      
+<div class="viewcode-block" id="Classifier.predict_proba">
+<a class="viewcode-back" href="../../../../../../../../api/library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.html#library.phases.phases_implementation.modelling.shallow.model_definition.model_types.classifier.Classifier.predict_proba">[docs]</a>
+      <span class="k">def</span><span class="w"> </span><span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_sklearn</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
 </div>
 
 
