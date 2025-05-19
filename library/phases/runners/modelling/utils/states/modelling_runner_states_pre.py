@@ -59,8 +59,9 @@ class PreTuningRunner(ModellingRunnerStates):
                                                                                                 save_path=self.save_path) 
             
             # # Reliability diagram
-            # reliability_diagram = self.pipeline_manager.pipelines_analysis.plot_multiclass_reliability_diagram(save_plots=self.save_plots,
-            #                                                                                     save_path=self.save_path)
+            print("CALIBRATION")
+            self.pipeline_manager.pipelines_analysis.plot_multiclass_reliability_diagram(save_plots=self.save_plots,
+                                                                                                save_path=self.save_path)
 
 
 
