@@ -43,8 +43,9 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - release-build
-    permissions:
-      id-token: write
+    # Using API token instead of OIDC
+    # permissions:
+    #   id-token: write
 
     environment:
       name: pypi
@@ -61,5 +62,6 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/
+          password: ${{ secrets.PYPI_API_TOKEN }}
 
 
