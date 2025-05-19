@@ -86,25 +86,36 @@ feature_analysis_runner:
 
 modelling_runner:
     class_weights:
-      0: 3  # Adware 
-      1: 9   # Backdoor 
-      2: 6   # File Infector 
-      3: 3   # PUA 
-      4: 10   # Ransomware 
-      5: 6   # Riskware
-      6: 4   # Scareware 
-      7: 6   # Trojan
-      8: 9   # Trojan Banker 
-      9: 7   # Trojan Dropper
-      10: 6  # Trojan SMS
-      11: 8  # Trojan Spy 
+      0: 9   # Backdoor 
+      1: 6   # File Infector 
+      2: 3   # PUA 
+      3: 10   # Ransomware 
+      4: 6   # Riskware
+      5: 4   # Scareware 
+      6: 9   # Trojan Banker 
+      7: 7   # Trojan Dropper
+      8: 6  # Trojan SMS
+      9: 8  # Trojan Spy 
+
+      #      0: 3  # Adware 
+      #1: 9   # Backdoor 
+      #2: 6   # File Infector 
+      #3: 3   # PUA 
+      #4: 10   # Ransomware 
+      #5: 6   # Riskware
+      #6: 4   # Scareware 
+      #7: 6   # Trojan
+      #8: 9   # Trojan Banker 
+      #9: 7   # Trojan Dropper
+      #10: 6  # Trojan SMS
+      #11: 8  # Trojan Spy 
 
     models_to_exclude:
       ensembled: ["Gradient Boosting"]
       tree_based: [] # ALWAYS KEEP TREE, ITS USED AS REFERENCE FOR FEATURE SELECTION
       support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
-      naive_bayes: ["Naive Bayes"]
-      feed_forward_neural_network: ["Feed Forward Neural Network"] 
+      naive_bayes: [] #"Naive Bayes"
+      feed_forward_neural_network: [] #"Feed Forward Neural Network"
       stacking: []
       baselines: ["Logistic Regression (baseline)"]
     hyperparameters:
@@ -142,12 +153,12 @@ modelling_runner:
         epochs: 1 # CHANGE THIS TO MAKE IT RUN FASTER 
     neural_network:
        initial_architecture:
-          batch_size: 128
-          epochs: 1 # CHANGE THIS TO MAKE IT RUN FASTER 
-          n_layers: 4
-          units_per_layer: [512, 256, 128, 64]
+          batch_size: 32
+          epochs: 40 # CHANGE THIS TO MAKE IT RUN FASTER 
+          n_layers: 3
+          units_per_layer: [256, 256, 256]
           learning_rate: 0.001
-          activations: ['relu', 'relu', 'relu', 'relu']
+          activations: ['relu', 'relu', 'relu']
           kernel_initializer: 'glorot_uniform'
     model_assesment:
       comments: "UPDATED KAPPA NAME IN THE CSV, ONE SECOND TIME"

@@ -71,7 +71,11 @@ class PipelineRunner:
             default_pipeline.dataset.df.drop(columns=["Family", "Hash"], inplace=True) # We have decided to use only category as target variable; Hash is temporary while im debugging (it will be deleted in EDA)
             default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "Zero_Day"].index, inplace=True)
             default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "No_Category"].index, inplace=True)
+            default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "Adware"].index, inplace=True)
+            default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "Trojan"].index, inplace=True)
 
+            print(f"Dataset after dropping unwanted categories - Shape: {default_pipeline.dataset.df.shape}")
+            print(f"Remaining categories: {default_pipeline.dataset.df['Category'].unique()}")
       
       def _set_up_pipelines(self, pipelines_names: dict[str, list[str]]) -> None:
             """

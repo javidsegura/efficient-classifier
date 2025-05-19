@@ -71,7 +71,7 @@ class FeatureAnalysisRunner(PhaseRunner):
 
 
 
-            # self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.manual_feature_selection.fit",
+            # self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature.selection.manual_feature_selection.fit",
             #                                             verbose=True,
             #                                             type="MutualInformation",
             #                                             threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["mutual_information"]["threshold"],
@@ -81,7 +81,7 @@ class FeatureAnalysisRunner(PhaseRunner):
             #                                             exclude_pipeline_names=["support_vector_machine"]
             #                                             )
             # # 2) Low Variances
-            # self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.manual_feature_selection.fit",
+            # self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature.selection.manual_feature_selection.fit",
             #                                             verbose=True,
             #                                             type="LowVariances",
             #                                             threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["low_variances"]["threshold"],
@@ -91,7 +91,7 @@ class FeatureAnalysisRunner(PhaseRunner):
             #                                             exclude_pipeline_names=["support_vector_machine"]
             #                                             )
             # # 3) VIF
-            # self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.manual_feature_selection.fit",
+            # self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature.selection.manual_feature_selection.fit",
             #                                             verbose=True,
             #                                             type="VIF",
             #                                             threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["vif"]["threshold"],
@@ -101,7 +101,7 @@ class FeatureAnalysisRunner(PhaseRunner):
             #                                             exclude_pipeline_names=["support_vector_machine"]
             #                                             )
             # 4) PCA
-            # self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.manual_feature_selection.fit",
+            # self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature.selection.manual_feature_selection.fit",
             #                                             verbose=True,
             #                                             type="PCA",
             #                                             threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["pca"]["threshold"],
@@ -139,12 +139,15 @@ class FeatureAnalysisRunner(PhaseRunner):
       def _run_feature_engineering_after_split(self) -> None:
             """Apply feature engineering techniques after dataset split"""
             
+            # Keep track of which features were added to which pipelines
+            added_features_by_pipeline = {pipeline_name: [] for pipeline_name in self.pipeline_manager.pipelines["not_baseline"]}
+    
             # Define which pipelines should get log transformation
             log_transformation_configs = {
                   "tree_based": False,  # Tree-based models don't need log transformation
                   "support_vector_machine": False,
                   "naive_bayes": False,  # Naive Bayes is sensitive to data distribution changes
-                  "feed_forward_neural_network": False,
+                  "feed_forward_neural_network": False,  # Don't add to neural network to avoid dimension mismatch
                   "stacking": True,
                   "ensembled": False
             }
@@ -163,7 +166,7 @@ class FeatureAnalysisRunner(PhaseRunner):
                         )
                         log_transform_results[pipeline_name] = result
                         print(f"Applied log transformation to {pipeline_name} pipeline")
-            
+    
             # Define pipeline-specific feature interactions
             pipeline_interactions = {
                   "tree_based": [
@@ -172,7 +175,7 @@ class FeatureAnalysisRunner(PhaseRunner):
                   ],
                   "support_vector_machine": [],
                   "naive_bayes": [],  # No interactions for Naive Bayes
-                  "feed_forward_neural_network": [],
+                  "feed_forward_neural_network": [],  # Empty to avoid dimension mismatch
                   "stacking": [ ('API_Network_java.net.URL_openConnection', 'API_Binder_android.app.Activity_startActivity'),
                                ('Memory_PssTotal','API_Crypto-Hash_java.security.MessageDigest_digest')],
                   "ensembled": [
@@ -195,103 +198,38 @@ class FeatureAnalysisRunner(PhaseRunner):
                                     pipeline_name=pipeline_name
                               )
                               interaction_results[pipeline_name] = result
+                              
+                              # Track the added feature names for each pipeline
+                              for pair in interactions:
+                                  added_features_by_pipeline[pipeline_name].append(f"{pair[0]}_{pair[1]}_interaction")
+                                  
+            # Only add Riskware_Adware_Ratio to specific pipelines that can handle additional features
             for pipeline_name in ["stacking", "tree_based", "ensembled"]:
-                  if pipeline_name in self.pipeline_manager.pipelines["not_baseline"]:
+                  # Skip feed_forward_neural_network as it's sensitive to feature count
+                  if pipeline_name in self.pipeline_manager.pipelines["not_baseline"] and pipeline_name != "feed_forward_neural_network":
                         pipeline = self.pipeline_manager.pipelines["not_baseline"][pipeline_name]
                         
                         # Check if the required features exist
                         required_features = ['API_IPC_android.content.ContextWrapper_startService', 'API_Network_java.net.URL_openConnection']
                         if all(feature in pipeline.dataset.X_train.columns for feature in required_features):
-                        # Add the Riskware_Adware_Ratio feature
-                        # Help distinguish Riskware from Adware
-                              pipeline.dataset.X_train['Riskware_Adware_Ratio'] = pipeline.dataset.X_train['API_IPC_android.content.ContextWrapper_startService'] / \
+                            # Add the Riskware_Adware_Ratio feature
+                            # Help distinguish Riskware from Adware
+                            pipeline.dataset.X_train['Riskware_Adware_Ratio'] = pipeline.dataset.X_train['API_IPC_android.content.ContextWrapper_startService'] / \
                                                 (pipeline.dataset.X_train['API_Network_java.net.URL_openConnection'] + 1)
-                        
-                        if pipeline.dataset.X_val is not None:
-                              pipeline.dataset.X_val['Riskware_Adware_Ratio'] = pipeline.dataset.X_val['API_IPC_android.content.ContextWrapper_startService'] / \
+                    
+                            if pipeline.dataset.X_val is not None:
+                                  pipeline.dataset.X_val['Riskware_Adware_Ratio'] = pipeline.dataset.X_val['API_IPC_android.content.ContextWrapper_startService'] / \
                                                 (pipeline.dataset.X_val['API_Network_java.net.URL_openConnection'] + 1)
-                        
-                        if pipeline.dataset.X_test is not None:
-                              pipeline.dataset.X_test['Riskware_Adware_Ratio'] = pipeline.dataset.X_test['API_IPC_android.content.ContextWrapper_startService'] / \
+                    
+                            if pipeline.dataset.X_test is not None:
+                                  pipeline.dataset.X_test['Riskware_Adware_Ratio'] = pipeline.dataset.X_test['API_IPC_android.content.ContextWrapper_startService'] / \
                                                 (pipeline.dataset.X_test['API_Network_java.net.URL_openConnection'] + 1)
-                        
-                              print(f"Added Riskware_Adware_Ratio feature to {pipeline_name} pipeline")
+                    
+                            print(f"Added Riskware_Adware_Ratio feature to {pipeline_name} pipeline")
+                            added_features_by_pipeline[pipeline_name].append("Riskware_Adware_Ratio")
                         else:
-                              print(f"Cannot add Riskware_Adware_Ratio to {pipeline_name} - required features missing")
-            
-            '''
-            # Define pipeline-specific feature engineering approaches for clustering
-            pipeline_configurations = {
-                  "tree_based": {
-                        "apply_clustering": True,  # Changed from False to True
-                        "clustering_method": "correlation",  
-                        "n_clusters": None,
-                        "correlation_threshold": 0.8
-                  },
-                  "support_vector_machine": {
-                        "apply_clustering": False,
-                        "clustering_method": "kmeans",
-                        "n_clusters": None,
-                        "correlation_threshold": 0.7
-                  },
-                  "naive_bayes": {
-                        "apply_clustering": False,
-                        "clustering_method": "correlation",
-                        "n_clusters": None,
-                        "correlation_threshold": 0.85
-                  },
-                  "feed_forward_neural_network": {
-                        "apply_clustering": False,
-                        "clustering_method": "hierarchical",
-                        "n_clusters": None,
-                        "correlation_threshold": 0.7
-                  },
-                  "stacking": {
-                        "apply_clustering": False,
-                        "clustering_method": "kmeans",
-                        "n_clusters": None,
-                        "correlation_threshold": 0.75
-                  },
-                  "ensembled": {
-                        "apply_clustering": True,  # Changed from False to True
-                        "clustering_method": "correlation",
-                        "n_clusters": None,
-                        "correlation_threshold": 0.95
-                  }
-            }
-            
-            # Apply feature clustering to each pipeline that has apply_clustering=True
-            cluster_results = {}
-            for pipeline_name, config in pipeline_configurations.items():
-                  if pipeline_name in self.pipeline_manager.pipelines["not_baseline"]:
-                        pipeline = self.pipeline_manager.pipelines["not_baseline"][pipeline_name]
-                        
-                        # Only apply clustering if specified for this pipeline
-                        if config.get("apply_clustering", True):
-                              print(f"Applying clustering to {pipeline_name} pipeline...")
-                              
-                              # Apply feature clustering with pipeline-specific configuration
-                              cluster_info = pipeline.feature_analysis.feature_engineering.apply_feature_clustering(
-                                    method=config["clustering_method"],
-                                    n_clusters=config["n_clusters"],
-                                    correlation_threshold=config["correlation_threshold"],
-                                    use_representatives=True,  # Replace clusters with representatives
-                                    save_plots=self.include_plots and config.get("apply_clustering", True),
-                                    save_path=self.save_path
-                              )
-                              
-                              # Store results
-                              cluster_results[pipeline_name] = cluster_info
-                              
-                              print(f"Applied {config['clustering_method']} feature clustering to {pipeline_name} pipeline")
-                              print(f"Reduced from {cluster_info['original_count']} to {cluster_info['final_count']} features")
-                        else:
-                              print(f"Skipping clustering for {pipeline_name} pipeline as it's disabled in configuration")
-            
-            # Store cluster results for later analysis
-            self.pipeline_manager.pipelines_analysis.feature_clusters = cluster_results
-            '''
-            
+                            print(f"Cannot add Riskware_Adware_Ratio to {pipeline_name} - required features missing")
+    
             # Add memory aggregation features for ensembled trees
             memory_feature_results = {}
             if "ensembled" in self.pipeline_manager.pipelines["not_baseline"]:
@@ -351,15 +289,49 @@ class FeatureAnalysisRunner(PhaseRunner):
                               pipeline.dataset.X_test = pd.concat([pipeline.dataset.X_test, test_df], axis=1)
                   
                   memory_feature_results["ensembled"] = {"created_features": created_features}
+                  added_features_by_pipeline["ensembled"].extend(created_features)
                   print(f"Added {len(created_features)} memory aggregation features to ensembled pipeline")
-            
+    
+            # IMPORTANT: Since feed_forward_neural_network is used in stacking model,
+            # make sure the data dimensions are consistent
+            if "feed_forward_neural_network" in self.pipeline_manager.pipelines["not_baseline"]:
+                # Make a note of feature dimension
+                nn_pipeline = self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"]
+                print(f"Neural network feature dimension: {nn_pipeline.dataset.X_train.shape[1]}")
+                
+                # If stacking exists, ensure the stacking dataset has the same features as feed_forward_neural_network
+                if "stacking" in self.pipeline_manager.pipelines["not_baseline"]:
+                    stacking_pipeline = self.pipeline_manager.pipelines["not_baseline"]["stacking"]
+                    
+                    # Get the columns from both datasets
+                    nn_columns = set(nn_pipeline.dataset.X_train.columns)
+                    stacking_columns = set(stacking_pipeline.dataset.X_train.columns)
+                    
+                    # Check if there are extra features in stacking that aren't in nn
+                    extra_features = stacking_columns - nn_columns
+                    if extra_features:
+                        print(f"Warning: Stacking has {len(extra_features)} features not in neural network: {extra_features}")
+                        print(f"This will cause dimension mismatch in stacking estimator.")
+                        print(f"Synchronizing feature sets between feed_forward_neural_network and stacking...")
+                        
+                        # Option 1: Add missing columns to neural network (as zeros)
+                        import pandas as pd
+                        for feature in extra_features:
+                            nn_pipeline.dataset.X_train[feature] = 0
+                            if nn_pipeline.dataset.X_val is not None:
+                                nn_pipeline.dataset.X_val[feature] = 0
+                            if nn_pipeline.dataset.X_test is not None:
+                                nn_pipeline.dataset.X_test[feature] = 0
+                        
+                        print(f"Added missing features to neural network. New dimension: {nn_pipeline.dataset.X_train.shape[1]}")
+    
             combined_results = {
                   "log_transformation": log_transform_results,
                   "interactions": interaction_results,
                   "memory_aggregations": memory_feature_results,
-                  #"clustering": cluster_results
+                  "added_features_by_pipeline": added_features_by_pipeline
             }
-            
+    
             return combined_results
 
 
