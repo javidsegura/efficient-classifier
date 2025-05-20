@@ -147,7 +147,7 @@ class FeatureAnalysisRunner(PhaseRunner):
                   "tree_based": False,  # Tree-based models don't need log transformation
                   "support_vector_machine": False,
                   "naive_bayes": False,  # Naive Bayes is sensitive to data distribution changes
-                  "feed_forward_neural_network": False,  # Don't add to neural network to avoid dimension mismatch
+                  "feed_forward_neural_network": False,  
                   "stacking": True,
                   "ensembled": False
             }
@@ -166,7 +166,7 @@ class FeatureAnalysisRunner(PhaseRunner):
                         )
                         log_transform_results[pipeline_name] = result
                         print(f"Applied log transformation to {pipeline_name} pipeline")
-    
+      
             # Define pipeline-specific feature interactions
             pipeline_interactions = {
                   "tree_based": [
