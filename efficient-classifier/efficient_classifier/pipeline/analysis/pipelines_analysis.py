@@ -23,7 +23,7 @@ class PipelinesAnalysis:
             self.phase = None
             self.best_performing_model = None
             self.neural_nets_plots = None
-            self.variables = yaml.load(open("efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
+            self.variables = yaml.load(open("efficient-classifier/efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
 
             # Below you can find two attributes that are used to store the results of the analysis.
             self.merged_report_per_phase = {
@@ -447,7 +447,7 @@ class PipelinesAnalysis:
 
             for _, row in metrics_df.iterrows():
                   plt.annotate(
-                        row["modelName"],                   
+                        f"{row['modelName']}\n{row[performance_metric]:.2f}",                   
                         (row[training_metric], row[performance_metric]),  
                         textcoords="offset points",         
                         xytext=(5, 5),                      

@@ -35,99 +35,53 @@ class ModellingRunner(PhaseRunner):
             Finally we call the function that excludes all the models that we do not want the training to run (either because we are trying to debug and want to run as fast as possible or
             because we have observed that a certain model is not performing well and taking too long to fit/predict)
             """
-            # model_name_to_model_object = {
-            #       "not_baseline": {
-            #             "Gradient Boosting": GradientBoostingClassifier(),
-            #             "Random Forest": RandomForestClassifier(),
-            #             "Decision Tree": DecisionTreeClassifier(),
-            #             "Linear Support Vector Machine": LinearSVC(),
-            #             "Non-linear Support Vector Machine": SVC(),
-            #             "Gaussian Naive Bayes": GaussianNB(),
-            #             "Feed Forward Neural Network": FeedForwardNeuralNetwork(
-            #                   num_features=self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"].dataset.X_train.shape[1], 
-            #                   num_classes=self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"].dataset.y_train.value_counts().shape[0],
-            #                   batch_size=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["batch_size"],
-            #                   epochs=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["epochs"],
-            #                   n_layers=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["n_layers"],
-            #             ),
-            #       },
-            #       "baseline": {
-            #             "Logistic Regression (baseline)": LogisticRegression(),
-            #             "Majority Class (baseline)": MajorityClassClassifier(),
-            #       }
-            # }
-
-            # for category in self.pipeline_manager.pipelines:
-            #       for pipeline in self.pipeline_manager.pipelines[category]:
-            #             if pipeline == "stacking":
-            #                   continue
-            #             print(f"Category: {category}, Pipeline: {pipeline}")
-            #             print(self.pipeline_manager.variables["modelling_runner"]["models_names_per_pipeline"][category][pipeline])
-            #             for model_name in self.pipeline_manager.variables["modelling_runner"]["models_names_per_pipeline"][category][pipeline]:
-            #                   self.pipeline_manager.pipelines[category][pipeline].modelling.add_model(model_name, model_name_to_model_object[category][model_name])
-      
-
-            #self._create_pipelines_divergences()
             nn_pipeline = self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"]
 
-            # Ensembled models
-            self.pipeline_manager.pipelines["not_baseline"]["ensembled"].modelling.add_model("Gradient Boosting", 
-                                                                                             GradientBoostingClassifier())
-            self.pipeline_manager.pipelines["not_baseline"]["ensembled"].modelling.add_model("Random Forest",
-                                                                                             RandomForestClassifier())
-            # Tree-based models
-            self.pipeline_manager.pipelines["not_baseline"]["tree_based"].modelling.add_model("Decision Tree",
-                                                                                             DecisionTreeClassifier())
-            # Support Vector Machines models
-            self.pipeline_manager.pipelines["not_baseline"]["support_vector_machine"].modelling.add_model("Non-linear Support Vector Machine",
-                                                                                             SVC())
-            self.pipeline_manager.pipelines["not_baseline"]["support_vector_machine"].modelling.add_model("Linear Support Vector Machine",
-                                                                                             LinearSVC())
-            # Naive Bayes model
-            self.pipeline_manager.pipelines["not_baseline"]["naive_bayes"].modelling.add_model("Naive Bayes",
-                                                                                             GaussianNB())
-            # Neural Network model
-            self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"].modelling.add_model("Feed Forward Neural Network",
-                                                                                             FeedForwardNeuralNetwork(
-                                                                                                num_features=nn_pipeline.dataset.X_train.shape[1], 
-                                                                                                num_classes=nn_pipeline.dataset.y_train.value_counts().shape[0],
-                                                                                                batch_size=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["batch_size"],
-                                                                                                epochs=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["epochs"],
-                                                                                                n_layers=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["n_layers"],
-                                                                                                units_per_layer=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["units_per_layer"],
-                                                                                                learning_rate=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["learning_rate"],
-                                                                                                activations=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["activations"],
-                                                                                                kernel_initializer=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["kernel_initializer"]
+            model_name_to_model_object = {
+                  "not_baseline": {
+                        "Gradient Boosting": GradientBoostingClassifier(),
+                        "Random Forest": RandomForestClassifier(),
+                        "Decision Tree": DecisionTreeClassifier(),
+                        "Linear Support Vector Machine": LinearSVC(),
+                        "Non-linear Support Vector Machine": SVC(),
+                        "Naive Bayes": GaussianNB(),
+                        "Feed Forward Neural Network": FeedForwardNeuralNetwork(
+                                                                                          num_features=nn_pipeline.dataset.X_train.shape[1], 
+                                                                                          num_classes=nn_pipeline.dataset.y_train.value_counts().shape[0],
+                                                                                          batch_size=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["batch_size"],
+                                                                                          epochs=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["epochs"],
+                                                                                          n_layers=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["n_layers"],
+                                                                                          units_per_layer=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["units_per_layer"],
+                                                                                          learning_rate=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["learning_rate"],
+                                                                                          activations=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["activations"],
+                                                                                          kernel_initializer=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["kernel_initializer"]
                                                                                                 ),
-                                                                                             model_type="neural_network")
-            # Baseline models
-            self.pipeline_manager.pipelines["baseline"]["baselines"].modelling.add_model("Logistic Regression (baseline)",
-                                                                                             LogisticRegression(max_iter=1000))
-            self.pipeline_manager.pipelines["baseline"]["baselines"].modelling.add_model("Majority Class (baseline)",
-                                                                                             MajorityClassClassifier())     
+                  },
+                  "baseline": {
+                        "Logistic Regression (baseline)": LogisticRegression(),
+                        "Majority Class (baseline)": MajorityClassClassifier(),
+                  }
+            }
+      
+            for category in self.pipeline_manager.variables["modelling_runner"]["models_to_include"]:
+                  for pipeline in self.pipeline_manager.pipelines[category]:
+                        if pipeline == "stacking":
+                              continue
+                        for model_name in self.pipeline_manager.variables["modelling_runner"]["models_to_include"][category][pipeline]:
+                              self.pipeline_manager.pipelines[category][pipeline].modelling.add_model(
+                                    model_name, 
+                                    model_name_to_model_object[category][model_name], 
+                                    model_type="neural_network" if model_name == "Feed Forward Neural Network" else "classical") # We handle keras-native model differently 
+ 
             self._exclude_models()  
 
       def _exclude_models(self):
-
-            # Ensembled models
-            self.pipeline_manager.pipelines["not_baseline"]["ensembled"].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["ensembled"]
-
-            # Tree-based models
-            self.pipeline_manager.pipelines["not_baseline"]["tree_based"].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["tree_based"]
-
-            # Support Vector Machines models
-            self.pipeline_manager.pipelines["not_baseline"]["support_vector_machine"].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["support_vector_machine"]
-
-            # Naive Bayes model
-            self.pipeline_manager.pipelines["not_baseline"]["naive_bayes"].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["naive_bayes"]
-
-            # Feed Forward Neural Network model
-            self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["feed_forward_neural_network"]
-
-            # Baseline models
-            self.pipeline_manager.pipelines["baseline"]["baselines"].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["baselines"]
-
-                                                                      
+            for category in self.pipeline_manager.variables["modelling_runner"]["models_to_include"]:
+                  for pipeline in self.pipeline_manager.pipelines[category]:
+                        if pipeline == "stacking":
+                              continue
+                        self.pipeline_manager.pipelines[category][pipeline].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"][category][pipeline]
+                                                                                              
                                                                                              
       def run(self) -> None:
             self._model_initializers()

@@ -1,9 +1,8 @@
-
-from library.pipeline.pipeline_runner import PipelineRunner
+from efficient_classifier.pipeline.pipeline_runner import PipelineRunner
 import matplotlib
 import yaml
 
-variables = yaml.load(open("library/configurations.yaml"), Loader=yaml.FullLoader)
+variables = yaml.load(open("efficient-classifier/efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
 include_plots = variables["PIPELINE_RUNNER"]["include_plots"]
 
 if include_plots:

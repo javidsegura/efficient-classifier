@@ -18,7 +18,7 @@ import yaml
 
 class ResultsDF:
       def __init__(self, model_results_path: str, dataset: Dataset):
-            self.variables = yaml.load(open("efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
+            self.variables = yaml.load(open("efficient-classifier/efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
 
             if dataset.modelTask == "classification":
                   metrics_to_evaluate = self.variables["dataset_runner"]["metrics_to_evaluate"]["classification"]

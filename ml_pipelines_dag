@@ -1,0 +1,169 @@
+// ML Pipelines DAG
+digraph {
+	bgcolor=white concentrate=true fontname="Arial Bold" fontsize=24 label="Machine Learning Pipeline Architecture
+Rendered at 2025-05-20 18:47:13" labelloc=t nodesep=0.8 pad=0.75 rankdir=TB ranksep=1.2
+	EDA [label=EDA fillcolor="#FFB347" fontname=Arial fontsize=18 penwidth=2 shape=ellipse style=filled]
+	Pipeline1 [label=Pipeline1 fillcolor="#5D6D7E" fontname=Arial fontsize=18 penwidth=1.5 shape=rect style=filled]
+	EDA -> Pipeline1 [penwidth=2]
+	Pipeline2 [label=Pipeline2 fillcolor="#5D6D7E" fontname=Arial fontsize=18 penwidth=1.5 shape=rect style=filled]
+	EDA -> Pipeline2 [penwidth=2]
+	Pipeline1_Model1 [label=Model1 fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
+	Pipeline1 -> Pipeline1_Model1 [penwidth=1.5]
+	Pipeline1_Model2 [label=Model2 fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
+	Pipeline1 -> Pipeline1_Model2 [penwidth=1.5]
+	Pipeline2_Model3 [label=Model3 fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
+	Pipeline2 -> Pipeline2_Model3 [penwidth=1.5]
+	Pipeline1_DataPreprocessing [label=DataPreprocessing fillcolor="#2ECC71" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	Pipeline1_Model1 -> Pipeline1_DataPreprocessing [penwidth=1.5]
+	Pipeline1_Model2 -> Pipeline1_DataPreprocessing [penwidth=1.5]
+	Pipeline1_DataPreprocessing_ClassImbalance [label="ClassImbalance
+(no thing was found in here)" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	Pipeline1_DataPreprocessing -> Pipeline1_DataPreprocessing_ClassImbalance
+	Pipeline1_DataPreprocessing_Outliers [label=Outliers fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline1_DataPreprocessing -> Pipeline1_DataPreprocessing_Outliers
+	Pipeline1_DataPreprocessing_MissingValues [label=MissingValues fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline1_DataPreprocessing -> Pipeline1_DataPreprocessing_MissingValues
+	Pipeline1_DataPreprocessing_BoundChecking [label=BoundChecking fillcolor="#EC7063" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline1_DataPreprocessing -> Pipeline1_DataPreprocessing_BoundChecking
+	Pipeline1_DataPreprocessing_FeatureScaling [label=FeatureScaling fillcolor="#45B39D" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline1_DataPreprocessing -> Pipeline1_DataPreprocessing_FeatureScaling
+	Pipeline1_FeatureAnalysis [label=FeatureAnalysis fillcolor="#3498DB" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"Pipeline1_FeatureAnalysis_Feature Selection" [label="Feature Selection" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline1_FeatureAnalysis -> "Pipeline1_FeatureAnalysis_Feature Selection"
+	"Pipeline1_FeatureAnalysis_Feature Selection_Automatic" [label=Automatic fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
+	"Pipeline1_FeatureAnalysis_Feature Selection" -> "Pipeline1_FeatureAnalysis_Feature Selection_Automatic"
+	"Pipeline1_FeatureAnalysis_Feature Selection_Automatic_Boruta" [label=Boruta fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=rect style=filled]
+	"Pipeline1_FeatureAnalysis_Feature Selection_Automatic" -> "Pipeline1_FeatureAnalysis_Feature Selection_Automatic_Boruta"
+	"Pipeline1_FeatureAnalysis_Feature Selection_Automatic_L1" [label=L1 fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=rect style=filled]
+	"Pipeline1_FeatureAnalysis_Feature Selection_Automatic" -> "Pipeline1_FeatureAnalysis_Feature Selection_Automatic_L1"
+	"Pipeline1_FeatureAnalysis_Feature Selection_Manual" [label=Manual fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
+	"Pipeline1_FeatureAnalysis_Feature Selection" -> "Pipeline1_FeatureAnalysis_Feature Selection_Manual"
+	"Pipeline1_FeatureAnalysis_Feature Engineering" [label="Feature Engineering" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline1_FeatureAnalysis -> "Pipeline1_FeatureAnalysis_Feature Engineering"
+	"Pipeline1_FeatureAnalysis_Feature Transformation" [label="Feature Transformation" fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline1_FeatureAnalysis -> "Pipeline1_FeatureAnalysis_Feature Transformation"
+	Pipeline1_DataPreprocessing_ClassImbalance -> Pipeline1_FeatureAnalysis
+	Pipeline1_DataPreprocessing_Outliers -> Pipeline1_FeatureAnalysis
+	Pipeline1_DataPreprocessing_MissingValues -> Pipeline1_FeatureAnalysis
+	Pipeline1_DataPreprocessing_BoundChecking -> Pipeline1_FeatureAnalysis
+	Pipeline1_DataPreprocessing_FeatureScaling -> Pipeline1_FeatureAnalysis
+	Pipeline1_Modelling [label=Modelling fillcolor="#9B59B6" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"Pipeline1_Modelling_pre-tuning" [label="pre-tuning" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline1_Modelling -> "Pipeline1_Modelling_pre-tuning"
+	"Pipeline1_Modelling_pre-tuning_feature Relevance" [label="feature Relevance" fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
+	"Pipeline1_Modelling_pre-tuning" -> "Pipeline1_Modelling_pre-tuning_feature Relevance"
+	"Pipeline1_Modelling_pre-tuning_Model Analysis" [label="Model Analysis" fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
+	"Pipeline1_Modelling_pre-tuning" -> "Pipeline1_Modelling_pre-tuning_Model Analysis"
+	"Pipeline1_Modelling_pre-tuning_Model Analysis_accuracy" [label="accuracy
+(1%)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	"Pipeline1_Modelling_pre-tuning_Model Analysis" -> "Pipeline1_Modelling_pre-tuning_Model Analysis_accuracy"
+	"Pipeline1_Modelling_pre-tuning_Model Analysis_timeToFit" [label="timeToFit
+(2s)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	"Pipeline1_Modelling_pre-tuning_Model Analysis" -> "Pipeline1_Modelling_pre-tuning_Model Analysis_timeToFit"
+	"Pipeline1_Modelling_in-tuning" [label="in-tuning" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline1_Modelling -> "Pipeline1_Modelling_in-tuning"
+	"Pipeline1_Modelling_in-tuning_feature Relevance" [label="feature Relevance" fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
+	"Pipeline1_Modelling_in-tuning" -> "Pipeline1_Modelling_in-tuning_feature Relevance"
+	"Pipeline1_Modelling_in-tuning_Model Analysis" [label="Model Analysis" fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
+	"Pipeline1_Modelling_in-tuning" -> "Pipeline1_Modelling_in-tuning_Model Analysis"
+	"Pipeline1_Modelling_in-tuning_Model Analysis_accuracy" [label="accuracy
+(gb - 1%, rf - 2%)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	"Pipeline1_Modelling_in-tuning_Model Analysis" -> "Pipeline1_Modelling_in-tuning_Model Analysis_accuracy"
+	"Pipeline1_Modelling_in-tuning_Model Analysis_timeToFit" [label="timeToFit
+(gb - 2s, rf - 3s)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	"Pipeline1_Modelling_in-tuning_Model Analysis" -> "Pipeline1_Modelling_in-tuning_Model Analysis_timeToFit"
+	"Pipeline1_Modelling_post-tuning" [label="post-tuning" fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline1_Modelling -> "Pipeline1_Modelling_post-tuning"
+	"Pipeline1_Modelling_post-tuning_Model Analysis" [label="Model Analysis
+(train_set = val_set + train_set)" fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=box style=filled]
+	"Pipeline1_Modelling_post-tuning" -> "Pipeline1_Modelling_post-tuning_Model Analysis"
+	"Pipeline1_Modelling_post-tuning_Model Analysis_accuracy" [label="accuracy
+(1%)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	"Pipeline1_Modelling_post-tuning_Model Analysis" -> "Pipeline1_Modelling_post-tuning_Model Analysis_accuracy"
+	"Pipeline1_Modelling_post-tuning_Model Analysis_timeToFit" [label="timeToFit
+(2s)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	"Pipeline1_Modelling_post-tuning_Model Analysis" -> "Pipeline1_Modelling_post-tuning_Model Analysis_timeToFit"
+	"Pipeline1_Modelling_post-tuning_Model calibration" [label="Model calibration
+(True)" fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=box style=filled]
+	"Pipeline1_Modelling_post-tuning" -> "Pipeline1_Modelling_post-tuning_Model calibration"
+	"Pipeline1_FeatureAnalysis_Feature Selection" -> Pipeline1_Modelling
+	"Pipeline1_FeatureAnalysis_Feature Engineering" -> Pipeline1_Modelling
+	"Pipeline1_FeatureAnalysis_Feature Transformation" -> Pipeline1_Modelling
+	Pipeline2_DataPreprocessing [label=DataPreprocessing fillcolor="#2ECC71" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	Pipeline2_Model3 -> Pipeline2_DataPreprocessing [penwidth=1.5]
+	Pipeline2_DataPreprocessing_ClassImbalance [label="ClassImbalance
+(no thing was found in here)" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	Pipeline2_DataPreprocessing -> Pipeline2_DataPreprocessing_ClassImbalance
+	Pipeline2_DataPreprocessing_Outliers [label=Outliers fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline2_DataPreprocessing -> Pipeline2_DataPreprocessing_Outliers
+	Pipeline2_DataPreprocessing_MissingValues [label=MissingValues fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline2_DataPreprocessing -> Pipeline2_DataPreprocessing_MissingValues
+	Pipeline2_DataPreprocessing_BoundChecking [label=BoundChecking fillcolor="#EC7063" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline2_DataPreprocessing -> Pipeline2_DataPreprocessing_BoundChecking
+	Pipeline2_DataPreprocessing_FeatureScaling [label=FeatureScaling fillcolor="#45B39D" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline2_DataPreprocessing -> Pipeline2_DataPreprocessing_FeatureScaling
+	Pipeline2_FeatureAnalysis [label=FeatureAnalysis fillcolor="#3498DB" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"Pipeline2_FeatureAnalysis_Feature Selection" [label="Feature Selection" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline2_FeatureAnalysis -> "Pipeline2_FeatureAnalysis_Feature Selection"
+	"Pipeline2_FeatureAnalysis_Feature Selection_Automatic" [label=Automatic fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
+	"Pipeline2_FeatureAnalysis_Feature Selection" -> "Pipeline2_FeatureAnalysis_Feature Selection_Automatic"
+	"Pipeline2_FeatureAnalysis_Feature Selection_Automatic_Boruta" [label=Boruta fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=rect style=filled]
+	"Pipeline2_FeatureAnalysis_Feature Selection_Automatic" -> "Pipeline2_FeatureAnalysis_Feature Selection_Automatic_Boruta"
+	"Pipeline2_FeatureAnalysis_Feature Selection_Automatic_L1" [label=L1 fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=rect style=filled]
+	"Pipeline2_FeatureAnalysis_Feature Selection_Automatic" -> "Pipeline2_FeatureAnalysis_Feature Selection_Automatic_L1"
+	"Pipeline2_FeatureAnalysis_Feature Selection_Manual" [label=Manual fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
+	"Pipeline2_FeatureAnalysis_Feature Selection" -> "Pipeline2_FeatureAnalysis_Feature Selection_Manual"
+	"Pipeline2_FeatureAnalysis_Feature Engineering" [label="Feature Engineering" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline2_FeatureAnalysis -> "Pipeline2_FeatureAnalysis_Feature Engineering"
+	"Pipeline2_FeatureAnalysis_Feature Transformation" [label="Feature Transformation" fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline2_FeatureAnalysis -> "Pipeline2_FeatureAnalysis_Feature Transformation"
+	Pipeline2_DataPreprocessing_ClassImbalance -> Pipeline2_FeatureAnalysis
+	Pipeline2_DataPreprocessing_Outliers -> Pipeline2_FeatureAnalysis
+	Pipeline2_DataPreprocessing_MissingValues -> Pipeline2_FeatureAnalysis
+	Pipeline2_DataPreprocessing_BoundChecking -> Pipeline2_FeatureAnalysis
+	Pipeline2_DataPreprocessing_FeatureScaling -> Pipeline2_FeatureAnalysis
+	Pipeline2_Modelling [label=Modelling fillcolor="#9B59B6" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"Pipeline2_Modelling_pre-tuning" [label="pre-tuning" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline2_Modelling -> "Pipeline2_Modelling_pre-tuning"
+	"Pipeline2_Modelling_pre-tuning_feature Relevance" [label="feature Relevance" fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
+	"Pipeline2_Modelling_pre-tuning" -> "Pipeline2_Modelling_pre-tuning_feature Relevance"
+	"Pipeline2_Modelling_pre-tuning_Model Analysis" [label="Model Analysis" fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
+	"Pipeline2_Modelling_pre-tuning" -> "Pipeline2_Modelling_pre-tuning_Model Analysis"
+	"Pipeline2_Modelling_pre-tuning_Model Analysis_accuracy" [label="accuracy
+(1%)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	"Pipeline2_Modelling_pre-tuning_Model Analysis" -> "Pipeline2_Modelling_pre-tuning_Model Analysis_accuracy"
+	"Pipeline2_Modelling_pre-tuning_Model Analysis_timeToFit" [label="timeToFit
+(2s)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	"Pipeline2_Modelling_pre-tuning_Model Analysis" -> "Pipeline2_Modelling_pre-tuning_Model Analysis_timeToFit"
+	"Pipeline2_Modelling_in-tuning" [label="in-tuning" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
+	Pipeline2_Modelling -> "Pipeline2_Modelling_in-tuning"
+	"Pipeline2_Modelling_in-tuning_feature Relevance" [label="feature Relevance" fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
+	"Pipeline2_Modelling_in-tuning" -> "Pipeline2_Modelling_in-tuning_feature Relevance"
+	"Pipeline2_Modelling_in-tuning_Model Analysis" [label="Model Analysis" fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
+	"Pipeline2_Modelling_in-tuning" -> "Pipeline2_Modelling_in-tuning_Model Analysis"
+	"Pipeline2_Modelling_in-tuning_Model Analysis_accuracy" [label="accuracy
+(gb - 1%, rf - 2%)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	"Pipeline2_Modelling_in-tuning_Model Analysis" -> "Pipeline2_Modelling_in-tuning_Model Analysis_accuracy"
+	"Pipeline2_Modelling_in-tuning_Model Analysis_timeToFit" [label="timeToFit
+(gb - 2s, rf - 3s)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	"Pipeline2_Modelling_in-tuning_Model Analysis" -> "Pipeline2_Modelling_in-tuning_Model Analysis_timeToFit"
+	"Pipeline2_FeatureAnalysis_Feature Selection" -> Pipeline2_Modelling
+	"Pipeline2_FeatureAnalysis_Feature Engineering" -> Pipeline2_Modelling
+	"Pipeline2_FeatureAnalysis_Feature Transformation" -> Pipeline2_Modelling
+	subgraph cluster_legend {
+		graph [rankdir=LR]
+		fillcolor="#F8F9F9" fontname="Arial Bold" fontsize=18 label="Legend (by brightness)" penwidth=2 style=filled
+		legend_eda [label=EDA fillcolor="#FFB347" fontname=Arial shape=ellipse style=filled]
+		legend_pipeline [label=Pipeline fillcolor="#5D6D7E" fontname=Arial shape=rect style=filled]
+		legend_phase [label=Phase fillcolor="#2ECC71" fontname=Arial shape=rect style=filled]
+		legend_procedure [label=Procedure fillcolor="#52BE80" fontname=Arial shape=rect style=filled]
+		legend_subprocedure [label=Subprocedure fillcolor="#ABEBC6" fontname=Arial shape=rect style=filled]
+		legend_method [label=Method fillcolor="#EAFAF1" fontname=Arial shape=rect style=filled]
+		legend_eda -> legend_pipeline [style=invis]
+		legend_pipeline -> legend_phase [style=invis]
+		legend_phase -> legend_procedure [style=invis]
+		legend_procedure -> legend_subprocedure [style=invis]
+		legend_subprocedure -> legend_method [style=invis]
+		rank=same
+	}
+}

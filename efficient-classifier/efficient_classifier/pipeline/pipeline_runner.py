@@ -24,8 +24,6 @@ from efficient_classifier.phases.phases_implementation.dev_ops.slackBot.bot impo
 
 import yaml
 
-from dag import DAG
-
 
 """ Phases are: 
 - Splitting

@@ -9,7 +9,7 @@ import yaml
 class FeatureScaling:
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
-        self.variables = yaml.load(open("efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
+        self.variables = yaml.load(open("efficient-classifier/efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
 
     def scale_features(
         self,

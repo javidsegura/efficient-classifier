@@ -14,7 +14,7 @@ import yaml
 class Split(ABC):
       def __init__(self, dataset) -> None:
             self.dataset = dataset
-            self.variables = yaml.load(open("efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
+            self.variables = yaml.load(open("efficient-classifier/efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
       @abstractmethod
       def split_data(self,
                      y_column: str,

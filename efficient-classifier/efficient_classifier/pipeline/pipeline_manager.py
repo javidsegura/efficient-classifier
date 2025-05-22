@@ -10,7 +10,6 @@ from efficient_classifier.pipeline.analysis.pipelines_analysis import PipelinesA
 from efficient_classifier.pipeline.serialization_and_deserialization.serializer import SerializationPickle, SerializationJoblib
 from efficient_classifier.pipeline.serialization_and_deserialization.deserializer import DeserializationPickle, DeserializationJoblib
 
-from dag import DAG
 
 class PipelineManager:
       """
@@ -18,7 +17,7 @@ class PipelineManager:
       Evaluates all pipelines
       
       """
-      def __init__(self, pipelines: dict[str, dict[str, Pipeline]], serializer_type: str="joblib", variables: dict = None, DAG_visualizer: DAG = None):
+      def __init__(self, pipelines: dict[str, dict[str, Pipeline]], serializer_type: str="joblib", variables: dict = None):
             """
             Initializes the pipeline manager.
 
@@ -40,7 +39,6 @@ class PipelineManager:
             self.best_performing_model = None
             self.all_models = None
             self.variables = variables
-            self.DAG_visualizer = DAG_visualizer
 
             # Sub-objects
             self.pipelines_analysis = PipelinesAnalysis(pipelines)

@@ -84,23 +84,25 @@ feature_analysis_runner:
         delete_features: True
 
 modelling_runner:
-    models_names_per_pipeline:
-      not_baseline: 
+    models_to_include:
+      not_baseline:
         ensembled: ["Gradient Boosting", "Random Forest"]
         tree_based: ["Decision Tree"]
         support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
-        naive_bayes: ["Gaussian Naive Bayes"]
+        naive_bayes: ["Naive Bayes"]
         feed_forward_neural_network: ["Feed Forward Neural Network"] 
-      baseline: 
+      baseline:
         baselines: ["Logistic Regression (baseline)", "Majority Class (baseline)"]
     models_to_exclude:
-      ensembled: ["Gradient Boosting", "Random Forest"]
-      tree_based: [] # ALWAYS KEEP TREE, ITS USED AS REFERENCE FOR FEATURE SELECTION
-      support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
-      naive_bayes: []
-      feed_forward_neural_network: [] 
-      stacking: ["Stacking"]
-      baselines: ["Logistic Regression (baseline)"]
+      not_baseline:
+        ensembled: ["Gradient Boosting", "Random Forest"]
+        tree_based: [] # ALWAYS KEEP TREE, ITS USED AS REFERENCE FOR FEATURE SELECTION
+        support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
+        naive_bayes: []
+        feed_forward_neural_network: [] 
+        stacking: ["Stacking"]
+      baseline:
+        baselines: ["Logistic Regression (baseline)"]
     hyperparameters:
       grid_space:
         gradient_boosting:

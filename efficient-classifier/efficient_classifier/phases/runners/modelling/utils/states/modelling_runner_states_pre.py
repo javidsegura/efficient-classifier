@@ -38,7 +38,7 @@ class PreTuningRunner(ModellingRunnerStates):
                                                                                  save_plots=self.save_plots,
                                                                                  save_path=self.save_path)
             # Per-epoch progress
-            if len(self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["feed_forward_neural_network"]) == 0:
+            if len(self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["not_baseline"]["feed_forward_neural_network"]) == 0:
                   self.pipeline_manager.pipelines_analysis.plot_per_epoch_progress(metrics=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["per_epoch_metrics"],
                                                                                  save_plots=self.save_plots,
                                                                                  save_path=self.save_path)
@@ -96,7 +96,7 @@ class PreTuningRunner(ModellingRunnerStates):
                                        methodName="modelling.fit_models",
                                        exclude_pipeline_names=["stacking"], 
                                        current_phase="pre")
-            if len(self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["stacking"]) == 0:
+            if len(self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["not_baseline"]["stacking"]) == 0:
                   self._set_up_stacking_model()
             general_analysis_results = self._general_analysis()
 

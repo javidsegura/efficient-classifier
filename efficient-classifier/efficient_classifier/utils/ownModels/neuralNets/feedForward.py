@@ -38,7 +38,7 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
 
                   This model class also contains part of the optimizer for the model itself. This is different to scikit-learn native models.
             """
-            variables = yaml.load(open("efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
+            variables = yaml.load(open("efficient-classifier/efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
             nn_config = variables["modelling_runner"]["neural_network"]["initial_architecture"]
 
             
