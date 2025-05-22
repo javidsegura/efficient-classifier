@@ -8,7 +8,7 @@ class DAG:
             """ Phases should be run through the simulation """
 
             self.pipelines = pipelines
-            self.phases = phases #self._set_up_phases(phases)
+            self.phases = self._set_up_phases(phases)
             self.dot = Digraph(comment='ML Pipelines DAG', format='png')
             self.dot.attr(rankdir='TB', 
                   bgcolor='white',
@@ -162,9 +162,17 @@ class DAG:
             """ Draw the phases for the DAG """
             for pipeline in self.pipelines:
                   prev_procedures_keys = []
+                  prev_phase_node = None
+                  
                   for i, phase in enumerate(self.phases[pipeline]):
                         phase_node = f"{pipeline}_{phase}"
-                        self.dot.node(phase_node,
+                        
+                        # Store current phase node for next iteration
+                        if prev_phase_node is None and i > 0:
+                              prev_phase_node = f"{pipeline}_{list(self.phases[pipeline].keys())[i-1]}"
+                        
+                        # Create phase node
+                        self.dot.node(phase_node, 
                               phase,
                               style='filled',
                               shape='rect',
@@ -173,12 +181,15 @@ class DAG:
                               penwidth='1.5',
                               fillcolor=self._get_random_color("phase", i)
                               )
+                        
+                        # Connect from previous phase's model keys if this is first phase
                         if i == 0:
                               for model_key in self.model_keys_to_pipeline_names[pipeline]:
                                     self.dot.edge(model_key, phase_node, penwidth='1.5')
-
+                        
+                        # Process procedures in current phase
                         new_procedures_keys = []
-                        for i, (procedure_name, procedure_data) in enumerate(self.phases[pipeline][phase].items()):
+                        for j, (procedure_name, procedure_data) in enumerate(self.phases[pipeline][phase].items()):
                               # Format procedure label with comment if it exists
                               comment = procedure_data.get('_comment')
                               label = self._format_node_label(procedure_name, comment)
@@ -190,13 +201,13 @@ class DAG:
                                     style='filled',
                                     shape=shape,
                                     fontname='Arial',
-                                    fillcolor=self._get_random_color("procedure", i),
+                                    fillcolor=self._get_random_color("procedure", j),
                                     fontsize='14'
                                     )
                               self.dot.edge(phase_node, procedure_node)
 
                               # Handle subprocedures
-                              for j, (subprocedure_name, subprocedure_data) in enumerate(procedure_data['_subprocedures'].items()):
+                              for k, (subprocedure_name, subprocedure_data) in enumerate(procedure_data['_subprocedures'].items()):
                                     comment = subprocedure_data.get('_comment')
                                     label = self._format_node_label(subprocedure_name, comment)
                                     shape = 'box' if comment else 'rect'
@@ -206,13 +217,13 @@ class DAG:
                                           style='filled',
                                           shape=shape,
                                           fontname='Arial',
-                                          fillcolor=self._get_random_color("subprocedure", j),
+                                          fillcolor=self._get_random_color("subprocedure", k),
                                           fontsize='12'
                                           )
                                     self.dot.edge(procedure_node, subprocedure_node)
 
                                     # Handle methods
-                                    for k, (method_name, method_data) in enumerate(subprocedure_data['_methods'].items()):
+                                    for m, (method_name, method_data) in enumerate(subprocedure_data['_methods'].items()):
                                           comment = method_data.get('_comment')
                                           label = self._format_node_label(method_name, comment)
                                           shape = 'box' if comment else 'rect'
@@ -222,15 +233,25 @@ class DAG:
                                                 style='filled',
                                                 shape=shape,
                                                 fontname='Arial',
-                                                fillcolor=self._get_random_color("method", k),
+                                                fillcolor=self._get_random_color("method", m),
                                                 fontsize='10'
                                                 )
                                           self.dot.edge(subprocedure_node, method_node)
 
+                        # Connect previous phase elements to current phase
                         if i > 0:
-                              for prev_procedure in prev_procedures_keys:
-                                    self.dot.edge(prev_procedure, phase_node)
+                              # If previous phase had procedures, connect them
+                              if prev_procedures_keys:
+                                    for prev_procedure in prev_procedures_keys:
+                                          self.dot.edge(prev_procedure, phase_node, penwidth='1.5')
+                                    
+                              # If previous phase had NO procedures, connect directly from phase to phase
+                              else:
+                                    self.dot.edge(prev_phase_node, phase_node, penwidth='2.0')
+                        
+                        # Update for next iteration
                         prev_procedures_keys = new_procedures_keys
+                        prev_phase_node = phase_node
       
       def add_procedure(self, pipelineName, phaseName, procedureName, comment=None):
             """Add a procedure to a phase with an optional comment"""

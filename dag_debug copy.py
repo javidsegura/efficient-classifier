@@ -1,17 +1,11 @@
-from dag import DAG
+from efficient_classifier.utils.miscellaneous.dag import DAG
 
 
 # Pipelines
-pipelines = [
-     {
-          "name": "Pipeline1",
-          "models": ["Model1", "Model2"]
-     },
-     {
-          "name": "Pipeline2",
-          "models": ["Model3"]
-     }
-]
+pipelines = {
+     "Pipeline1": ["Model1", "Model2"],
+     "Pipeline2": ["Model3"]
+}
 
 # Phases
 phases = ["Data Preprocessing", "Feature Analysis", "Modelling"]

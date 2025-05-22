@@ -18,7 +18,6 @@ def run_pipeline():
             model_task=variables["PIPELINE_RUNNER"]["model_task"],
             include_plots=variables["PIPELINE_RUNNER"]["include_plots"],
             pipelines_names=variables["PIPELINE_RUNNER"]["pipelines_names"],
-            serialize_results=variables["PIPELINE_RUNNER"]["serialize_results"],
             variables=variables
        )
 

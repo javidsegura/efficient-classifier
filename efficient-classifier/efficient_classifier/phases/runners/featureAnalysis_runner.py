@@ -36,30 +36,30 @@ class FeatureAnalysisRunner(PhaseRunner):
             reference_pipeline = "tree_based"
 
 
-            # 1) Mutual Information
-            self.pipeline_manager.pipelines[reference_category][reference_pipeline].feature_analysis.feature_selection.manual_feature_selection.fit(
-                  type="MutualInformation",
-                  threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["mutual_information"]["threshold"],
-                  delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["mutual_information"]["delete_features"],
-                  save_plots=self.include_plots,
-                  save_path=self.save_path
-            )
+            # # 1) Mutual Information
+            # self.pipeline_manager.pipelines[reference_category][reference_pipeline].feature_analysis.feature_selection.manual_feature_selection.fit(
+            #       type="MutualInformation",
+            #       threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["mutual_information"]["threshold"],
+            #       delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["mutual_information"]["delete_features"],
+            #       save_plots=self.include_plots,
+            #       save_path=self.save_path
+            # )
             # 2) Low Variances
-            self.pipeline_manager.pipelines[reference_category][reference_pipeline].feature_analysis.feature_selection.manual_feature_selection.fit(
-                  type="LowVariances",
-                  threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["low_variances"]["threshold"],
-                  delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["low_variances"]["delete_features"],
-                  save_plots=self.include_plots,
-                  save_path=self.save_path
-            )
-            # 3) VIF
-            self.pipeline_manager.pipelines[reference_category][reference_pipeline].feature_analysis.feature_selection.manual_feature_selection.fit(
-                  type="VIF",
-                  threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["vif"]["threshold"],
-                  delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["vif"]["delete_features"],
-                  save_plots=self.include_plots,
-                  save_path=self.save_path
-            )
+            # self.pipeline_manager.pipelines[reference_category][reference_pipeline].feature_analysis.feature_selection.manual_feature_selection.fit(
+            #       type="LowVariances",
+            #       threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["low_variances"]["threshold"],
+            #       delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["low_variances"]["delete_features"],
+            #       save_plots=self.include_plots,
+            #       save_path=self.save_path
+            # )
+            # # 3) VIF
+            # self.pipeline_manager.pipelines[reference_category][reference_pipeline].feature_analysis.feature_selection.manual_feature_selection.fit(
+            #       type="VIF",
+            #       threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["vif"]["threshold"],
+            #       delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["vif"]["delete_features"],
+            #       save_plots=self.include_plots,
+            #       save_path=self.save_path
+            # )
             # # 4) PCA
             # self.pipeline_manager.pipelines["not_baseline"]["tree_based"].feature_analysis.feature_selection.manual_feature_selection.fit(
             #       type="PCA",
@@ -68,51 +68,13 @@ class FeatureAnalysisRunner(PhaseRunner):
             #       save_plots=self.include_plots,
             #       save_path=self.save_path
             # )
-            
 
-
-
-
-            # self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.manual_feature_selection.fit",
-            #                                             verbose=True,
-            #                                             type="MutualInformation",
-            #                                             threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["mutual_information"]["threshold"],
-            #                                             delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["mutual_information"]["delete_features"],
-            #                                             save_plots=self.include_plots,
-            #                                             save_path=self.save_path,
-            #                                             exclude_pipeline_names=["support_vector_machine"]
-            #                                             )
-            # # 2) Low Variances
-            # self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.manual_feature_selection.fit",
-            #                                             verbose=True,
-            #                                             type="LowVariances",
-            #                                             threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["low_variances"]["threshold"],
-            #                                             delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["low_variances"]["delete_features"],
-            #                                             save_plots=self.include_plots,
-            #                                             save_path=self.save_path,
-            #                                             exclude_pipeline_names=["support_vector_machine"]
-            #                                             )
-            # # 3) VIF
-            # self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.manual_feature_selection.fit",
-            #                                             verbose=True,
-            #                                             type="VIF",
-            #                                             threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["vif"]["threshold"],
-            #                                             delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["vif"]["delete_features"],
-            #                                             save_plots=self.include_plots,
-            #                                             save_path=self.save_path,
-            #                                             exclude_pipeline_names=["support_vector_machine"]
-            #                                             )
-            # 4) PCA
-            # self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.manual_feature_selection.fit",
-            #                                             verbose=True,
-            #                                             type="PCA",
-            #                                             threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["pca"]["threshold"],
-            #                                             delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["pca"]["delete_features"],
-            #                                             save_plots=self.include_plots,
-            #                                             save_path=self.save_path
-            #                                             exclude_pipeline_names=["support_vector_machine"]
-            #                                             )
-            return None
+            return {
+                  "MutualInformation": "This is mutual information",
+                  "LowVariances": "This is low variances",
+                  "VIF": "This is VIF",
+                  "PCA": "This is PCA"
+            }
       
       def _run_automatic_feature_selection(self) -> None:
             # # 1) L1
@@ -123,36 +85,59 @@ class FeatureAnalysisRunner(PhaseRunner):
             #                                             delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["automatic_feature_selection"]["l1"]["delete_features"],
             #                                             )
             # 2) Boruta
-            selected_features, excludedFeatures = self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.automatic_feature_selection.fit",
-                                                        verbose=True,
-                                                        type="Boruta",
-                                                        max_iter=self.pipeline_manager.variables["feature_analysis_runner"]["automatic_feature_selection"]["boruta"]["max_iter"],
-                                                        delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["automatic_feature_selection"]["boruta"]["delete_features"],
-                                                        exclude_pipeline_names=["support_vector_machine"]
-                                                        )
+            # selected_features, excludedFeatures = self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_selection.automatic_feature_selection.fit",
+            #                                             verbose=True,
+            #                                             type="Boruta",
+            #                                             max_iter=self.pipeline_manager.variables["feature_analysis_runner"]["automatic_feature_selection"]["boruta"]["max_iter"],
+            #                                             delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["automatic_feature_selection"]["boruta"]["delete_features"],
+            #                                             exclude_pipeline_names=["support_vector_machine"]
+            #                                             )
             
-            return {"L1": {"predictivePowerFeatures": None, "excludedFeatures": None, "coefficients": None},
-                    "Boruta": {"selected_features": selected_features, "excludedFeatures": excludedFeatures}}
+            return {
+                  "L1": {
+                        "predictivePowerFeatures": "This is predictive power features", 
+                        "excludedFeatures": "This is excluded features", 
+                        "coefficients": "This is coefficients"
+                        },
+                  "Boruta": {
+                        "selected_features": "This is selected features",
+                        "excludedFeatures": "This is excluded features"}
+                  }
       
-
-            
-
-      
-      def _run_feature_engineering_after_split(self) -> None:
-            # FEDE (expand here)
-            # after split
-            ...
 
 
       def run(self) -> None:
             feature_transformation_results = self._run_feature_transformation() 
-            #manual_feature_selection_results = self._run_manual_feature_selection() # Comment out cause it goes too slow
-            #automatic_feature_selection_results = self._run_automatic_feature_selection() # Comment out cause it goes too slow
-            self._run_feature_engineering_after_split()
+            manual_feature_selection_results = self._run_manual_feature_selection() # Comment out cause it goes too slow
+            automatic_feature_selection_results = self._run_automatic_feature_selection() # Comment out cause it goes too slow
+
+            for category in self.pipeline_manager.pipelines:
+                  for pipeline in self.pipeline_manager.pipelines[category]:
+                        if pipeline == "stacking":
+                              continue
+                        # 1) Feature transformation
+                        self.pipeline_manager.dag.add_procedure(pipeline, "feature_analysis", "feature_transformation", None)
+                        # 2) Feature engineering
+                        self.pipeline_manager.dag.add_procedure(pipeline, "feature_analysis", "feature_engineering", None)
+                        # 3) Feature selection
+                        self.pipeline_manager.dag.add_procedure(pipeline, "feature_analysis", "feature_selection", None)
+                        # 3.1) Manual feature selection
+                        self.pipeline_manager.dag.add_subprocedure(pipeline, "feature_analysis", "feature_selection", "manual", None)
+                        self.pipeline_manager.dag.add_method(pipeline, "feature_analysis", "feature_selection", "manual", "MutualInformation", manual_feature_selection_results["MutualInformation"])
+                        self.pipeline_manager.dag.add_method(pipeline, "feature_analysis", "feature_selection", "manual", "LowVariances", manual_feature_selection_results["LowVariances"])
+                        self.pipeline_manager.dag.add_method(pipeline, "feature_analysis", "feature_selection", "manual", "VIF", manual_feature_selection_results["VIF"])
+                        self.pipeline_manager.dag.add_method(pipeline, "feature_analysis", "feature_selection", "manual", "PCA", manual_feature_selection_results["PCA"])
+
+                        # 3.2) Automatic feature selection
+                        self.pipeline_manager.dag.add_subprocedure(pipeline, "feature_analysis", "feature_selection", "automatic", None)
+                        self.pipeline_manager.dag.add_method(pipeline, "feature_analysis", "feature_selection", "automatic", "L1", automatic_feature_selection_results["L1"])
+                        self.pipeline_manager.dag.add_method(pipeline, "feature_analysis", "feature_selection", "automatic", "Boruta", automatic_feature_selection_results["Boruta"])
+
+            
             return {
                   "feature_transformation_results": feature_transformation_results,
-                  "manual_feature_selection_results": None,
-                  "automatic_feature_selection_results": None
+                  "manual_feature_selection_results": manual_feature_selection_results,
+                  "automatic_feature_selection_results": automatic_feature_selection_results
                   }
       
 

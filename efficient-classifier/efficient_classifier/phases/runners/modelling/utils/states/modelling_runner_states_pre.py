@@ -92,13 +92,17 @@ class PreTuningRunner(ModellingRunnerStates):
             self.pipeline_manager.pipeline_state = "pre"
             print("Pre tuning runner about to start")
             # Fitting models
-            self.pipeline_manager.all_pipelines_execute(
+            pipeline_results = self.pipeline_manager.all_pipelines_execute(
                                        methodName="modelling.fit_models",
                                        exclude_pipeline_names=["stacking"], 
                                        current_phase="pre")
             if len(self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["not_baseline"]["stacking"]) == 0:
                   self._set_up_stacking_model()
             general_analysis_results = self._general_analysis()
+
+            print("-"*30)
+            print()
+            print("-"*30)
 
             return general_analysis_results
 

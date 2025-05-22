@@ -1,4 +1,4 @@
-from dag import DAG
+from efficient_classifier.utils.miscellaneous.dag import DAG
 
 
 # Pipelines

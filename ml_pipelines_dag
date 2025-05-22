@@ -1,155 +1,308 @@
 // ML Pipelines DAG
 digraph {
 	bgcolor=white concentrate=true fontname="Arial Bold" fontsize=24 label="Machine Learning Pipeline Architecture
-Rendered at 2025-05-20 18:47:13" labelloc=t nodesep=0.8 pad=0.75 rankdir=TB ranksep=1.2
+Rendered at 2025-05-22 19:04:46" labelloc=t nodesep=0.8 pad=0.75 rankdir=TB ranksep=1.2
 	EDA [label=EDA fillcolor="#FFB347" fontname=Arial fontsize=18 penwidth=2 shape=ellipse style=filled]
-	Pipeline1 [label=Pipeline1 fillcolor="#5D6D7E" fontname=Arial fontsize=18 penwidth=1.5 shape=rect style=filled]
-	EDA -> Pipeline1 [penwidth=2]
-	Pipeline2 [label=Pipeline2 fillcolor="#5D6D7E" fontname=Arial fontsize=18 penwidth=1.5 shape=rect style=filled]
-	EDA -> Pipeline2 [penwidth=2]
-	Pipeline1_Model1 [label=Model1 fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
-	Pipeline1 -> Pipeline1_Model1 [penwidth=1.5]
-	Pipeline1_Model2 [label=Model2 fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
-	Pipeline1 -> Pipeline1_Model2 [penwidth=1.5]
-	Pipeline2_Model3 [label=Model3 fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
-	Pipeline2 -> Pipeline2_Model3 [penwidth=1.5]
-	Pipeline1_DataPreprocessing [label=DataPreprocessing fillcolor="#2ECC71" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
-	Pipeline1_Model1 -> Pipeline1_DataPreprocessing [penwidth=1.5]
-	Pipeline1_Model2 -> Pipeline1_DataPreprocessing [penwidth=1.5]
-	Pipeline1_DataPreprocessing_ClassImbalance [label="ClassImbalance
-(no thing was found in here)" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
-	Pipeline1_DataPreprocessing -> Pipeline1_DataPreprocessing_ClassImbalance
-	Pipeline1_DataPreprocessing_Outliers [label=Outliers fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline1_DataPreprocessing -> Pipeline1_DataPreprocessing_Outliers
-	Pipeline1_DataPreprocessing_MissingValues [label=MissingValues fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline1_DataPreprocessing -> Pipeline1_DataPreprocessing_MissingValues
-	Pipeline1_DataPreprocessing_BoundChecking [label=BoundChecking fillcolor="#EC7063" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline1_DataPreprocessing -> Pipeline1_DataPreprocessing_BoundChecking
-	Pipeline1_DataPreprocessing_FeatureScaling [label=FeatureScaling fillcolor="#45B39D" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline1_DataPreprocessing -> Pipeline1_DataPreprocessing_FeatureScaling
-	Pipeline1_FeatureAnalysis [label=FeatureAnalysis fillcolor="#3498DB" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
-	"Pipeline1_FeatureAnalysis_Feature Selection" [label="Feature Selection" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline1_FeatureAnalysis -> "Pipeline1_FeatureAnalysis_Feature Selection"
-	"Pipeline1_FeatureAnalysis_Feature Selection_Automatic" [label=Automatic fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
-	"Pipeline1_FeatureAnalysis_Feature Selection" -> "Pipeline1_FeatureAnalysis_Feature Selection_Automatic"
-	"Pipeline1_FeatureAnalysis_Feature Selection_Automatic_Boruta" [label=Boruta fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=rect style=filled]
-	"Pipeline1_FeatureAnalysis_Feature Selection_Automatic" -> "Pipeline1_FeatureAnalysis_Feature Selection_Automatic_Boruta"
-	"Pipeline1_FeatureAnalysis_Feature Selection_Automatic_L1" [label=L1 fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=rect style=filled]
-	"Pipeline1_FeatureAnalysis_Feature Selection_Automatic" -> "Pipeline1_FeatureAnalysis_Feature Selection_Automatic_L1"
-	"Pipeline1_FeatureAnalysis_Feature Selection_Manual" [label=Manual fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
-	"Pipeline1_FeatureAnalysis_Feature Selection" -> "Pipeline1_FeatureAnalysis_Feature Selection_Manual"
-	"Pipeline1_FeatureAnalysis_Feature Engineering" [label="Feature Engineering" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline1_FeatureAnalysis -> "Pipeline1_FeatureAnalysis_Feature Engineering"
-	"Pipeline1_FeatureAnalysis_Feature Transformation" [label="Feature Transformation" fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline1_FeatureAnalysis -> "Pipeline1_FeatureAnalysis_Feature Transformation"
-	Pipeline1_DataPreprocessing_ClassImbalance -> Pipeline1_FeatureAnalysis
-	Pipeline1_DataPreprocessing_Outliers -> Pipeline1_FeatureAnalysis
-	Pipeline1_DataPreprocessing_MissingValues -> Pipeline1_FeatureAnalysis
-	Pipeline1_DataPreprocessing_BoundChecking -> Pipeline1_FeatureAnalysis
-	Pipeline1_DataPreprocessing_FeatureScaling -> Pipeline1_FeatureAnalysis
-	Pipeline1_Modelling [label=Modelling fillcolor="#9B59B6" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
-	"Pipeline1_Modelling_pre-tuning" [label="pre-tuning" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline1_Modelling -> "Pipeline1_Modelling_pre-tuning"
-	"Pipeline1_Modelling_pre-tuning_feature Relevance" [label="feature Relevance" fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
-	"Pipeline1_Modelling_pre-tuning" -> "Pipeline1_Modelling_pre-tuning_feature Relevance"
-	"Pipeline1_Modelling_pre-tuning_Model Analysis" [label="Model Analysis" fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
-	"Pipeline1_Modelling_pre-tuning" -> "Pipeline1_Modelling_pre-tuning_Model Analysis"
-	"Pipeline1_Modelling_pre-tuning_Model Analysis_accuracy" [label="accuracy
-(1%)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
-	"Pipeline1_Modelling_pre-tuning_Model Analysis" -> "Pipeline1_Modelling_pre-tuning_Model Analysis_accuracy"
-	"Pipeline1_Modelling_pre-tuning_Model Analysis_timeToFit" [label="timeToFit
-(2s)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
-	"Pipeline1_Modelling_pre-tuning_Model Analysis" -> "Pipeline1_Modelling_pre-tuning_Model Analysis_timeToFit"
-	"Pipeline1_Modelling_in-tuning" [label="in-tuning" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline1_Modelling -> "Pipeline1_Modelling_in-tuning"
-	"Pipeline1_Modelling_in-tuning_feature Relevance" [label="feature Relevance" fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
-	"Pipeline1_Modelling_in-tuning" -> "Pipeline1_Modelling_in-tuning_feature Relevance"
-	"Pipeline1_Modelling_in-tuning_Model Analysis" [label="Model Analysis" fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
-	"Pipeline1_Modelling_in-tuning" -> "Pipeline1_Modelling_in-tuning_Model Analysis"
-	"Pipeline1_Modelling_in-tuning_Model Analysis_accuracy" [label="accuracy
-(gb - 1%, rf - 2%)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
-	"Pipeline1_Modelling_in-tuning_Model Analysis" -> "Pipeline1_Modelling_in-tuning_Model Analysis_accuracy"
-	"Pipeline1_Modelling_in-tuning_Model Analysis_timeToFit" [label="timeToFit
-(gb - 2s, rf - 3s)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
-	"Pipeline1_Modelling_in-tuning_Model Analysis" -> "Pipeline1_Modelling_in-tuning_Model Analysis_timeToFit"
-	"Pipeline1_Modelling_post-tuning" [label="post-tuning" fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline1_Modelling -> "Pipeline1_Modelling_post-tuning"
-	"Pipeline1_Modelling_post-tuning_Model Analysis" [label="Model Analysis
-(train_set = val_set + train_set)" fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=box style=filled]
-	"Pipeline1_Modelling_post-tuning" -> "Pipeline1_Modelling_post-tuning_Model Analysis"
-	"Pipeline1_Modelling_post-tuning_Model Analysis_accuracy" [label="accuracy
-(1%)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
-	"Pipeline1_Modelling_post-tuning_Model Analysis" -> "Pipeline1_Modelling_post-tuning_Model Analysis_accuracy"
-	"Pipeline1_Modelling_post-tuning_Model Analysis_timeToFit" [label="timeToFit
-(2s)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
-	"Pipeline1_Modelling_post-tuning_Model Analysis" -> "Pipeline1_Modelling_post-tuning_Model Analysis_timeToFit"
-	"Pipeline1_Modelling_post-tuning_Model calibration" [label="Model calibration
-(True)" fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=box style=filled]
-	"Pipeline1_Modelling_post-tuning" -> "Pipeline1_Modelling_post-tuning_Model calibration"
-	"Pipeline1_FeatureAnalysis_Feature Selection" -> Pipeline1_Modelling
-	"Pipeline1_FeatureAnalysis_Feature Engineering" -> Pipeline1_Modelling
-	"Pipeline1_FeatureAnalysis_Feature Transformation" -> Pipeline1_Modelling
-	Pipeline2_DataPreprocessing [label=DataPreprocessing fillcolor="#2ECC71" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
-	Pipeline2_Model3 -> Pipeline2_DataPreprocessing [penwidth=1.5]
-	Pipeline2_DataPreprocessing_ClassImbalance [label="ClassImbalance
-(no thing was found in here)" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
-	Pipeline2_DataPreprocessing -> Pipeline2_DataPreprocessing_ClassImbalance
-	Pipeline2_DataPreprocessing_Outliers [label=Outliers fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline2_DataPreprocessing -> Pipeline2_DataPreprocessing_Outliers
-	Pipeline2_DataPreprocessing_MissingValues [label=MissingValues fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline2_DataPreprocessing -> Pipeline2_DataPreprocessing_MissingValues
-	Pipeline2_DataPreprocessing_BoundChecking [label=BoundChecking fillcolor="#EC7063" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline2_DataPreprocessing -> Pipeline2_DataPreprocessing_BoundChecking
-	Pipeline2_DataPreprocessing_FeatureScaling [label=FeatureScaling fillcolor="#45B39D" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline2_DataPreprocessing -> Pipeline2_DataPreprocessing_FeatureScaling
-	Pipeline2_FeatureAnalysis [label=FeatureAnalysis fillcolor="#3498DB" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
-	"Pipeline2_FeatureAnalysis_Feature Selection" [label="Feature Selection" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline2_FeatureAnalysis -> "Pipeline2_FeatureAnalysis_Feature Selection"
-	"Pipeline2_FeatureAnalysis_Feature Selection_Automatic" [label=Automatic fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
-	"Pipeline2_FeatureAnalysis_Feature Selection" -> "Pipeline2_FeatureAnalysis_Feature Selection_Automatic"
-	"Pipeline2_FeatureAnalysis_Feature Selection_Automatic_Boruta" [label=Boruta fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=rect style=filled]
-	"Pipeline2_FeatureAnalysis_Feature Selection_Automatic" -> "Pipeline2_FeatureAnalysis_Feature Selection_Automatic_Boruta"
-	"Pipeline2_FeatureAnalysis_Feature Selection_Automatic_L1" [label=L1 fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=rect style=filled]
-	"Pipeline2_FeatureAnalysis_Feature Selection_Automatic" -> "Pipeline2_FeatureAnalysis_Feature Selection_Automatic_L1"
-	"Pipeline2_FeatureAnalysis_Feature Selection_Manual" [label=Manual fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
-	"Pipeline2_FeatureAnalysis_Feature Selection" -> "Pipeline2_FeatureAnalysis_Feature Selection_Manual"
-	"Pipeline2_FeatureAnalysis_Feature Engineering" [label="Feature Engineering" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline2_FeatureAnalysis -> "Pipeline2_FeatureAnalysis_Feature Engineering"
-	"Pipeline2_FeatureAnalysis_Feature Transformation" [label="Feature Transformation" fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline2_FeatureAnalysis -> "Pipeline2_FeatureAnalysis_Feature Transformation"
-	Pipeline2_DataPreprocessing_ClassImbalance -> Pipeline2_FeatureAnalysis
-	Pipeline2_DataPreprocessing_Outliers -> Pipeline2_FeatureAnalysis
-	Pipeline2_DataPreprocessing_MissingValues -> Pipeline2_FeatureAnalysis
-	Pipeline2_DataPreprocessing_BoundChecking -> Pipeline2_FeatureAnalysis
-	Pipeline2_DataPreprocessing_FeatureScaling -> Pipeline2_FeatureAnalysis
-	Pipeline2_Modelling [label=Modelling fillcolor="#9B59B6" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
-	"Pipeline2_Modelling_pre-tuning" [label="pre-tuning" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline2_Modelling -> "Pipeline2_Modelling_pre-tuning"
-	"Pipeline2_Modelling_pre-tuning_feature Relevance" [label="feature Relevance" fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
-	"Pipeline2_Modelling_pre-tuning" -> "Pipeline2_Modelling_pre-tuning_feature Relevance"
-	"Pipeline2_Modelling_pre-tuning_Model Analysis" [label="Model Analysis" fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
-	"Pipeline2_Modelling_pre-tuning" -> "Pipeline2_Modelling_pre-tuning_Model Analysis"
-	"Pipeline2_Modelling_pre-tuning_Model Analysis_accuracy" [label="accuracy
-(1%)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
-	"Pipeline2_Modelling_pre-tuning_Model Analysis" -> "Pipeline2_Modelling_pre-tuning_Model Analysis_accuracy"
-	"Pipeline2_Modelling_pre-tuning_Model Analysis_timeToFit" [label="timeToFit
-(2s)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
-	"Pipeline2_Modelling_pre-tuning_Model Analysis" -> "Pipeline2_Modelling_pre-tuning_Model Analysis_timeToFit"
-	"Pipeline2_Modelling_in-tuning" [label="in-tuning" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
-	Pipeline2_Modelling -> "Pipeline2_Modelling_in-tuning"
-	"Pipeline2_Modelling_in-tuning_feature Relevance" [label="feature Relevance" fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
-	"Pipeline2_Modelling_in-tuning" -> "Pipeline2_Modelling_in-tuning_feature Relevance"
-	"Pipeline2_Modelling_in-tuning_Model Analysis" [label="Model Analysis" fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
-	"Pipeline2_Modelling_in-tuning" -> "Pipeline2_Modelling_in-tuning_Model Analysis"
-	"Pipeline2_Modelling_in-tuning_Model Analysis_accuracy" [label="accuracy
-(gb - 1%, rf - 2%)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
-	"Pipeline2_Modelling_in-tuning_Model Analysis" -> "Pipeline2_Modelling_in-tuning_Model Analysis_accuracy"
-	"Pipeline2_Modelling_in-tuning_Model Analysis_timeToFit" [label="timeToFit
-(gb - 2s, rf - 3s)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
-	"Pipeline2_Modelling_in-tuning_Model Analysis" -> "Pipeline2_Modelling_in-tuning_Model Analysis_timeToFit"
-	"Pipeline2_FeatureAnalysis_Feature Selection" -> Pipeline2_Modelling
-	"Pipeline2_FeatureAnalysis_Feature Engineering" -> Pipeline2_Modelling
-	"Pipeline2_FeatureAnalysis_Feature Transformation" -> Pipeline2_Modelling
+	ensembled [label=ensembled fillcolor="#5D6D7E" fontname=Arial fontsize=18 penwidth=1.5 shape=rect style=filled]
+	EDA -> ensembled [penwidth=2]
+	tree_based [label=tree_based fillcolor="#5D6D7E" fontname=Arial fontsize=18 penwidth=1.5 shape=rect style=filled]
+	EDA -> tree_based [penwidth=2]
+	support_vector_machine [label=support_vector_machine fillcolor="#5D6D7E" fontname=Arial fontsize=18 penwidth=1.5 shape=rect style=filled]
+	EDA -> support_vector_machine [penwidth=2]
+	naive_bayes [label=naive_bayes fillcolor="#5D6D7E" fontname=Arial fontsize=18 penwidth=1.5 shape=rect style=filled]
+	EDA -> naive_bayes [penwidth=2]
+	feed_forward_neural_network [label=feed_forward_neural_network fillcolor="#5D6D7E" fontname=Arial fontsize=18 penwidth=1.5 shape=rect style=filled]
+	EDA -> feed_forward_neural_network [penwidth=2]
+	baselines [label=baselines fillcolor="#5D6D7E" fontname=Arial fontsize=18 penwidth=1.5 shape=rect style=filled]
+	EDA -> baselines [penwidth=2]
+	"ensembled_Random Forest" [label="Random Forest" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
+	ensembled -> "ensembled_Random Forest" [penwidth=1.5]
+	"ensembled_Gradient Boosting" [label="Gradient Boosting" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
+	ensembled -> "ensembled_Gradient Boosting" [penwidth=1.5]
+	"tree_based_Decision Tree" [label="Decision Tree" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
+	tree_based -> "tree_based_Decision Tree" [penwidth=1.5]
+	"support_vector_machine_Non-linear Support Vector Machine" [label="Non-linear Support Vector Machine" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
+	support_vector_machine -> "support_vector_machine_Non-linear Support Vector Machine" [penwidth=1.5]
+	"support_vector_machine_Linear Support Vector Machine" [label="Linear Support Vector Machine" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
+	support_vector_machine -> "support_vector_machine_Linear Support Vector Machine" [penwidth=1.5]
+	"naive_bayes_Naive Bayes" [label="Naive Bayes" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
+	naive_bayes -> "naive_bayes_Naive Bayes" [penwidth=1.5]
+	"feed_forward_neural_network_Feed Forward Neural Network" [label="Feed Forward Neural Network" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
+	feed_forward_neural_network -> "feed_forward_neural_network_Feed Forward Neural Network" [penwidth=1.5]
+	"baselines_Majority Class (baseline)" [label="Majority Class (baseline)" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
+	baselines -> "baselines_Majority Class (baseline)" [penwidth=1.5]
+	"baselines_Logistic Regression (baseline)" [label="Logistic Regression (baseline)" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
+	baselines -> "baselines_Logistic Regression (baseline)" [penwidth=1.5]
+	ensembled_dataset [label=dataset fillcolor="#2ECC71" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"ensembled_Random Forest" -> ensembled_dataset [penwidth=1.5]
+	"ensembled_Gradient Boosting" -> ensembled_dataset [penwidth=1.5]
+	ensembled_dataset_split [label="split
+(('X_train: (37625, 142)', 'X_val: (4703, 142)', 'X_test: (4704, 142)'))" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	ensembled_dataset -> ensembled_dataset_split
+	ensembled_data_preprocessing [label=data_preprocessing fillcolor="#3498DB" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	ensembled_data_preprocessing_missing_values_and_duplicates [label="missing_values_and_duplicates
+(No missing values found in the dataset)" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	ensembled_data_preprocessing -> ensembled_data_preprocessing_missing_values_and_duplicates
+	ensembled_data_preprocessing_analyze_duplicates [label="analyze_duplicates
+(There are 0 duplicates in the dataset)" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=box style=filled]
+	ensembled_data_preprocessing -> ensembled_data_preprocessing_analyze_duplicates
+	ensembled_data_preprocessing_outliers_detection [label="outliers_detection
+(There are 125 features with outliers out of 142 numerical features (88.03%)New X_train shape: (37625, 142) and y_train shape: (37625,))" fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=box style=filled]
+	ensembled_data_preprocessing -> ensembled_data_preprocessing_outliers_detection
+	ensembled_data_preprocessing_feature_scaling [label="feature_scaling
+(Successfully scaled 142 features. Plotted distributions for the first 5 features.
+To check the results run:
+ your_pipeline.dataset.X_train.head())" fillcolor="#EC7063" fontname=Arial fontsize=14 shape=box style=filled]
+	ensembled_data_preprocessing -> ensembled_data_preprocessing_feature_scaling
+	ensembled_data_preprocessing_class_imbalance [label="class_imbalance
+(Successfully balanced classes via SMOTE. Started with a 0.02:1 ratio; now 1:1.)" fillcolor="#45B39D" fontname=Arial fontsize=14 shape=box style=filled]
+	ensembled_data_preprocessing -> ensembled_data_preprocessing_class_imbalance
+	ensembled_dataset_split -> ensembled_data_preprocessing [penwidth=1.5]
+	ensembled_feature_analysis [label=feature_analysis fillcolor="#9B59B6" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	ensembled_feature_analysis_feature_transformation [label=feature_transformation fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
+	ensembled_feature_analysis -> ensembled_feature_analysis_feature_transformation
+	ensembled_feature_analysis_feature_engineering [label=feature_engineering fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
+	ensembled_feature_analysis -> ensembled_feature_analysis_feature_engineering
+	ensembled_feature_analysis_feature_selection [label=feature_selection fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
+	ensembled_feature_analysis -> ensembled_feature_analysis_feature_selection
+	ensembled_feature_analysis_feature_selection_manual [label=manual fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
+	ensembled_feature_analysis_feature_selection -> ensembled_feature_analysis_feature_selection_manual
+	ensembled_feature_analysis_feature_selection_manual_MutualInformation [label="MutualInformation
+(This is mutual information)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	ensembled_feature_analysis_feature_selection_manual -> ensembled_feature_analysis_feature_selection_manual_MutualInformation
+	ensembled_feature_analysis_feature_selection_manual_LowVariances [label="LowVariances
+(This is low variances)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	ensembled_feature_analysis_feature_selection_manual -> ensembled_feature_analysis_feature_selection_manual_LowVariances
+	ensembled_feature_analysis_feature_selection_manual_VIF [label="VIF
+(This is VIF)" fillcolor="#F4ECF7" fontname=Arial fontsize=10 shape=box style=filled]
+	ensembled_feature_analysis_feature_selection_manual -> ensembled_feature_analysis_feature_selection_manual_VIF
+	ensembled_feature_analysis_feature_selection_manual_PCA [label="PCA
+(This is PCA)" fillcolor="#FDEDEC" fontname=Arial fontsize=10 shape=box style=filled]
+	ensembled_feature_analysis_feature_selection_manual -> ensembled_feature_analysis_feature_selection_manual_PCA
+	ensembled_feature_analysis_feature_selection_automatic [label=automatic fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
+	ensembled_feature_analysis_feature_selection -> ensembled_feature_analysis_feature_selection_automatic
+	ensembled_feature_analysis_feature_selection_automatic_L1 [label="L1
+({'predictivePowerFeatures': 'This is predictive power features', 'excludedFeatures': 'This is excluded features', 'coefficients': 'This is coefficients'})" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	ensembled_feature_analysis_feature_selection_automatic -> ensembled_feature_analysis_feature_selection_automatic_L1
+	ensembled_feature_analysis_feature_selection_automatic_Boruta [label="Boruta
+({'selected_features': 'This is selected features', 'excludedFeatures': 'This is excluded features'})" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	ensembled_feature_analysis_feature_selection_automatic -> ensembled_feature_analysis_feature_selection_automatic_Boruta
+	ensembled_data_preprocessing_missing_values_and_duplicates -> ensembled_feature_analysis [penwidth=1.5]
+	ensembled_data_preprocessing_analyze_duplicates -> ensembled_feature_analysis [penwidth=1.5]
+	ensembled_data_preprocessing_outliers_detection -> ensembled_feature_analysis [penwidth=1.5]
+	ensembled_data_preprocessing_feature_scaling -> ensembled_feature_analysis [penwidth=1.5]
+	ensembled_data_preprocessing_class_imbalance -> ensembled_feature_analysis [penwidth=1.5]
+	ensembled_modelling [label=modelling fillcolor="#E74C3C" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	ensembled_feature_analysis_feature_transformation -> ensembled_modelling [penwidth=1.5]
+	ensembled_feature_analysis_feature_engineering -> ensembled_modelling [penwidth=1.5]
+	ensembled_feature_analysis_feature_selection -> ensembled_modelling [penwidth=1.5]
+	tree_based_dataset [label=dataset fillcolor="#2ECC71" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"tree_based_Decision Tree" -> tree_based_dataset [penwidth=1.5]
+	tree_based_dataset_split [label="split
+(('X_train: (37625, 142)', 'X_val: (4703, 142)', 'X_test: (4704, 142)'))" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	tree_based_dataset -> tree_based_dataset_split
+	tree_based_data_preprocessing [label=data_preprocessing fillcolor="#3498DB" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	tree_based_dataset_split -> tree_based_data_preprocessing [penwidth=1.5]
+	tree_based_feature_analysis [label=feature_analysis fillcolor="#9B59B6" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	tree_based_feature_analysis_feature_transformation [label=feature_transformation fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
+	tree_based_feature_analysis -> tree_based_feature_analysis_feature_transformation
+	tree_based_feature_analysis_feature_engineering [label=feature_engineering fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
+	tree_based_feature_analysis -> tree_based_feature_analysis_feature_engineering
+	tree_based_feature_analysis_feature_selection [label=feature_selection fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
+	tree_based_feature_analysis -> tree_based_feature_analysis_feature_selection
+	tree_based_feature_analysis_feature_selection_manual [label=manual fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
+	tree_based_feature_analysis_feature_selection -> tree_based_feature_analysis_feature_selection_manual
+	tree_based_feature_analysis_feature_selection_manual_MutualInformation [label="MutualInformation
+(This is mutual information)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	tree_based_feature_analysis_feature_selection_manual -> tree_based_feature_analysis_feature_selection_manual_MutualInformation
+	tree_based_feature_analysis_feature_selection_manual_LowVariances [label="LowVariances
+(This is low variances)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	tree_based_feature_analysis_feature_selection_manual -> tree_based_feature_analysis_feature_selection_manual_LowVariances
+	tree_based_feature_analysis_feature_selection_manual_VIF [label="VIF
+(This is VIF)" fillcolor="#F4ECF7" fontname=Arial fontsize=10 shape=box style=filled]
+	tree_based_feature_analysis_feature_selection_manual -> tree_based_feature_analysis_feature_selection_manual_VIF
+	tree_based_feature_analysis_feature_selection_manual_PCA [label="PCA
+(This is PCA)" fillcolor="#FDEDEC" fontname=Arial fontsize=10 shape=box style=filled]
+	tree_based_feature_analysis_feature_selection_manual -> tree_based_feature_analysis_feature_selection_manual_PCA
+	tree_based_feature_analysis_feature_selection_automatic [label=automatic fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
+	tree_based_feature_analysis_feature_selection -> tree_based_feature_analysis_feature_selection_automatic
+	tree_based_feature_analysis_feature_selection_automatic_L1 [label="L1
+({'predictivePowerFeatures': 'This is predictive power features', 'excludedFeatures': 'This is excluded features', 'coefficients': 'This is coefficients'})" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	tree_based_feature_analysis_feature_selection_automatic -> tree_based_feature_analysis_feature_selection_automatic_L1
+	tree_based_feature_analysis_feature_selection_automatic_Boruta [label="Boruta
+({'selected_features': 'This is selected features', 'excludedFeatures': 'This is excluded features'})" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	tree_based_feature_analysis_feature_selection_automatic -> tree_based_feature_analysis_feature_selection_automatic_Boruta
+	tree_based_data_preprocessing -> tree_based_feature_analysis [penwidth=2.0]
+	tree_based_modelling [label=modelling fillcolor="#E74C3C" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	tree_based_feature_analysis_feature_transformation -> tree_based_modelling [penwidth=1.5]
+	tree_based_feature_analysis_feature_engineering -> tree_based_modelling [penwidth=1.5]
+	tree_based_feature_analysis_feature_selection -> tree_based_modelling [penwidth=1.5]
+	support_vector_machine_dataset [label=dataset fillcolor="#2ECC71" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"support_vector_machine_Non-linear Support Vector Machine" -> support_vector_machine_dataset [penwidth=1.5]
+	"support_vector_machine_Linear Support Vector Machine" -> support_vector_machine_dataset [penwidth=1.5]
+	support_vector_machine_dataset_split [label="split
+(('X_train: (37625, 142)', 'X_val: (4703, 142)', 'X_test: (4704, 142)'))" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	support_vector_machine_dataset -> support_vector_machine_dataset_split
+	support_vector_machine_data_preprocessing [label=data_preprocessing fillcolor="#3498DB" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	support_vector_machine_dataset_split -> support_vector_machine_data_preprocessing [penwidth=1.5]
+	support_vector_machine_feature_analysis [label=feature_analysis fillcolor="#9B59B6" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	support_vector_machine_feature_analysis_feature_transformation [label=feature_transformation fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
+	support_vector_machine_feature_analysis -> support_vector_machine_feature_analysis_feature_transformation
+	support_vector_machine_feature_analysis_feature_engineering [label=feature_engineering fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
+	support_vector_machine_feature_analysis -> support_vector_machine_feature_analysis_feature_engineering
+	support_vector_machine_feature_analysis_feature_selection [label=feature_selection fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
+	support_vector_machine_feature_analysis -> support_vector_machine_feature_analysis_feature_selection
+	support_vector_machine_feature_analysis_feature_selection_manual [label=manual fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
+	support_vector_machine_feature_analysis_feature_selection -> support_vector_machine_feature_analysis_feature_selection_manual
+	support_vector_machine_feature_analysis_feature_selection_manual_MutualInformation [label="MutualInformation
+(This is mutual information)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	support_vector_machine_feature_analysis_feature_selection_manual -> support_vector_machine_feature_analysis_feature_selection_manual_MutualInformation
+	support_vector_machine_feature_analysis_feature_selection_manual_LowVariances [label="LowVariances
+(This is low variances)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	support_vector_machine_feature_analysis_feature_selection_manual -> support_vector_machine_feature_analysis_feature_selection_manual_LowVariances
+	support_vector_machine_feature_analysis_feature_selection_manual_VIF [label="VIF
+(This is VIF)" fillcolor="#F4ECF7" fontname=Arial fontsize=10 shape=box style=filled]
+	support_vector_machine_feature_analysis_feature_selection_manual -> support_vector_machine_feature_analysis_feature_selection_manual_VIF
+	support_vector_machine_feature_analysis_feature_selection_manual_PCA [label="PCA
+(This is PCA)" fillcolor="#FDEDEC" fontname=Arial fontsize=10 shape=box style=filled]
+	support_vector_machine_feature_analysis_feature_selection_manual -> support_vector_machine_feature_analysis_feature_selection_manual_PCA
+	support_vector_machine_feature_analysis_feature_selection_automatic [label=automatic fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
+	support_vector_machine_feature_analysis_feature_selection -> support_vector_machine_feature_analysis_feature_selection_automatic
+	support_vector_machine_feature_analysis_feature_selection_automatic_L1 [label="L1
+({'predictivePowerFeatures': 'This is predictive power features', 'excludedFeatures': 'This is excluded features', 'coefficients': 'This is coefficients'})" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	support_vector_machine_feature_analysis_feature_selection_automatic -> support_vector_machine_feature_analysis_feature_selection_automatic_L1
+	support_vector_machine_feature_analysis_feature_selection_automatic_Boruta [label="Boruta
+({'selected_features': 'This is selected features', 'excludedFeatures': 'This is excluded features'})" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	support_vector_machine_feature_analysis_feature_selection_automatic -> support_vector_machine_feature_analysis_feature_selection_automatic_Boruta
+	support_vector_machine_data_preprocessing -> support_vector_machine_feature_analysis [penwidth=2.0]
+	support_vector_machine_modelling [label=modelling fillcolor="#E74C3C" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	support_vector_machine_feature_analysis_feature_transformation -> support_vector_machine_modelling [penwidth=1.5]
+	support_vector_machine_feature_analysis_feature_engineering -> support_vector_machine_modelling [penwidth=1.5]
+	support_vector_machine_feature_analysis_feature_selection -> support_vector_machine_modelling [penwidth=1.5]
+	naive_bayes_dataset [label=dataset fillcolor="#2ECC71" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"naive_bayes_Naive Bayes" -> naive_bayes_dataset [penwidth=1.5]
+	naive_bayes_dataset_split [label="split
+(('X_train: (37625, 142)', 'X_val: (4703, 142)', 'X_test: (4704, 142)'))" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	naive_bayes_dataset -> naive_bayes_dataset_split
+	naive_bayes_data_preprocessing [label=data_preprocessing fillcolor="#3498DB" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	naive_bayes_dataset_split -> naive_bayes_data_preprocessing [penwidth=1.5]
+	naive_bayes_feature_analysis [label=feature_analysis fillcolor="#9B59B6" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	naive_bayes_feature_analysis_feature_transformation [label=feature_transformation fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
+	naive_bayes_feature_analysis -> naive_bayes_feature_analysis_feature_transformation
+	naive_bayes_feature_analysis_feature_engineering [label=feature_engineering fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
+	naive_bayes_feature_analysis -> naive_bayes_feature_analysis_feature_engineering
+	naive_bayes_feature_analysis_feature_selection [label=feature_selection fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
+	naive_bayes_feature_analysis -> naive_bayes_feature_analysis_feature_selection
+	naive_bayes_feature_analysis_feature_selection_manual [label=manual fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
+	naive_bayes_feature_analysis_feature_selection -> naive_bayes_feature_analysis_feature_selection_manual
+	naive_bayes_feature_analysis_feature_selection_manual_MutualInformation [label="MutualInformation
+(This is mutual information)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	naive_bayes_feature_analysis_feature_selection_manual -> naive_bayes_feature_analysis_feature_selection_manual_MutualInformation
+	naive_bayes_feature_analysis_feature_selection_manual_LowVariances [label="LowVariances
+(This is low variances)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	naive_bayes_feature_analysis_feature_selection_manual -> naive_bayes_feature_analysis_feature_selection_manual_LowVariances
+	naive_bayes_feature_analysis_feature_selection_manual_VIF [label="VIF
+(This is VIF)" fillcolor="#F4ECF7" fontname=Arial fontsize=10 shape=box style=filled]
+	naive_bayes_feature_analysis_feature_selection_manual -> naive_bayes_feature_analysis_feature_selection_manual_VIF
+	naive_bayes_feature_analysis_feature_selection_manual_PCA [label="PCA
+(This is PCA)" fillcolor="#FDEDEC" fontname=Arial fontsize=10 shape=box style=filled]
+	naive_bayes_feature_analysis_feature_selection_manual -> naive_bayes_feature_analysis_feature_selection_manual_PCA
+	naive_bayes_feature_analysis_feature_selection_automatic [label=automatic fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
+	naive_bayes_feature_analysis_feature_selection -> naive_bayes_feature_analysis_feature_selection_automatic
+	naive_bayes_feature_analysis_feature_selection_automatic_L1 [label="L1
+({'predictivePowerFeatures': 'This is predictive power features', 'excludedFeatures': 'This is excluded features', 'coefficients': 'This is coefficients'})" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	naive_bayes_feature_analysis_feature_selection_automatic -> naive_bayes_feature_analysis_feature_selection_automatic_L1
+	naive_bayes_feature_analysis_feature_selection_automatic_Boruta [label="Boruta
+({'selected_features': 'This is selected features', 'excludedFeatures': 'This is excluded features'})" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	naive_bayes_feature_analysis_feature_selection_automatic -> naive_bayes_feature_analysis_feature_selection_automatic_Boruta
+	naive_bayes_data_preprocessing -> naive_bayes_feature_analysis [penwidth=2.0]
+	naive_bayes_modelling [label=modelling fillcolor="#E74C3C" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	naive_bayes_feature_analysis_feature_transformation -> naive_bayes_modelling [penwidth=1.5]
+	naive_bayes_feature_analysis_feature_engineering -> naive_bayes_modelling [penwidth=1.5]
+	naive_bayes_feature_analysis_feature_selection -> naive_bayes_modelling [penwidth=1.5]
+	feed_forward_neural_network_dataset [label=dataset fillcolor="#2ECC71" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"feed_forward_neural_network_Feed Forward Neural Network" -> feed_forward_neural_network_dataset [penwidth=1.5]
+	feed_forward_neural_network_dataset_split [label="split
+(('X_train: (37625, 142)', 'X_val: (4703, 142)', 'X_test: (4704, 142)'))" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	feed_forward_neural_network_dataset -> feed_forward_neural_network_dataset_split
+	feed_forward_neural_network_data_preprocessing [label=data_preprocessing fillcolor="#3498DB" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	feed_forward_neural_network_dataset_split -> feed_forward_neural_network_data_preprocessing [penwidth=1.5]
+	feed_forward_neural_network_feature_analysis [label=feature_analysis fillcolor="#9B59B6" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	feed_forward_neural_network_feature_analysis_feature_transformation [label=feature_transformation fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
+	feed_forward_neural_network_feature_analysis -> feed_forward_neural_network_feature_analysis_feature_transformation
+	feed_forward_neural_network_feature_analysis_feature_engineering [label=feature_engineering fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
+	feed_forward_neural_network_feature_analysis -> feed_forward_neural_network_feature_analysis_feature_engineering
+	feed_forward_neural_network_feature_analysis_feature_selection [label=feature_selection fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
+	feed_forward_neural_network_feature_analysis -> feed_forward_neural_network_feature_analysis_feature_selection
+	feed_forward_neural_network_feature_analysis_feature_selection_manual [label=manual fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
+	feed_forward_neural_network_feature_analysis_feature_selection -> feed_forward_neural_network_feature_analysis_feature_selection_manual
+	feed_forward_neural_network_feature_analysis_feature_selection_manual_MutualInformation [label="MutualInformation
+(This is mutual information)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	feed_forward_neural_network_feature_analysis_feature_selection_manual -> feed_forward_neural_network_feature_analysis_feature_selection_manual_MutualInformation
+	feed_forward_neural_network_feature_analysis_feature_selection_manual_LowVariances [label="LowVariances
+(This is low variances)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	feed_forward_neural_network_feature_analysis_feature_selection_manual -> feed_forward_neural_network_feature_analysis_feature_selection_manual_LowVariances
+	feed_forward_neural_network_feature_analysis_feature_selection_manual_VIF [label="VIF
+(This is VIF)" fillcolor="#F4ECF7" fontname=Arial fontsize=10 shape=box style=filled]
+	feed_forward_neural_network_feature_analysis_feature_selection_manual -> feed_forward_neural_network_feature_analysis_feature_selection_manual_VIF
+	feed_forward_neural_network_feature_analysis_feature_selection_manual_PCA [label="PCA
+(This is PCA)" fillcolor="#FDEDEC" fontname=Arial fontsize=10 shape=box style=filled]
+	feed_forward_neural_network_feature_analysis_feature_selection_manual -> feed_forward_neural_network_feature_analysis_feature_selection_manual_PCA
+	feed_forward_neural_network_feature_analysis_feature_selection_automatic [label=automatic fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
+	feed_forward_neural_network_feature_analysis_feature_selection -> feed_forward_neural_network_feature_analysis_feature_selection_automatic
+	feed_forward_neural_network_feature_analysis_feature_selection_automatic_L1 [label="L1
+({'predictivePowerFeatures': 'This is predictive power features', 'excludedFeatures': 'This is excluded features', 'coefficients': 'This is coefficients'})" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	feed_forward_neural_network_feature_analysis_feature_selection_automatic -> feed_forward_neural_network_feature_analysis_feature_selection_automatic_L1
+	feed_forward_neural_network_feature_analysis_feature_selection_automatic_Boruta [label="Boruta
+({'selected_features': 'This is selected features', 'excludedFeatures': 'This is excluded features'})" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	feed_forward_neural_network_feature_analysis_feature_selection_automatic -> feed_forward_neural_network_feature_analysis_feature_selection_automatic_Boruta
+	feed_forward_neural_network_data_preprocessing -> feed_forward_neural_network_feature_analysis [penwidth=2.0]
+	feed_forward_neural_network_modelling [label=modelling fillcolor="#E74C3C" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	feed_forward_neural_network_feature_analysis_feature_transformation -> feed_forward_neural_network_modelling [penwidth=1.5]
+	feed_forward_neural_network_feature_analysis_feature_engineering -> feed_forward_neural_network_modelling [penwidth=1.5]
+	feed_forward_neural_network_feature_analysis_feature_selection -> feed_forward_neural_network_modelling [penwidth=1.5]
+	baselines_dataset [label=dataset fillcolor="#2ECC71" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"baselines_Majority Class (baseline)" -> baselines_dataset [penwidth=1.5]
+	"baselines_Logistic Regression (baseline)" -> baselines_dataset [penwidth=1.5]
+	baselines_dataset_split [label="split
+(('X_train: (37625, 142)', 'X_val: (4703, 142)', 'X_test: (4704, 142)'))" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	baselines_dataset -> baselines_dataset_split
+	baselines_data_preprocessing [label=data_preprocessing fillcolor="#3498DB" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	baselines_dataset_split -> baselines_data_preprocessing [penwidth=1.5]
+	baselines_feature_analysis [label=feature_analysis fillcolor="#9B59B6" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	baselines_feature_analysis_feature_transformation [label=feature_transformation fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
+	baselines_feature_analysis -> baselines_feature_analysis_feature_transformation
+	baselines_feature_analysis_feature_engineering [label=feature_engineering fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=rect style=filled]
+	baselines_feature_analysis -> baselines_feature_analysis_feature_engineering
+	baselines_feature_analysis_feature_selection [label=feature_selection fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=rect style=filled]
+	baselines_feature_analysis -> baselines_feature_analysis_feature_selection
+	baselines_feature_analysis_feature_selection_manual [label=manual fillcolor="#ABEBC6" fontname=Arial fontsize=12 shape=rect style=filled]
+	baselines_feature_analysis_feature_selection -> baselines_feature_analysis_feature_selection_manual
+	baselines_feature_analysis_feature_selection_manual_MutualInformation [label="MutualInformation
+(This is mutual information)" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	baselines_feature_analysis_feature_selection_manual -> baselines_feature_analysis_feature_selection_manual_MutualInformation
+	baselines_feature_analysis_feature_selection_manual_LowVariances [label="LowVariances
+(This is low variances)" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	baselines_feature_analysis_feature_selection_manual -> baselines_feature_analysis_feature_selection_manual_LowVariances
+	baselines_feature_analysis_feature_selection_manual_VIF [label="VIF
+(This is VIF)" fillcolor="#F4ECF7" fontname=Arial fontsize=10 shape=box style=filled]
+	baselines_feature_analysis_feature_selection_manual -> baselines_feature_analysis_feature_selection_manual_VIF
+	baselines_feature_analysis_feature_selection_manual_PCA [label="PCA
+(This is PCA)" fillcolor="#FDEDEC" fontname=Arial fontsize=10 shape=box style=filled]
+	baselines_feature_analysis_feature_selection_manual -> baselines_feature_analysis_feature_selection_manual_PCA
+	baselines_feature_analysis_feature_selection_automatic [label=automatic fillcolor="#AED6F1" fontname=Arial fontsize=12 shape=rect style=filled]
+	baselines_feature_analysis_feature_selection -> baselines_feature_analysis_feature_selection_automatic
+	baselines_feature_analysis_feature_selection_automatic_L1 [label="L1
+({'predictivePowerFeatures': 'This is predictive power features', 'excludedFeatures': 'This is excluded features', 'coefficients': 'This is coefficients'})" fillcolor="#EAFAF1" fontname=Arial fontsize=10 shape=box style=filled]
+	baselines_feature_analysis_feature_selection_automatic -> baselines_feature_analysis_feature_selection_automatic_L1
+	baselines_feature_analysis_feature_selection_automatic_Boruta [label="Boruta
+({'selected_features': 'This is selected features', 'excludedFeatures': 'This is excluded features'})" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
+	baselines_feature_analysis_feature_selection_automatic -> baselines_feature_analysis_feature_selection_automatic_Boruta
+	baselines_data_preprocessing -> baselines_feature_analysis [penwidth=2.0]
+	baselines_modelling [label=modelling fillcolor="#E74C3C" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	baselines_feature_analysis_feature_transformation -> baselines_modelling [penwidth=1.5]
+	baselines_feature_analysis_feature_engineering -> baselines_modelling [penwidth=1.5]
+	baselines_feature_analysis_feature_selection -> baselines_modelling [penwidth=1.5]
 	subgraph cluster_legend {
 		graph [rankdir=LR]
 		fillcolor="#F8F9F9" fontname="Arial Bold" fontsize=18 label="Legend (by brightness)" penwidth=2 style=filled

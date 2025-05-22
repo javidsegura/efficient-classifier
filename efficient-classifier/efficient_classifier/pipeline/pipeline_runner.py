@@ -21,14 +21,9 @@ from efficient_classifier.phases.runners.modelling.modelling_runner import Model
 # Utils
 from efficient_classifier.utils.decorators.timer import timer
 from efficient_classifier.phases.phases_implementation.dev_ops.slackBot.bot import SlackBot
+from efficient_classifier.utils.miscellaneous.dag import DAG
 
-import yaml
 
-
-""" Phases are: 
-- Splitting
-
-"""
 
 class PipelineRunner:
       def __init__(self, 
@@ -36,12 +31,12 @@ class PipelineRunner:
                    model_task: str,
                    pipelines_names: dict[str, list[str]],
                    include_plots: bool = True,
-                   serialize_results: bool = False,
                    variables: dict = None
                    ) -> None:
             self.dataset_path = dataset_path
             self.model_task = model_task
             self.variables = variables
+            self.phases = ["dataset", "data_preprocessing", "feature_analysis", "modelling"]
             self._set_up_folders()
             self._set_up_pipelines(pipelines_names)
             self._set_up_logger()
@@ -59,7 +54,7 @@ class PipelineRunner:
                   "modelling": ModellingRunner(self.pipeline_manager,
                                                 include_plots=include_plots,
                                                 save_path=self.plots_path + "modelling/",
-                                                serialize_results=serialize_results)  
+                                               )  
             }
             self.slack_bot = SlackBot()
       
@@ -67,11 +62,21 @@ class PipelineRunner:
             """
             Set ups the dataset specific set-up.
             """
-            # DO GENERAL PIPELINE-WIDE SET-UP (e.g: remove zero day, no category, etc) => DATASET-SPECIFIC
+            # DO GENERAL PIPELINE-WIDE SET-UP (e.g: remove zero day, no category, etc) => *DATASET-SPECIFIC*
             default_pipeline.dataset.df.drop(columns=["Family", "Hash"], inplace=True) # We have decided to use only category as target variable; Hash is temporary while im debugging (it will be deleted in EDA)
             default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "Zero_Day"].index, inplace=True)
             default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "No_Category"].index, inplace=True)
 
+      def _dag_set_up(self):
+            dag_pipelines = {}
+            for category in self.variables["modelling_runner"]["models_to_include"]:
+                  print(f"Category name is: {category}")
+                  for pipeline in self.variables["modelling_runner"]["models_to_include"][category]:
+                        print(f"Pipeline name is: {pipeline}")
+                        dag_pipelines[pipeline] = {model for model in self.variables["modelling_runner"]["models_to_include"][category][pipeline]}
+            
+            phases = [phase for phase in self.phases]
+            return DAG(dag_pipelines, phases)
       
       def _set_up_pipelines(self, pipelines_names: dict[str, list[str]]) -> None:
             """
@@ -96,8 +101,9 @@ class PipelineRunner:
                   combined_pipelines[category_name] = {}
                   for pipeline_name in pipelines:
                         combined_pipelines[category_name][pipeline_name] = default_pipeline
-            
-            self.pipeline_manager = PipelineManager(combined_pipelines, variables=self.variables)
+
+            dag = self._dag_set_up()
+            self.pipeline_manager = PipelineManager(combined_pipelines, dag=dag, variables=self.variables)
 
       
       def _set_up_logger(self) -> None:
@@ -184,6 +190,10 @@ class PipelineRunner:
                               raise e
 
                   run_phase()
+            # Store DAG
+            self.pipeline_manager.dag.render()
+            
+            # Slack sends images
             if not error_occured and self.variables["BOT"]["send_images"]:
                   try:
                         #Send slack bot all the images in the results/plots folder

@@ -93,7 +93,7 @@ class NoTimeSeries(Split):
         ) = X_train, X_val, X_test, y_train, y_val, y_test
         if save_plots:
             super().plot_per_set_distribution(X.columns, save_plots, save_path)
-        return self.dataset.X_train.head().to_dict()
+        return (f"X_train: {X_train.shape}", f"X_val: {X_val.shape}", f"X_test: {X_test.shape}")
 
     def asses_split_classifier(
         self,

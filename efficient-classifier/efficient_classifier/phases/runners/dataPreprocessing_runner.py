@@ -60,24 +60,25 @@ class DataPreprocessingRunner(PhaseRunner):
                   save_path=save_path
             )
             messages.append(f"Handled missing values : {missing_res}")
+            self.pipeline_manager.dag.add_procedure(pipeline_name, "data_preprocessing", "missing_values_and_duplicates", missing_res)
 
             dup_res = preprocessing.uncomplete_data_obj.analyze_duplicates(
                   save_plots=self.include_plots,
                   save_path=save_path
                   )
             messages.append(f"Duplicates analyzed : {dup_res}")
-    
+            self.pipeline_manager.dag.add_procedure(pipeline_name, "data_preprocessing", "analyze_duplicates", dup_res)
 
             # 2) Outlier detection & bounding
             print(f"\nPreprocessing --- Bounds & Outliers - {pipeline_name}\n")
-            #COMMENTED DOWN CAUSE ITS INTRODUCING SOME WEIRD ERROR -- ISNT IMPLEMENTED CORRECTED ANYWAY 
             out_res = preprocessing.outliers_bounds_obj.get_outliers(
                   detection_type=self.variables["data_preprocessing_runner"]["outliers"]["detection_type"],
-                  save_plots=False, # HARDCODED FOR DEBUGGING. REMOVE IN PRODUCTION.
+                  save_plots=False, 
                   save_path=save_path
             )
             preprocessing.outliers_bounds_obj.bound_checking()
             messages.append(f"Outliers detected by {self.variables['data_preprocessing_runner']['outliers']['detection_type']} : {None}")
+            self.pipeline_manager.dag.add_procedure(pipeline_name, "data_preprocessing", "outliers_detection", out_res)
 
             # 3) Feature scaling
             print(f"\nPreprocessing --- Feature Scaling - {pipeline_name}\n")
@@ -92,8 +93,8 @@ class DataPreprocessingRunner(PhaseRunner):
                         save_path=save_path
                   )
             messages.append(f"Features scaled with {scaler} : {scale_res}")
+            self.pipeline_manager.dag.add_procedure(pipeline_name, "data_preprocessing", "feature_scaling", scale_res)
 
-            # COMMENTED DOWN CAUSE IT GOES TOO SLOW
             # 4) Class imbalance correction
             print(f"\nPreprocessing --- Class Imbalance - {pipeline_name}\n")
             imbalancer = self.variables["data_preprocessing_runner"]["pipeline_specific_configurations"]["imbalancer"][pipeline_name]
@@ -106,7 +107,7 @@ class DataPreprocessingRunner(PhaseRunner):
                         save_path=save_path
                   )
             messages.append(f"Class imbalance: {imb_res}")
-
+            self.pipeline_manager.dag.add_procedure(pipeline_name, "data_preprocessing", "class_imbalance", imb_res)
 
             print(f"Messages: {messages}")
             return "; ".join(messages)
@@ -123,12 +124,16 @@ class DataPreprocessingRunner(PhaseRunner):
             
             results = {}
 
-            # for category_name, pipelines in self.pipeline_manager.pipelines.items():
-            #       results[category_name] = {}
-            #       for pipeline_name, pipeline in pipelines.items():
-            #             print(f"--> Running preprocessing on pipeline: {category_name} / {pipeline_name}")
-            #             print("-"*30)
-            #             summary = self._execute_preprocessing(preprocessing=pipeline.preprocessing, pipeline_name=pipeline_name)
-            #             print(summary)
-            #             results[category_name][pipeline_name] = summary
+            for category_name, pipelines in self.pipeline_manager.pipelines.items():
+                  results[category_name] = {}
+                  for pipeline_name, pipeline in pipelines.items():
+                        if pipeline_name == "stacking":
+                              continue
+                        print(f"--> Running preprocessing on pipeline: {category_name} / {pipeline_name}")
+                        print("-"*30)
+                        summary = self._execute_preprocessing(preprocessing=pipeline.preprocessing, pipeline_name=pipeline_name)
+                        print(summary)
+                        results[category_name][pipeline_name] = summary
+                        break
+                  break
             return results
