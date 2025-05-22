@@ -29,6 +29,15 @@ class FeatureAnalysisRunner(PhaseRunner):
             """
             A pipeline-specific procedure is then applied to all other pipelines. Think of a brief convergence after divergence of the pipelines occured.
             """
+            from library.utils.miscellaneous.feature_variance_analysis import analyze_scaled_feature_variances
+            
+            # First run feature variance analysis to help determine thresholds
+            print("Analyzing feature variances to identify optimal threshold...")
+            feature_variances = analyze_scaled_feature_variances(
+                self.pipeline_manager,
+                save_path=self.save_path
+            )
+            
 
             reference_category = "not_baseline"
             reference_pipeline = "tree_based"
@@ -59,7 +68,7 @@ class FeatureAnalysisRunner(PhaseRunner):
                   save_path=self.save_path
             )
             # # 4) PCA
-            #self.pipeline_manager.pipelines["not_baseline"]["tree_based"].feature_analysis.feature_selection.manual_feature_selection.fit(
+            #self.pipeline_manager.pipelines["not_baseline"]["tree_based"].feature_analysis.feature.selection.manual_feature_selection.fit(
             #      type="PCA",
             #      threshold=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["pca"]["threshold"],
             #      delete_features=self.pipeline_manager.variables["feature_analysis_runner"]["manual_feature_selection"]["pca"]["delete_features"],
