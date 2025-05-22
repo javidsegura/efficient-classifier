@@ -68,7 +68,7 @@ feature_analysis_runner:
         threshold: 0.1
         delete_features: True
       low_variances:
-        threshold: 0.3
+        threshold: 0.35
         delete_features: True
       vif:
         threshold: 15
@@ -117,7 +117,7 @@ modelling_runner:
       naive_bayes: [] #"Naive Bayes"
       feed_forward_neural_network: [] #"Feed Forward Neural Network"
       stacking: []
-      baselines: ["Logistic Regression (baseline)"]
+      baselines: [] #"Logistic Regression (baseline)"
     hyperparameters:
       grid_space:
         gradient_boosting:

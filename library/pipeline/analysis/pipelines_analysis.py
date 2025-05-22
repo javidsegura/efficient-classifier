@@ -730,7 +730,7 @@ class PipelinesAnalysis:
 
             for _, row in metrics_df.iterrows():
                   plt.annotate(
-                        row["modelName"],                   
+                        f"{row['modelName']}\n{row[performance_metric]:.3f}",
                         (row[training_metric], row[performance_metric]),  
                         textcoords="offset points",         
                         xytext=(5, 5),                      
