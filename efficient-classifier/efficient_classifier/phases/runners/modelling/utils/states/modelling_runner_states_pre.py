@@ -112,9 +112,11 @@ class PreTuningRunner(ModellingRunnerStates):
                         if pipeline == "stacking":
                               continue
                         results_comment = {}
+                        pipeline_is_empty = True # meaning all models are excluded from the pipeline
                         for model in self.pipeline_manager.variables["modelling_runner"]["models_to_include"][category][pipeline]:
                               results_comment[model] = {}
                               if model not in self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"][category][pipeline]:
+                                    pipeline_is_empty = False
                                     for model_name in [model, model + "_train"]:
                                           metric_df = results[self.pipeline_manager.variables["dataset_runner"]["metrics_to_evaluate"]["preferred_metric"]]
                                           df_numeric = metric_df.iloc[:-1].astype(float)
@@ -125,7 +127,8 @@ class PreTuningRunner(ModellingRunnerStates):
                                                 model_names = model_names.values
                                           model_idx = list(model_names).index(model_name)
                                           results_comment[model][model_name] = round(df_numeric.iloc[:, model_idx]['weighted avg'], 3)
-                        self.pipeline_manager.dag.add_procedure(pipeline, "modelling", f"pre-tuning ({self.pipeline_manager.variables['dataset_runner']['metrics_to_evaluate']['preferred_metric']})", results_comment)
+                        if not pipeline_is_empty:     
+                              self.pipeline_manager.dag.add_procedure(pipeline, "modelling", f"pre-tuning ({self.pipeline_manager.variables['dataset_runner']['metrics_to_evaluate']['preferred_metric']})", results_comment)
             return general_analysis_results
 
             

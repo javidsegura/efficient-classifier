@@ -281,6 +281,6 @@ class DAG:
             self._set_up_nodes()
             self._dag_draw_phases()
             self._add_legend()
-            output_path = self.dot.render(filename='ml_pipelines_dag')
+            output_path = self.dot.render(filename='ml_pipelines_dag', directory="results/plots/")
             print(f'Graph saved to: {output_path}')
 
