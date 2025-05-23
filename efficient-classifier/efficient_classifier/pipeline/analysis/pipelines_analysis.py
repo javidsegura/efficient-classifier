@@ -277,7 +277,6 @@ class PipelinesAnalysis:
                         dataframes.append(df)
             metrics_df = pd.concat(dataframes)
             self.results_per_phase[self.phase]["metrics_df"] = metrics_df
-            print(f"Metrics df: {metrics_df.head(1)}")
 
             num_metrics = len(metrics)
             cols = 2

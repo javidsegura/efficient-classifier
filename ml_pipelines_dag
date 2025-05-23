@@ -1,7 +1,7 @@
 // ML Pipelines DAG
 digraph {
 	bgcolor=white concentrate=true fontname="Arial Bold" fontsize=24 label="Machine Learning Pipeline Architecture
-Rendered at 2025-05-22 19:04:46" labelloc=t nodesep=0.8 pad=0.75 rankdir=TB ranksep=1.2
+Rendered at 2025-05-23 11:01:46" labelloc=t nodesep=0.8 pad=0.75 rankdir=TB ranksep=1.2
 	EDA [label=EDA fillcolor="#FFB347" fontname=Arial fontsize=18 penwidth=2 shape=ellipse style=filled]
 	ensembled [label=ensembled fillcolor="#5D6D7E" fontname=Arial fontsize=18 penwidth=1.5 shape=rect style=filled]
 	EDA -> ensembled [penwidth=2]
@@ -15,16 +15,16 @@ Rendered at 2025-05-22 19:04:46" labelloc=t nodesep=0.8 pad=0.75 rankdir=TB rank
 	EDA -> feed_forward_neural_network [penwidth=2]
 	baselines [label=baselines fillcolor="#5D6D7E" fontname=Arial fontsize=18 penwidth=1.5 shape=rect style=filled]
 	EDA -> baselines [penwidth=2]
-	"ensembled_Random Forest" [label="Random Forest" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
-	ensembled -> "ensembled_Random Forest" [penwidth=1.5]
 	"ensembled_Gradient Boosting" [label="Gradient Boosting" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
 	ensembled -> "ensembled_Gradient Boosting" [penwidth=1.5]
+	"ensembled_Random Forest" [label="Random Forest" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
+	ensembled -> "ensembled_Random Forest" [penwidth=1.5]
 	"tree_based_Decision Tree" [label="Decision Tree" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
 	tree_based -> "tree_based_Decision Tree" [penwidth=1.5]
-	"support_vector_machine_Non-linear Support Vector Machine" [label="Non-linear Support Vector Machine" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
-	support_vector_machine -> "support_vector_machine_Non-linear Support Vector Machine" [penwidth=1.5]
 	"support_vector_machine_Linear Support Vector Machine" [label="Linear Support Vector Machine" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
 	support_vector_machine -> "support_vector_machine_Linear Support Vector Machine" [penwidth=1.5]
+	"support_vector_machine_Non-linear Support Vector Machine" [label="Non-linear Support Vector Machine" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
+	support_vector_machine -> "support_vector_machine_Non-linear Support Vector Machine" [penwidth=1.5]
 	"naive_bayes_Naive Bayes" [label="Naive Bayes" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
 	naive_bayes -> "naive_bayes_Naive Bayes" [penwidth=1.5]
 	"feed_forward_neural_network_Feed Forward Neural Network" [label="Feed Forward Neural Network" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
@@ -34,29 +34,12 @@ Rendered at 2025-05-22 19:04:46" labelloc=t nodesep=0.8 pad=0.75 rankdir=TB rank
 	"baselines_Logistic Regression (baseline)" [label="Logistic Regression (baseline)" fillcolor="#5D6D7E" fontname=Arial fontsize=16 shape=rect style=filled]
 	baselines -> "baselines_Logistic Regression (baseline)" [penwidth=1.5]
 	ensembled_dataset [label=dataset fillcolor="#2ECC71" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
-	"ensembled_Random Forest" -> ensembled_dataset [penwidth=1.5]
 	"ensembled_Gradient Boosting" -> ensembled_dataset [penwidth=1.5]
+	"ensembled_Random Forest" -> ensembled_dataset [penwidth=1.5]
 	ensembled_dataset_split [label="split
 (('X_train: (37625, 142)', 'X_val: (4703, 142)', 'X_test: (4704, 142)'))" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
 	ensembled_dataset -> ensembled_dataset_split
 	ensembled_data_preprocessing [label=data_preprocessing fillcolor="#3498DB" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
-	ensembled_data_preprocessing_missing_values_and_duplicates [label="missing_values_and_duplicates
-(No missing values found in the dataset)" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
-	ensembled_data_preprocessing -> ensembled_data_preprocessing_missing_values_and_duplicates
-	ensembled_data_preprocessing_analyze_duplicates [label="analyze_duplicates
-(There are 0 duplicates in the dataset)" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=box style=filled]
-	ensembled_data_preprocessing -> ensembled_data_preprocessing_analyze_duplicates
-	ensembled_data_preprocessing_outliers_detection [label="outliers_detection
-(There are 125 features with outliers out of 142 numerical features (88.03%)New X_train shape: (37625, 142) and y_train shape: (37625,))" fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=box style=filled]
-	ensembled_data_preprocessing -> ensembled_data_preprocessing_outliers_detection
-	ensembled_data_preprocessing_feature_scaling [label="feature_scaling
-(Successfully scaled 142 features. Plotted distributions for the first 5 features.
-To check the results run:
- your_pipeline.dataset.X_train.head())" fillcolor="#EC7063" fontname=Arial fontsize=14 shape=box style=filled]
-	ensembled_data_preprocessing -> ensembled_data_preprocessing_feature_scaling
-	ensembled_data_preprocessing_class_imbalance [label="class_imbalance
-(Successfully balanced classes via SMOTE. Started with a 0.02:1 ratio; now 1:1.)" fillcolor="#45B39D" fontname=Arial fontsize=14 shape=box style=filled]
-	ensembled_data_preprocessing -> ensembled_data_preprocessing_class_imbalance
 	ensembled_dataset_split -> ensembled_data_preprocessing [penwidth=1.5]
 	ensembled_feature_analysis [label=feature_analysis fillcolor="#9B59B6" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
 	ensembled_feature_analysis_feature_transformation [label=feature_transformation fillcolor="#52BE80" fontname=Arial fontsize=14 shape=rect style=filled]
@@ -87,12 +70,14 @@ To check the results run:
 	ensembled_feature_analysis_feature_selection_automatic_Boruta [label="Boruta
 ({'selected_features': 'This is selected features', 'excludedFeatures': 'This is excluded features'})" fillcolor="#EBF5FB" fontname=Arial fontsize=10 shape=box style=filled]
 	ensembled_feature_analysis_feature_selection_automatic -> ensembled_feature_analysis_feature_selection_automatic_Boruta
-	ensembled_data_preprocessing_missing_values_and_duplicates -> ensembled_feature_analysis [penwidth=1.5]
-	ensembled_data_preprocessing_analyze_duplicates -> ensembled_feature_analysis [penwidth=1.5]
-	ensembled_data_preprocessing_outliers_detection -> ensembled_feature_analysis [penwidth=1.5]
-	ensembled_data_preprocessing_feature_scaling -> ensembled_feature_analysis [penwidth=1.5]
-	ensembled_data_preprocessing_class_imbalance -> ensembled_feature_analysis [penwidth=1.5]
+	ensembled_data_preprocessing -> ensembled_feature_analysis [penwidth=2.0]
 	ensembled_modelling [label=modelling fillcolor="#E74C3C" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"ensembled_modelling_pre-tuning (f1-score)" [label="pre-tuning (f1-score)
+({'Gradient Boosting': {}, 'Random Forest': {}})" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	ensembled_modelling -> "ensembled_modelling_pre-tuning (f1-score)"
+	"ensembled_modelling_in-tuning (f1-score)" [label="in-tuning (f1-score)
+({'Gradient Boosting': {}, 'Random Forest': {}})" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=box style=filled]
+	ensembled_modelling -> "ensembled_modelling_in-tuning (f1-score)"
 	ensembled_feature_analysis_feature_transformation -> ensembled_modelling [penwidth=1.5]
 	ensembled_feature_analysis_feature_engineering -> ensembled_modelling [penwidth=1.5]
 	ensembled_feature_analysis_feature_selection -> ensembled_modelling [penwidth=1.5]
@@ -134,12 +119,21 @@ To check the results run:
 	tree_based_feature_analysis_feature_selection_automatic -> tree_based_feature_analysis_feature_selection_automatic_Boruta
 	tree_based_data_preprocessing -> tree_based_feature_analysis [penwidth=2.0]
 	tree_based_modelling [label=modelling fillcolor="#E74C3C" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"tree_based_modelling_pre-tuning (f1-score)" [label="pre-tuning (f1-score)
+({'Decision Tree': {'Decision Tree': np.float64(0.822), 'Decision Tree_train': np.float64(1.0)}})" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	tree_based_modelling -> "tree_based_modelling_pre-tuning (f1-score)"
+	"tree_based_modelling_in-tuning (f1-score)" [label="in-tuning (f1-score)
+({'Decision Tree': {'Decision Tree': np.float64(0.612), 'Decision Tree_train': np.float64(0.604)}})" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=box style=filled]
+	tree_based_modelling -> "tree_based_modelling_in-tuning (f1-score)"
+	"tree_based_modelling_post-tuning (f1-score)" [label="post-tuning (f1-score)
+(0.6117922793758097)" fillcolor="#AF7AC5" fontname=Arial fontsize=14 shape=box style=filled]
+	tree_based_modelling -> "tree_based_modelling_post-tuning (f1-score)"
 	tree_based_feature_analysis_feature_transformation -> tree_based_modelling [penwidth=1.5]
 	tree_based_feature_analysis_feature_engineering -> tree_based_modelling [penwidth=1.5]
 	tree_based_feature_analysis_feature_selection -> tree_based_modelling [penwidth=1.5]
 	support_vector_machine_dataset [label=dataset fillcolor="#2ECC71" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
-	"support_vector_machine_Non-linear Support Vector Machine" -> support_vector_machine_dataset [penwidth=1.5]
 	"support_vector_machine_Linear Support Vector Machine" -> support_vector_machine_dataset [penwidth=1.5]
+	"support_vector_machine_Non-linear Support Vector Machine" -> support_vector_machine_dataset [penwidth=1.5]
 	support_vector_machine_dataset_split [label="split
 (('X_train: (37625, 142)', 'X_val: (4703, 142)', 'X_test: (4704, 142)'))" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
 	support_vector_machine_dataset -> support_vector_machine_dataset_split
@@ -176,6 +170,12 @@ To check the results run:
 	support_vector_machine_feature_analysis_feature_selection_automatic -> support_vector_machine_feature_analysis_feature_selection_automatic_Boruta
 	support_vector_machine_data_preprocessing -> support_vector_machine_feature_analysis [penwidth=2.0]
 	support_vector_machine_modelling [label=modelling fillcolor="#E74C3C" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"support_vector_machine_modelling_pre-tuning (f1-score)" [label="pre-tuning (f1-score)
+({'Linear Support Vector Machine': {}, 'Non-linear Support Vector Machine': {}})" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	support_vector_machine_modelling -> "support_vector_machine_modelling_pre-tuning (f1-score)"
+	"support_vector_machine_modelling_in-tuning (f1-score)" [label="in-tuning (f1-score)
+({'Linear Support Vector Machine': {}, 'Non-linear Support Vector Machine': {}})" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=box style=filled]
+	support_vector_machine_modelling -> "support_vector_machine_modelling_in-tuning (f1-score)"
 	support_vector_machine_feature_analysis_feature_transformation -> support_vector_machine_modelling [penwidth=1.5]
 	support_vector_machine_feature_analysis_feature_engineering -> support_vector_machine_modelling [penwidth=1.5]
 	support_vector_machine_feature_analysis_feature_selection -> support_vector_machine_modelling [penwidth=1.5]
@@ -217,6 +217,12 @@ To check the results run:
 	naive_bayes_feature_analysis_feature_selection_automatic -> naive_bayes_feature_analysis_feature_selection_automatic_Boruta
 	naive_bayes_data_preprocessing -> naive_bayes_feature_analysis [penwidth=2.0]
 	naive_bayes_modelling [label=modelling fillcolor="#E74C3C" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"naive_bayes_modelling_pre-tuning (f1-score)" [label="pre-tuning (f1-score)
+({'Naive Bayes': {'Naive Bayes': np.float64(0.172), 'Naive Bayes_train': np.float64(0.172)}})" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	naive_bayes_modelling -> "naive_bayes_modelling_pre-tuning (f1-score)"
+	"naive_bayes_modelling_in-tuning (f1-score)" [label="in-tuning (f1-score)
+({'Naive Bayes': {'Naive Bayes': np.float64(0.185), 'Naive Bayes_train': np.float64(0.185)}})" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=box style=filled]
+	naive_bayes_modelling -> "naive_bayes_modelling_in-tuning (f1-score)"
 	naive_bayes_feature_analysis_feature_transformation -> naive_bayes_modelling [penwidth=1.5]
 	naive_bayes_feature_analysis_feature_engineering -> naive_bayes_modelling [penwidth=1.5]
 	naive_bayes_feature_analysis_feature_selection -> naive_bayes_modelling [penwidth=1.5]
@@ -258,6 +264,12 @@ To check the results run:
 	feed_forward_neural_network_feature_analysis_feature_selection_automatic -> feed_forward_neural_network_feature_analysis_feature_selection_automatic_Boruta
 	feed_forward_neural_network_data_preprocessing -> feed_forward_neural_network_feature_analysis [penwidth=2.0]
 	feed_forward_neural_network_modelling [label=modelling fillcolor="#E74C3C" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"feed_forward_neural_network_modelling_pre-tuning (f1-score)" [label="pre-tuning (f1-score)
+({'Feed Forward Neural Network': {'Feed Forward Neural Network': np.float64(0.084), 'Feed Forward Neural Network_train': np.float64(0.09)}})" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	feed_forward_neural_network_modelling -> "feed_forward_neural_network_modelling_pre-tuning (f1-score)"
+	"feed_forward_neural_network_modelling_in-tuning (f1-score)" [label="in-tuning (f1-score)
+({'Feed Forward Neural Network': {'Feed Forward Neural Network': np.float64(0.343), 'Feed Forward Neural Network_train': np.float64(0.332)}})" fillcolor="#5DADE2" fontname=Arial fontsize=14 shape=box style=filled]
+	feed_forward_neural_network_modelling -> "feed_forward_neural_network_modelling_in-tuning (f1-score)"
 	feed_forward_neural_network_feature_analysis_feature_transformation -> feed_forward_neural_network_modelling [penwidth=1.5]
 	feed_forward_neural_network_feature_analysis_feature_engineering -> feed_forward_neural_network_modelling [penwidth=1.5]
 	feed_forward_neural_network_feature_analysis_feature_selection -> feed_forward_neural_network_modelling [penwidth=1.5]
@@ -300,6 +312,9 @@ To check the results run:
 	baselines_feature_analysis_feature_selection_automatic -> baselines_feature_analysis_feature_selection_automatic_Boruta
 	baselines_data_preprocessing -> baselines_feature_analysis [penwidth=2.0]
 	baselines_modelling [label=modelling fillcolor="#E74C3C" fontname=Arial fontsize=16 penwidth=1.5 shape=rect style=filled]
+	"baselines_modelling_pre-tuning (f1-score)" [label="pre-tuning (f1-score)
+({'Logistic Regression (baseline)': {}, 'Majority Class (baseline)': {'Majority Class (baseline)': np.float64(0.139), 'Majority Class (baseline)_train': np.float64(0.137)}})" fillcolor="#52BE80" fontname=Arial fontsize=14 shape=box style=filled]
+	baselines_modelling -> "baselines_modelling_pre-tuning (f1-score)"
 	baselines_feature_analysis_feature_transformation -> baselines_modelling [penwidth=1.5]
 	baselines_feature_analysis_feature_engineering -> baselines_modelling [penwidth=1.5]
 	baselines_feature_analysis_feature_selection -> baselines_modelling [penwidth=1.5]

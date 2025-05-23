@@ -1,4 +1,3 @@
-
 from efficient_classifier.phases.runners.modelling.utils.states.modelling_runner_states_base import ModellingRunnerStates
 from efficient_classifier.pipeline.pipeline_manager import PipelineManager
 
@@ -52,7 +51,12 @@ class PreTuningRunner(ModellingRunnerStates):
             importances_dfs = self.pipeline_manager.pipelines_analysis.plot_feature_importance(save_plots=self.save_plots,
                                                                                                 save_path=self.save_path)
 
-            return metrics_df.to_dict(), residuals, confusion_matrices, importances_dfs
+            return {
+                  "metrics_df": metrics_df.to_dict(), 
+                  "residuals": residuals, 
+                  "confusion_matrices": confusion_matrices, 
+                  "importances_dfs": importances_dfs
+                  }
 
       def _set_up_stacking_model(self):
             """
@@ -100,10 +104,28 @@ class PreTuningRunner(ModellingRunnerStates):
                   self._set_up_stacking_model()
             general_analysis_results = self._general_analysis()
 
-            print("-"*30)
-            print()
-            print("-"*30)
+            # For each model, if not excluded, print 
+            results = self.pipeline_manager.pipelines_analysis.merged_report_per_phase["pre"]
 
+            for category in self.pipeline_manager.variables["modelling_runner"]["models_to_include"]:
+                  for pipeline in self.pipeline_manager.variables["modelling_runner"]["models_to_include"][category]:
+                        if pipeline == "stacking":
+                              continue
+                        results_comment = {}
+                        for model in self.pipeline_manager.variables["modelling_runner"]["models_to_include"][category][pipeline]:
+                              results_comment[model] = {}
+                              if model not in self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"][category][pipeline]:
+                                    for model_name in [model, model + "_train"]:
+                                          metric_df = results[self.pipeline_manager.variables["dataset_runner"]["metrics_to_evaluate"]["preferred_metric"]]
+                                          df_numeric = metric_df.iloc[:-1].astype(float)
+                                          model_names = metric_df.loc["modelName"]
+                                          if isinstance(model_names, str):
+                                                model_names = [model_names]
+                                          else:
+                                                model_names = model_names.values
+                                          model_idx = list(model_names).index(model_name)
+                                          results_comment[model][model_name] = round(df_numeric.iloc[:, model_idx]['weighted avg'], 3)
+                        self.pipeline_manager.dag.add_procedure(pipeline, "modelling", f"pre-tuning ({self.pipeline_manager.variables['dataset_runner']['metrics_to_evaluate']['preferred_metric']})", results_comment)
             return general_analysis_results
 
             

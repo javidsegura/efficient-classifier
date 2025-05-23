@@ -45,7 +45,11 @@ class InTuningRunner(ModellingRunnerStates):
                                                                                                           save_path=self.save_path)
    
 
-            return metrics_df.to_dict(), residuals, confusion_matrices
+            return {
+                  "metrics_df": metrics_df.to_dict(), 
+                  "residuals": residuals, 
+                  "confusion_matrices": confusion_matrices
+                  }
 
       def _get_grid_space(self):
             # Ensembled models
@@ -180,4 +184,27 @@ class InTuningRunner(ModellingRunnerStates):
             if len(self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["not_baseline"]["stacking"]) == 0:
                   self._set_up_stacking_model(optimized_models, modelNameToOptimizerStacking)
             general_analysis_results = self._general_analysis()
+
+            # For each model, if not excluded, print 
+            results = self.pipeline_manager.pipelines_analysis.merged_report_per_phase["in"]
+
+            for pipeline in self.pipeline_manager.variables["modelling_runner"]["models_to_include"]["not_baseline"]:
+                  if pipeline == "stacking":
+                        continue
+                  results_comment = {}
+                  for model in self.pipeline_manager.variables["modelling_runner"]["models_to_include"]["not_baseline"][pipeline]:
+                        results_comment[model] = {}
+                        if model not in self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["not_baseline"][pipeline]:
+                              for model_name in [model, model + "_train"]:
+                                    metric_df = results[self.pipeline_manager.variables["dataset_runner"]["metrics_to_evaluate"]["preferred_metric"]]
+                                    df_numeric = metric_df.iloc[:-1].astype(float)
+                                    model_names = metric_df.loc["modelName"]
+                                    if isinstance(model_names, str):
+                                          model_names = [model_names]
+                                    else:
+                                          model_names = model_names.values
+                                    model_idx = list(model_names).index(model_name)
+                                    results_comment[model][model_name] = round(df_numeric.iloc[:, model_idx]['weighted avg'], 3)
+                  self.pipeline_manager.dag.add_procedure(pipeline, "modelling", f"in-tuning ({self.pipeline_manager.variables['dataset_runner']['metrics_to_evaluate']['preferred_metric']})", results_comment)
+
             return general_analysis_results

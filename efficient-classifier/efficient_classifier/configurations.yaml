@@ -25,8 +25,8 @@ dataset_runner:
       test_size: 0.1
     metrics_to_evaluate:
       classification: ["accuracy", "precision", "recall", "f1-score", "kappa"]
-      regression: ["r2", "mae", "mse"]
-    
+      preferred_metric: "f1-score"
+
 data_preprocessing_runner:
   placeholders: 
     - null
@@ -150,7 +150,6 @@ modelling_runner:
         performance_metric: "f1-score"
       results_df_metrics: ["timeToFit", "timeToPredict"]
       per_epoch_metrics: ["accuracy", "loss"]
-      best_model_selection_metric: "f1-score"
     serialize_models:
       serialize_best_performing_model: True
       models_to_serialize: []

@@ -93,25 +93,25 @@ class ModellingRunner(PhaseRunner):
             print("-"*30)
 
 
-            # in_tuning_runner = InTuningRunner(self.pipeline_manager,
-            #                                   save_plots=self.include_plots,
-            #                                   save_path=self.save_path)
-            # in_results = in_tuning_runner.run()
+            in_tuning_runner = InTuningRunner(self.pipeline_manager,
+                                              save_plots=self.include_plots,
+                                              save_path=self.save_path)
+            in_results = in_tuning_runner.run()
 
-            # print("-"*30)
-            # print("STARTING POST TUNING")
-            # print("-"*30)
+            print("-"*30)
+            print("STARTING POST TUNING")
+            print("-"*30)
 
-            # post_tuning_runner = PostTuningRunner(self.pipeline_manager,
-            #                                       save_plots=self.include_plots,
-            #                                       save_path=self.save_path)
-            # post_results = post_tuning_runner.run()
+            post_tuning_runner = PostTuningRunner(self.pipeline_manager,
+                                                  save_plots=self.include_plots,
+                                                  save_path=self.save_path)
+            post_results = post_tuning_runner.run()
 
-            # if self.pipeline_manager.variables["PIPELINE_RUNNER"]["serialize_results"]:
-            #       if self.pipeline_manager.variables["modelling_runner"]["serialize_models"]["serialize_best_performing_model"]:
-            #             self.pipeline_manager.serialize_models(models_to_serialize=self.pipeline_manager.best_performing_model["modelName"])
-            #       self.pipeline_manager.serialize_models(models_to_serialize=self.pipeline_manager.variables["modelling_runner"]["serialize_models"]["models_to_serialize"])
-            #       self.pipeline_manager.serialize_pipelines(pipelines_to_serialize=self.pipeline_manager.variables["modelling_runner"]["serialize_models"]["pipelines_to_serialize"])
+            if self.pipeline_manager.variables["PIPELINE_RUNNER"]["serialize_results"]:
+                  if self.pipeline_manager.variables["modelling_runner"]["serialize_models"]["serialize_best_performing_model"]:
+                        self.pipeline_manager.serialize_models(models_to_serialize=self.pipeline_manager.best_performing_model["modelName"])
+                  self.pipeline_manager.serialize_models(models_to_serialize=self.pipeline_manager.variables["modelling_runner"]["serialize_models"]["models_to_serialize"])
+                  self.pipeline_manager.serialize_pipelines(pipelines_to_serialize=self.pipeline_manager.variables["modelling_runner"]["serialize_models"]["pipelines_to_serialize"])
 
             return {"pre_tuning_runner": pre_results,
                     "in_tuning_runner": None,

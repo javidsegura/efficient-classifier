@@ -32,17 +32,32 @@ class PostTuningRunner(ModellingRunnerStates):
             residuals, confusion_matrices = self.pipeline_manager.pipelines_analysis.plot_confusion_matrix(save_plots=self.save_plots,
                                                                                                           save_path=self.save_path)
 
-            return metrics_df.to_dict(), residuals, confusion_matrices
+            return {
+                  "metrics_df": metrics_df.to_dict(), 
+                  "residuals": residuals, 
+                  "confusion_matrices": confusion_matrices
+                  }
       
 
       def run(self):
            print("Post tuning runner")
-           best_model, best_score = self.pipeline_manager.select_best_performing_model(metric=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["best_model_selection_metric"])
+           best_model, best_score = self.pipeline_manager.select_best_performing_model()
            self.pipeline_manager.fit_final_models()
            self.pipeline_manager.evaluate_store_final_models()
            self.pipeline_manager.pipeline_state = "post"
 
            general_analysis_results = self._general_analysis()
+           
+           flag = True 
+           for pipeline in self.pipeline_manager.variables["modelling_runner"]["models_to_include"]["not_baseline"]:
+                 if not flag:
+                        break
+                 for model in self.pipeline_manager.variables["modelling_runner"]["models_to_include"]["not_baseline"][pipeline]:
+                        if model == best_model:
+                              self.pipeline_manager.dag.add_procedure(pipeline, "modelling", f"post-tuning ({self.pipeline_manager.variables['dataset_runner']['metrics_to_evaluate']['preferred_metric']})", best_score)
+                              flag = False 
+                              break
+
 
            return best_model, best_score, general_analysis_results
       
