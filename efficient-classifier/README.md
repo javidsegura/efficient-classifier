@@ -41,6 +41,14 @@ This library allows for parallel assesment of as many pipelines for different mo
   - Store results in CSV
   - Serialize model
   - Pipeline DAG visualization
+    
+ ![SlackBot](https://github.com/user-attachments/assets/19045a75-32dc-4777-8cfb-e6e39ec4f073)
+ <i>Slack Bot</i>
+ ![DAG Visualizer](https://github.com/user-attachments/assets/b06781c6-b703-4695-a5c3-ea720809884d)
+ <i>DAG Pipeline Visualizer</i>
+
+
+
 
 This library provided us with the scalable framework needed for the complexity of the evaluated pipelines. Through its deeply organized structured, this library allows for short development time and faster debugging. The extensiveness of data stored after a pipeline run allows for efficient auditing as well as a reliable way to revisit the pipeline at retraining time.
 
