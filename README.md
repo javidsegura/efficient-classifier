@@ -43,7 +43,8 @@ This library allows for parallel assesment of as many pipelines for different mo
   - Pipeline DAG visualization
     
  ![SlackBot](https://github.com/user-attachments/assets/19045a75-32dc-4777-8cfb-e6e39ec4f073)
- ![DAG Visualizer](https://github.com/user-attachments/assets/df52a93a-5b03-4943-a01a-d3700b142f1b)
+ ![DAG Visualizer](https://github.com/user-attachments/assets/b06781c6-b703-4695-a5c3-ea720809884d)
+
 
 
 
