@@ -48,9 +48,8 @@ This library allows for parallel assesment of as many pipelines for different mo
  <i>DAG Pipeline Visualizer</i>
 
 
-
-
 This library provided us with the scalable framework needed for the complexity of the evaluated pipelines. Through its deeply organized structured, this library allows for short development time and faster debugging. The extensiveness of data stored after a pipeline run allows for efficient auditing as well as a reliable way to revisit the pipeline at retraining time.
+You read more about our design choices in the /documentation folder in our repository.
 
 ### Project Documentation, Relevant links
 [Plots results](https://drive.google.com/drive/folders/1Ui2EmIr-5rrXPkab1lGquHp_cQ7w14yA?usp=sharing)
@@ -62,6 +61,9 @@ This library provided us with the scalable framework needed for the complexity o
 [Presentation](https://www.canva.com/design/DAGnoUCnQmQ/VgZLdpPD2IpRFxJj_7TuLg/edit?utm_content=DAGnoUCnQmQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
 [PyPi library](https://pypi.org/project/efficient-classifier/)
+
+[Functions documentation](https://mantis-lib-documentation.onrender.com/)
+
 
 
 ### Project Status
