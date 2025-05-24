@@ -14,6 +14,10 @@ PIPELINE_RUNNER:
   max_plots_per_function: 5 # Plots 5 plots for function that plot all features in the dataset. Set to -1 number to plot all
   serialize_results: False
 
+BOT:
+  channel: "#general"
+  send_images: False
+
 dataset_runner:
     split_df: 
       p: 0.85
@@ -154,7 +158,3 @@ modelling_runner:
       serialize_best_performing_model: True
       models_to_serialize: []
       pipelines_to_serialize: []
-
-BOT:
-  channel: "#general"
-  send_images: False
