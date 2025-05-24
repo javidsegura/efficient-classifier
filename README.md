@@ -62,3 +62,4 @@ This project is still under development. It is not guaranteed that this library 
 ### Contributing
 This library encourages external contributions. Please create your own branch at https://github.com/javidsegura/efficient-classifier and make pull request when your contributions are ready. Please, make sure you provide a documented pull request message detailing your contributions.
 
+<i>This is a copied version of the README.md from the package.</i>
