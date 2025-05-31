@@ -38,8 +38,7 @@ class ModellingRunner(PhaseRunner):
             Finally we call the function that excludes all the models that we do not want the training to run (either because we are trying to debug and want to run as fast as possible or
             because we have observed that a certain model is not performing well and taking too long to fit/predict)
             """
-            nn_pipeline = self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"]
-
+            
             model_name_to_model_object = {
                         "Gradient Boosting": GradientBoostingClassifier(),
                         "Random Forest": RandomForestClassifier(),
@@ -47,17 +46,6 @@ class ModellingRunner(PhaseRunner):
                         "Linear SVM": LinearSVC(),
                         "Non-linear SVM": SVC(),
                         "Naive Bayes": GaussianNB(),
-                        "Feed Forward Neural Network": FeedForwardNeuralNetwork(
-                                                                                          num_features=nn_pipeline.dataset.X_train.shape[1], 
-                                                                                          num_classes=nn_pipeline.dataset.y_train.value_counts().shape[0],
-                                                                                          batch_size=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["batch_size"],
-                                                                                          epochs=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["epochs"],
-                                                                                          n_layers=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["n_layers"],
-                                                                                          units_per_layer=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["units_per_layer"],
-                                                                                          learning_rate=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["learning_rate"],
-                                                                                          activations=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["activations"],
-                                                                                          kernel_initializer=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["kernel_initializer"]
-                                                                              ),
                         "Logistic Regression": LogisticRegression(),
                         "Majority Class": MajorityClassClassifier(),
                         "AdaBoost": AdaBoostClassifier(),
@@ -69,6 +57,22 @@ class ModellingRunner(PhaseRunner):
                         "Elastic Net": ElasticNet(),
                         "Stochastic Gradient Descent": SGDClassifier(),
             }
+
+            for pipeline in self.pipeline_manager.variables["general"]["pipelines_names"]["not_baseline"]:
+                  if "(nn)" in pipeline:
+                        nn_pipeline = self.pipeline_manager.pipelines["not_baseline"][pipeline]
+                        model_name_to_model_object["Feed Forward Neural Network"] = FeedForwardNeuralNetwork(
+                                                                                          num_features=nn_pipeline.dataset.X_train.shape[1], 
+                                                                                          num_classes=nn_pipeline.dataset.y_train.value_counts().shape[0],
+                                                                                          batch_size=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["batch_size"],
+                                                                                          epochs=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["epochs"],
+                                                                                          n_layers=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["n_layers"],
+                                                                                          units_per_layer=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["units_per_layer"],
+                                                                                          learning_rate=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["learning_rate"],
+                                                                                          activations=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["activations"],
+                                                                                          kernel_initializer=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["kernel_initializer"]
+                                                                              ),
+                  break
       
             for category in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]:
                   for pipeline in self.pipeline_manager.pipelines[category]:
@@ -100,7 +104,6 @@ class ModellingRunner(PhaseRunner):
                                                 save_plots=self.include_plots,
                                                 save_path=self.save_path)
             pre_results = pre_tuning_runner.run()
-
             print("-"*30)
             print("STARTING IN TUNING")
             print("-"*30)
@@ -110,7 +113,6 @@ class ModellingRunner(PhaseRunner):
                                               save_plots=self.include_plots,
                                               save_path=self.save_path)
             in_results = in_tuning_runner.run()
-
             print("-"*30)
             print("STARTING POST TUNING")
             print("-"*30)

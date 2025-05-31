@@ -37,10 +37,12 @@ class PreTuningRunner(ModellingRunnerStates):
                                                                                  save_plots=self.save_plots,
                                                                                  save_path=self.save_path)
             # Per-epoch progress
-            if len(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_exclude"]["not_baseline"]["feed_forward_neural_network"]) == 0:
-                  self.pipeline_manager.pipelines_analysis.plot_per_epoch_progress(metrics=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["model_assesment"]["per_epoch_metrics"],
-                                                                                 save_plots=self.save_plots,
-                                                                                 save_path=self.save_path)
+            for pipeline in self.pipeline_manager.variables["general"]["pipelines_names"]["not_baseline"]:
+                  if "(nn)" in pipeline and len(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_exclude"]["not_baseline"][pipeline]) == 0:
+                        self.pipeline_manager.pipelines_analysis.plot_per_epoch_progress(metrics=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["model_assesment"]["per_epoch_metrics"],
+                                                                                          save_plots=self.save_plots,
+                                                                                          save_path=self.save_path)
+                  break
             
             # Residual analyisis 
             residuals, confusion_matrices = self.pipeline_manager.pipelines_analysis.plot_confusion_matrix(save_plots=self.save_plots,
@@ -99,8 +101,8 @@ class PreTuningRunner(ModellingRunnerStates):
       def _update_dag_scheme(self):
              # For each model, if not excluded, print 
              results = self.pipeline_manager.pipelines_analysis.merged_report_per_phase["pre"]
-             for category in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]:
-                  for pipeline in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"][category]:
+             for category in self.pipeline_manager.variables["general"]["pipelines_names"]:
+                  for pipeline in self.pipeline_manager.variables["general"]["pipelines_names"][category]:
                         if pipeline == "stacking":
                               continue
                         results_comment = {}

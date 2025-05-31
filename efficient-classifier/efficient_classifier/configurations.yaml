@@ -1,15 +1,9 @@
-
-# THIS CURRENT VERSION HAS THE BARE MINIMUM REQUIREMENTS TO RUN THE WHOLE PIPELINE WITH ALL THE MODELS.
-# WHILE THIS MAY BE USEFUL FOR DEBUGGING, YOU WILL LIKELY NEED TO ADJUT THIS FILE
-# IN ORDER TO GET ACCURATE INSIGHTS ON PERFORMANCE AND ACCURACY
-
 general:
   dataset_path: "./dataset/dynamic_dataset.csv"
   model_task: "classification"
   pipelines_names:
-    not_baseline: ["ensembled", "tree_based", "support_vector_machine",
-                              "naive_bayes", "feed_forward_neural_network", "stacking"] # removed support vector machine cause it goes too slow
-    baseline: ["baselines"]
+    not_baseline: ["tree_based", "stacking"] # removed support vector machine cause it goes too slow
+    baseline: ["baselines"] # dont modify this 
   include_plots: True
   max_plots_per_function: 5 # For plots plotting features of the dataset you can limit the number of plots to generate. This is specially useful for high-dimensionality datasets 
 

@@ -15,19 +15,17 @@ class DataPreprocessingRunner(PhaseRunner):
                                                                                     features=self.pipeline_manager.variables["phase_runners"]["data_preprocessing_runner"]["features_to_encode"],
                                                                                     encode_y=True)
             print(f"ENCODED MAP PIPELINS IS: {encoded_maps_per_pipeline}")
-            self.pipeline_manager.pipelines_analysis.encoded_map = encoded_maps_per_pipeline["not_baseline"]["ensembled"]
+            # Get the first key for the not basleine category
+            encoded_map_reference = list(encoded_maps_per_pipeline["not_baseline"].keys())[0]
+            self.pipeline_manager.pipelines_analysis.encoded_map = encoded_maps_per_pipeline["not_baseline"][encoded_map_reference]
 
       
       def _create_pipelines_divergences(self):
-            self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="ensembled")
-            self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="tree_based")
-            self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="support_vector_machine")
-            self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="naive_bayes")
-            self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="feed_forward_neural_network")
-            self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName="stacking")
+            for pipelineName in self.pipeline_manager.variables["general"]["pipelines_names"]["not_baseline"]:
+                  self.pipeline_manager.create_pipeline_divergence(category="not_baseline", pipelineName=pipelineName)
             self.pipeline_manager.create_pipeline_divergence(category="baseline", pipelineName="baselines")
             print(f"Pipelines AFTER divergences: {self.pipeline_manager.pipelines}")
-            
+      
             return None
         
       def _execute_preprocessing(self, preprocessing: Preprocessing, pipeline_name: str) -> str:

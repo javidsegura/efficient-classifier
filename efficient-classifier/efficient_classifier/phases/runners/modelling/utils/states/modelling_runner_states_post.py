@@ -40,7 +40,7 @@ class PostTuningRunner(ModellingRunnerStates):
       
       def _update_dag_scheme(self, best_model, best_score):
             flag = True 
-            for pipeline in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]["not_baseline"]:
+            for pipeline in self.pipeline_manager.variables["general"]["pipelines_names"]["not_baseline"]:
                  if not flag:
                         break
                  for model in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]["not_baseline"][pipeline]:

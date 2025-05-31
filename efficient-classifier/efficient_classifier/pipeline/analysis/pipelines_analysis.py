@@ -175,7 +175,11 @@ class PipelinesAnalysis:
 
                         df_numeric = metric_df.iloc[:-1].astype(float)
                         model_names = metric_df.loc["modelName"]
-                        isConstantMetric = len(set(df_numeric.iloc[:, 0])) == 1
+                        # Check if df_numeric is a Series or DataFrame
+                        if isinstance(df_numeric, pd.Series):
+                            isConstantMetric = len(set(df_numeric)) == 1
+                        else:
+                            isConstantMetric = len(set(df_numeric.iloc[:, 0])) == 1
 
                         if isinstance(model_names, str): # single model
                               model_names = [model_names]
@@ -221,6 +225,8 @@ class PipelinesAnalysis:
             rows = len(models)
 
             fig, axes = plt.subplots(rows, cols, figsize=(cols * 6, rows * 5))
+            if rows == 1:
+                  axes = axes.reshape(1, -1)
 
             colors = ["red", "blue", "green", "purple", "orange", "brown", "pink", "gray", "cyan", "magenta"]
             colors_length = len(colors)

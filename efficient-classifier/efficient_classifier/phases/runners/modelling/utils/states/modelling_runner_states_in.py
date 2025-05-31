@@ -176,7 +176,8 @@ class InTuningRunner(ModellingRunnerStates):
             # For each model, if not excluded, print 
             results = self.pipeline_manager.pipelines_analysis.merged_report_per_phase["in"]
 
-            for pipeline in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]["not_baseline"]:
+
+            for pipeline in self.pipeline_manager.variables["general"]["pipelines_names"]["not_baseline"]:
                   if pipeline == "stacking":
                         continue
                   results_comment = {}
