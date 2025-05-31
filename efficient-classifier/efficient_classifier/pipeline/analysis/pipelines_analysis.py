@@ -152,7 +152,7 @@ class PipelinesAnalysis:
                   """
                   assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
                   if not metrics:
-                        metrics = self.variables["dataset_runner"]["metrics_to_evaluate"]["classification"]
+                        metrics = self.variables["phase_runners"]["dataset_runner"]["metrics_to_evaluate"]["classification"]
 
                   print(f"PLOTTING CROSS MODEL COMPARISON FOR {self.phase} PHASE")
                   
@@ -210,7 +210,7 @@ class PipelinesAnalysis:
             """
             print(f"METRICS IS {metrics}")
             if not metrics:
-                  metrics = self.variables["dataset_runner"]["metrics_to_evaluate"]["classification"]
+                  metrics = self.variables["phase_runners"]["dataset_runner"]["metrics_to_evaluate"]["classification"]
             class_report_df = self._compute_classification_report(include_training=True)
             self.results_per_phase[self.phase]["classification_report_train"] = class_report_df
             models = class_report_df.T["modelName"].unique()
@@ -421,7 +421,7 @@ class PipelinesAnalysis:
             Scatterplot: x-axis is either timeToFit or timeToPredict and y-axis is a performance metric
             """
             assert training_metric in ["timeToFit", "timeToPredict"], "training_metric must be either timeToFit or timeToPredict"
-            assert performance_metric in self.variables["dataset_runner"]["metrics_to_evaluate"]["classification"], "performance_metric must be a classification metric"
+            assert performance_metric in self.variables["phase_runners"]["dataset_runner"]["metrics_to_evaluate"]["classification"], "performance_metric must be a classification metric"
             
             if self.phase == "pre" or self.phase == "in":
                   performance_metric += "_val"

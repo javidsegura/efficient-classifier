@@ -67,7 +67,7 @@ class Split(ABC):
                   The path to save the plots
             
             """
-            max_plots = self.variables["PIPELINE_RUNNER"]["max_plots_per_function"]
+            max_plots = self.variables["general"]["max_plots_per_function"]
             for feature in features[:max_plots] if max_plots > 0 else features:
                   fig, axes = plt.subplots(1, 3, figsize=(15, 5))
                   # Training set plot

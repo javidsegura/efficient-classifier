@@ -45,13 +45,13 @@ class ModellingRunner(PhaseRunner):
                         "Feed Forward Neural Network": FeedForwardNeuralNetwork(
                                                                                           num_features=nn_pipeline.dataset.X_train.shape[1], 
                                                                                           num_classes=nn_pipeline.dataset.y_train.value_counts().shape[0],
-                                                                                          batch_size=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["batch_size"],
-                                                                                          epochs=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["epochs"],
-                                                                                          n_layers=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["n_layers"],
-                                                                                          units_per_layer=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["units_per_layer"],
-                                                                                          learning_rate=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["learning_rate"],
-                                                                                          activations=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["activations"],
-                                                                                          kernel_initializer=self.pipeline_manager.variables["modelling_runner"]["neural_network"]["initial_architecture"]["kernel_initializer"]
+                                                                                          batch_size=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["batch_size"],
+                                                                                          epochs=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["epochs"],
+                                                                                          n_layers=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["n_layers"],
+                                                                                          units_per_layer=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["units_per_layer"],
+                                                                                          learning_rate=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["learning_rate"],
+                                                                                          activations=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["activations"],
+                                                                                          kernel_initializer=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["kernel_initializer"]
                                                                               ),
                   },
                   "baseline": {
@@ -60,11 +60,11 @@ class ModellingRunner(PhaseRunner):
                   }
             }
       
-            for category in self.pipeline_manager.variables["modelling_runner"]["models_to_include"]:
+            for category in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]:
                   for pipeline in self.pipeline_manager.pipelines[category]:
                         if pipeline == "stacking":
                               continue
-                        for model_name in self.pipeline_manager.variables["modelling_runner"]["models_to_include"][category][pipeline]:
+                        for model_name in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"][category][pipeline]:
                               self.pipeline_manager.pipelines[category][pipeline].modelling.add_model(
                                     model_name, 
                                     model_name_to_model_object[category][model_name], 
@@ -73,11 +73,11 @@ class ModellingRunner(PhaseRunner):
             self._exclude_models()  
 
       def _exclude_models(self):
-            for category in self.pipeline_manager.variables["modelling_runner"]["models_to_include"]:
+            for category in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]:
                   for pipeline in self.pipeline_manager.pipelines[category]:
                         if pipeline == "stacking":
                               continue
-                        self.pipeline_manager.pipelines[category][pipeline].modelling.models_to_exclude = self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"][category][pipeline]
+                        self.pipeline_manager.pipelines[category][pipeline].modelling.models_to_exclude = self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_exclude"][category][pipeline]
                                                                                               
                                                                                              
       def run(self) -> None:
@@ -107,11 +107,10 @@ class ModellingRunner(PhaseRunner):
                                                   save_path=self.save_path)
             post_results = post_tuning_runner.run()
 
-            if self.pipeline_manager.variables["PIPELINE_RUNNER"]["serialize_results"]:
-                  if self.pipeline_manager.variables["modelling_runner"]["serialize_models"]["serialize_best_performing_model"]:
+            if self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["serialize_models"]["serialize_best_performing_model"]:
                         self.pipeline_manager.serialize_models(models_to_serialize=self.pipeline_manager.best_performing_model["modelName"])
-                  self.pipeline_manager.serialize_models(models_to_serialize=self.pipeline_manager.variables["modelling_runner"]["serialize_models"]["models_to_serialize"])
-                  self.pipeline_manager.serialize_pipelines(pipelines_to_serialize=self.pipeline_manager.variables["modelling_runner"]["serialize_models"]["pipelines_to_serialize"])
+            self.pipeline_manager.serialize_models(models_to_serialize=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["serialize_models"]["models_to_serialize"])
+            self.pipeline_manager.serialize_pipelines(pipelines_to_serialize=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["serialize_models"]["pipelines_to_serialize"])
 
             return {"pre_tuning_runner": pre_results,
                     "in_tuning_runner": None,

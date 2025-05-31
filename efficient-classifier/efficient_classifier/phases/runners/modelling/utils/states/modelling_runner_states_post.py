@@ -14,13 +14,13 @@ class PostTuningRunner(ModellingRunnerStates):
                   save_path=self.save_path)
             
             # Time based model performance
-            metrics_df = self.pipeline_manager.pipelines_analysis.plot_results_df(metrics=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["results_df_metrics"],
+            metrics_df = self.pipeline_manager.pipelines_analysis.plot_results_df(metrics=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["model_assesment"]["results_df_metrics"],
                                                                                  save_plots=self.save_plots,
                                                                                  save_path=self.save_path)
 
             # Results summary
-            self.pipeline_manager.pipelines_analysis.plot_results_summary(training_metric=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["results_summary"]["training_metric"],
-                                                                         performance_metric=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["results_summary"]["performance_metric"],
+            self.pipeline_manager.pipelines_analysis.plot_results_summary(training_metric=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["model_assesment"]["results_summary"]["training_metric"],
+                                                                         performance_metric=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["model_assesment"]["results_summary"]["performance_metric"],
                                                                          save_plots=self.save_plots,
                                                                          save_path=self.save_path)
             # Intra model comparison
@@ -49,12 +49,12 @@ class PostTuningRunner(ModellingRunnerStates):
            general_analysis_results = self._general_analysis()
            
            flag = True 
-           for pipeline in self.pipeline_manager.variables["modelling_runner"]["models_to_include"]["not_baseline"]:
+           for pipeline in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]["not_baseline"]:
                  if not flag:
                         break
-                 for model in self.pipeline_manager.variables["modelling_runner"]["models_to_include"]["not_baseline"][pipeline]:
+                 for model in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]["not_baseline"][pipeline]:
                         if model == best_model:
-                              self.pipeline_manager.dag.add_procedure(pipeline, "modelling", f"post-tuning ({self.pipeline_manager.variables['dataset_runner']['metrics_to_evaluate']['preferred_metric']})", best_score)
+                              self.pipeline_manager.dag.add_procedure(pipeline, "modelling", f"post-tuning ({self.pipeline_manager.variables['phase_runners']['dataset_runner']['metrics_to_evaluate']['preferred_metric']})", best_score)
                               flag = False 
                               break
 

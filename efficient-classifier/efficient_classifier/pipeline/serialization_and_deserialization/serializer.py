@@ -16,6 +16,10 @@ class Serialization:
       """ This class is responsible for serializing the pipelines and models. """
       def __init__(self):
             pass
+      if not os.path.exists("results/serialization"):
+            os.makedirs("results/serialization")
+            os.makedirs("results/serialization/models")
+            os.makedirs("results/serialization/pipelines")
       
       @timer("Serializing pipelines")
       def serialize_pipelines(self, all_pipelines: dict[str, dict[str, Pipeline]], pipelines_to_serialize: list[str]):

@@ -21,9 +21,9 @@ class ResultsDF:
             self.variables = yaml.load(open("efficient-classifier/efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
 
             if dataset.modelTask == "classification":
-                  metrics_to_evaluate = self.variables["dataset_runner"]["metrics_to_evaluate"]["classification"]
+                  metrics_to_evaluate = self.variables["phase_runners"]["dataset_runner"]["metrics_to_evaluate"]["classification"]
             else:
-                  metrics_to_evaluate = self.variables["dataset_runner"]["metrics_to_evaluate"]["regression"]
+                  metrics_to_evaluate = self.variables["phase_runners"]["dataset_runner"]["metrics_to_evaluate"]["regression"]
             assert len(metrics_to_evaluate) > 0, "The metrics to evaluate must be a non-empty list"
             self.metrics_to_evaluate = metrics_to_evaluate
             self.model_results_path = model_results_path
@@ -76,7 +76,7 @@ class ResultsDF:
                   model_log = {
                         "id": "",
                         "timeStamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "comments": self.variables["modelling_runner"]["model_assesment"]["comments"],
+                        "comments": self.variables["phase_runners"]["modelling_runner"]["model_assesment"]["comments"],
                         "modelName": modelName,
                         "currentPhase": current_phase,
                         "features_used": self.dataset.X_train.columns.tolist(),

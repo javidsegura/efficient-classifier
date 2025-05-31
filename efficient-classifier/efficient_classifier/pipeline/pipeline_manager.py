@@ -206,7 +206,7 @@ class PipelineManager:
             best_score: float
                   The score of the best performing model.
             """
-            metric = self.variables["dataset_runner"]["metrics_to_evaluate"]["preferred_metric"]
+            metric = self.variables["phase_runners"]["dataset_runner"]["metrics_to_evaluate"]["preferred_metric"]
             assert metric in self.pipelines_analysis.merged_report_per_phase[self.pipeline_state].columns, f"Metric not found. Columns are: {self.pipelines_analysis.merged_report_per_phase[self.pipeline_state].columns}"
             metric_df = self.pipelines_analysis.merged_report_per_phase[self.pipeline_state][metric]
             model_names = metric_df.loc["modelName"].tolist()  # Last row: model names

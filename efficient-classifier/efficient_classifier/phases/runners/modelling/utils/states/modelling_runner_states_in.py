@@ -13,7 +13,7 @@ class InTuningRunner(ModellingRunnerStates):
 
       def _general_analysis(self):
             # Evaluating and storing models
-            comments = self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["comments"]
+            comments = self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["model_assesment"]["comments"]
             self.pipeline_manager.all_pipelines_execute(methodName="modelling.evaluate_and_store_models", 
                                                        exclude_category="baseline",
                                                        comments=comments, 
@@ -26,13 +26,13 @@ class InTuningRunner(ModellingRunnerStates):
                   save_path=self.save_path)
             
             # Time based model performance
-            metrics_df = self.pipeline_manager.pipelines_analysis.plot_results_df(metrics=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["results_df_metrics"],
+            metrics_df = self.pipeline_manager.pipelines_analysis.plot_results_df(metrics=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["model_assesment"]["results_df_metrics"],
                                                                                  save_plots=self.save_plots,
                                                                                  save_path=self.save_path)
 
             # Results summary
-            self.pipeline_manager.pipelines_analysis.plot_results_summary(training_metric=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["results_summary"]["training_metric"],
-                                                                         performance_metric=self.pipeline_manager.variables["modelling_runner"]["model_assesment"]["results_summary"]["performance_metric"],
+            self.pipeline_manager.pipelines_analysis.plot_results_summary(training_metric=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["model_assesment"]["results_summary"]["training_metric"],
+                                                                         performance_metric=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["model_assesment"]["results_summary"]["performance_metric"],
                                                                          save_plots=self.save_plots,
                                                                          save_path=self.save_path)
             # Intra model comparison
@@ -54,27 +54,27 @@ class InTuningRunner(ModellingRunnerStates):
       def _get_grid_space(self):
             # Ensembled models
             gradient_boosting_grid = {
-                  'learning_rate': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["learning_rate"],
-                  'subsample': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["subsample"],
-                  'n_estimators': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["n_estimators"], 
-                  'max_depth': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["max_depth"], 
-                  'min_samples_split': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["min_samples_split"], 
-                  'min_samples_leaf': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["min_samples_leaf"]
+                  'learning_rate': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["learning_rate"],
+                  'subsample': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["subsample"],
+                  'n_estimators': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["n_estimators"], 
+                  'max_depth': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["max_depth"], 
+                  'min_samples_split': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["min_samples_split"], 
+                  'min_samples_leaf': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["min_samples_leaf"]
             }
             random_forest_grid = {
-                  'n_estimators': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["n_estimators"], 
-                  'max_depth': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["max_depth"], 
-                  'min_samples_split': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["min_samples_split"], 
-                  'min_samples_leaf': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["min_samples_leaf"]
+                  'n_estimators': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["n_estimators"], 
+                  'max_depth': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["max_depth"], 
+                  'min_samples_split': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["min_samples_split"], 
+                  'min_samples_leaf': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["random_forest"]["min_samples_leaf"]
             }
             # Tree-based models
             decision_tree_grid = {
-                  'criterion': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["criterion"],
-                  'max_depth': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["max_depth"],
-                  'min_samples_split': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["min_samples_split"],
-                  'min_samples_leaf': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["min_samples_leaf"],
-                  'max_features': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["max_features"],
-                  'ccp_alpha': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["ccp_alpha"]
+                  'criterion': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["criterion"],
+                  'max_depth': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["max_depth"],
+                  'min_samples_split': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["min_samples_split"],
+                  'min_samples_leaf': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["min_samples_leaf"],
+                  'max_features': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["max_features"],
+                  'ccp_alpha': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["decision_tree"]["ccp_alpha"]
             } 
 
             # Support Vector Machines models (not doing it cause it goes too slow and underperforms)
@@ -89,10 +89,10 @@ class InTuningRunner(ModellingRunnerStates):
 
             # Stacking
             stacking_grid = {
-                  'final_estimator__C': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["stacking"]["final_estimator__C"],
-                  'final_estimator__penalty': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["stacking"]["final_estimator__penalty"],
-                  'final_estimator__solver': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["stacking"]["final_estimator__solver"],
-                  'passthrough': self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["grid_space"]["stacking"]["passthrough"]
+                  'final_estimator__C': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["stacking"]["final_estimator__C"],
+                  'final_estimator__penalty': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["stacking"]["final_estimator__penalty"],
+                  'final_estimator__solver': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["stacking"]["final_estimator__solver"],
+                  'passthrough': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["stacking"]["passthrough"]
             }
 
             return gradient_boosting_grid, random_forest_grid, decision_tree_grid, naive_bayes_grid, stacking_grid
@@ -103,35 +103,35 @@ class InTuningRunner(ModellingRunnerStates):
                   "Gradient Boosting": {
                         "optimizer_type": "bayes",
                         "param_grid": gradient_boosting_grid,
-                        "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
+                        "max_iter": self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
                   },
                   "Random Forest": {
                         "optimizer_type": "bayes",
                         "param_grid": random_forest_grid,
-                        "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
+                        "max_iter": self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
                   },
                   "Decision Tree": {
                         "optimizer_type": "bayes",
                         "param_grid": decision_tree_grid,
-                        "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
+                        "max_iter": self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
                   },
                   "Naive Bayes": {
                         "optimizer_type": "bayes",
                         "param_grid": naive_bayes_grid,
-                        "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
+                        "max_iter": self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
                   },
                   "Feed Forward Neural Network": {
                         "optimizer_type": "bayes_nn",
                         "param_grid": None, # its hardcoded
-                        "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"],
-                        "epochs": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["epochs"]
+                        "max_iter": self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"],
+                        "epochs": self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["tuner_params"]["epochs"]
                   }
             }
             modelNameToOptimizerStacking = {
                   "Stacking": {
                         "optimizer_type": "bayes",
                         "param_grid": stacking_grid,
-                        "max_iter": self.pipeline_manager.variables["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
+                        "max_iter": self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
                   }
             }
             return modelNameToOptimizer, modelNameToOptimizerStacking
@@ -181,24 +181,24 @@ class InTuningRunner(ModellingRunnerStates):
                                                                            exclude_pipeline_names=["stacking"],
                                                                            current_phase=self.pipeline_manager.pipeline_state,
                                                                            modelNameToOptimizer=modelNameToOptimizer)
-            if len(self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["not_baseline"]["stacking"]) == 0:
+            if len(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_exclude"]["not_baseline"]["stacking"]) == 0:
                   self._set_up_stacking_model(optimized_models, modelNameToOptimizerStacking)
             general_analysis_results = self._general_analysis()
 
             # For each model, if not excluded, print 
             results = self.pipeline_manager.pipelines_analysis.merged_report_per_phase["in"]
 
-            for pipeline in self.pipeline_manager.variables["modelling_runner"]["models_to_include"]["not_baseline"]:
+            for pipeline in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]["not_baseline"]:
                   if pipeline == "stacking":
                         continue
                   results_comment = {}
-                  for model in self.pipeline_manager.variables["modelling_runner"]["models_to_include"]["not_baseline"][pipeline]:
+                  for model in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]["not_baseline"][pipeline]:
                         results_comment[model] = {}
                         pipeline_is_empty = True # meaning all models are excluded from the pipeline
-                        if model not in self.pipeline_manager.variables["modelling_runner"]["models_to_exclude"]["not_baseline"][pipeline]:
+                        if model not in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_exclude"]["not_baseline"][pipeline]:
                               pipeline_is_empty = False
                               for model_name in [model, model + "_train"]:
-                                    metric_df = results[self.pipeline_manager.variables["dataset_runner"]["metrics_to_evaluate"]["preferred_metric"]]
+                                    metric_df = results[self.pipeline_manager.variables["phase_runners"]["dataset_runner"]["metrics_to_evaluate"]["preferred_metric"]]
                                     df_numeric = metric_df.iloc[:-1].astype(float)
                                     model_names = metric_df.loc["modelName"]
                                     if isinstance(model_names, str):
@@ -208,6 +208,6 @@ class InTuningRunner(ModellingRunnerStates):
                                     model_idx = list(model_names).index(model_name)
                                     results_comment[model][model_name] = round(df_numeric.iloc[:, model_idx]['weighted avg'], 3)
                   if not pipeline_is_empty:     
-                        self.pipeline_manager.dag.add_procedure(pipeline, "modelling", f"in-tuning ({self.pipeline_manager.variables['dataset_runner']['metrics_to_evaluate']['preferred_metric']})", results_comment)
+                        self.pipeline_manager.dag.add_procedure(pipeline, "modelling", f"in-tuning ({self.pipeline_manager.variables['phase_runners']['dataset_runner']['metrics_to_evaluate']['preferred_metric']})", results_comment)
 
             return general_analysis_results

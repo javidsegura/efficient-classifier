@@ -12,13 +12,13 @@ class DAG:
             self.dot = Digraph(comment='ML Pipelines DAG', format='png')
             self.dot.attr(rankdir='TB', 
                   bgcolor='white',
-                  labelloc='t',  # Move title to top
+                  labelloc='t',  
                   label=f'Machine Learning Pipeline Architecture\nRendered at {time.strftime("%Y-%m-%d %H:%M:%S")}',
                   fontsize='24',
                   fontname='Arial Bold',
                   nodesep='0.8',
-                  ranksep='1.2',  # Increased for better spacing
-                  pad='0.75',     # Increased padding
+                  ranksep='1.2',  
+                  pad='0.75',     
                   concentrate='true') # Merge edge lines where possible
             
       def _set_up_phases(self, phases):

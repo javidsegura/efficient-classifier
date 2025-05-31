@@ -1,19 +1,19 @@
-2025-05-23 11:36:14,378 - my_logger - INFO - Pipeline runner started at 2025-05-23 11:36:14
-2025-05-23 11:36:16,229 - my_logger - INFO - 'dataset' returned: ('X_train: (37625, 142)', 'X_val: (4703, 142)', 'X_test: (4704, 142)')
-2025-05-23 11:36:17,836 - my_logger - INFO - 'data_preprocessing' returned: {}
-2025-05-23 11:36:19,138 - my_logger - INFO - 'feature_analysis' returned: {'feature_transformation_results': None, 'manual_feature_selection_results': {'MutualInformation': 'Threshold: 0.2, Delete features: True', 'LowVariances': 'Threshold: 0.01, Delete features: True', 'VIF': 'Threshold: 10, Delete features: True', 'PCA': 'Threshold: 0.95, Delete features: True'}, 'automatic_feature_selection_results': {'L1': {'predictivePowerFeatures': None, 'excludedFeatures': None, 'deletesFeatures': True}, 'Boruta': {'selected_features': None, 'excludedFeatures': None, 'deletesFeatures': True}}}
-2025-05-23 11:38:04,496 - my_logger - INFO - 'modelling' returned: {'pre_tuning_runner': {'metrics_df': {'id': {0: '4befebefd4f4f643dc75a7afad2b5e224a9bcf5a19eefab966ac17ee131036a7'}, 'timeStamp': {0: '2025-05-23 11:37:00'}, 'comments': {0: 'UPDATED KAPPA NAME IN THE CSV, ONE SECOND TIME'}, 'modelName': {0: 'Majority Class (baseline)'}, 'currentPhase': {0: 'pre'}, 'features_used': {0: ['Memory_PssTotal', 'Memory_PssClean', 'Memory_SharedDirty', 'Memory_PrivateDirty', 'Memory_SharedClean', 'Memory_PrivateClean', 'Memory_SwapPssDirty', 'Memory_HeapSize', 'Memory_HeapAlloc', 'Memory_HeapFree', 'Memory_Views', 'Memory_ViewRootImpl', 'Memory_AppContexts', 'Memory_Activities', 'Memory_Assets', 'Memory_AssetManagers', 'Memory_LocalBinders', 'Memory_ProxyBinders', 'Memory_ParcelMemory', 'Memory_ParcelCount', 'Memory_DeathRecipients', 'Memory_OpenSSLSockets', 'Memory_WebViews', 'API_Process_android.os.Process_start', 'API_Process_android.app.ActivityManager_killBackgroundProcesses', 'API_Process_android.os.Process_killProcess', 'API_Command_java.lang.Runtime_exec', 'API_Command_java.lang.ProcessBuilder_start', 'API_JavaNativeInterface_java.lang.Runtime_loadLibrary', 'API_JavaNativeInterface_java.lang.Runtime_load', 'API_WebView_android.webkit.WebView_loadUrl', 'API_WebView_android.webkit.WebView_loadData', 'API_WebView_android.webkit.WebView_loadDataWithBaseURL', 'API_WebView_android.webkit.WebView_addJavascriptInterface', 'API_WebView_android.webkit.WebView_evaluateJavascript', 'API_WebView_android.webkit.WebView_postUrl', 'API_WebView_android.webkit.WebView_postWebMessage', 'API_WebView_android.webkit.WebView_savePassword', 'API_WebView_android.webkit.WebView_setHttpAuthUsernamePassword', 'API_WebView_android.webkit.WebView_getHttpAuthUsernamePassword', 'API_WebView_android.webkit.WebView_setWebContentsDebuggingEnabled', 'API_FileIO_libcore.io.IoBridge_open', 'API_FileIO_android.content.ContextWrapper_openFileInput', 'API_FileIO_android.content.ContextWrapper_openFileOutput', 'API_FileIO_android.content.ContextWrapper_deleteFile', 'API_Database_android.content.ContextWrapper_openOrCreateDatabase', 'API_Database_android.content.ContextWrapper_databaseList', 'API_Database_android.content.ContextWrapper_deleteDatabase', 'API_Database_android.database.sqlite.SQLiteDatabase_execSQL', 'API_Database_android.database.sqlite.SQLiteDatabase_deleteDatabase', 'API_Database_android.database.sqlite.SQLiteDatabase_getPath', 'API_Database_android.database.sqlite.SQLiteDatabase_insert', 'API_Database_android.database.sqlite.SQLiteDatabase_insertOrThrow', 'API_Database_android.database.sqlite.SQLiteDatabase_insertWithOnConflict', 'API_Database_android.database.sqlite.SQLiteDatabase_openDatabase', 'API_Database_android.database.sqlite.SQLiteDatabase_openOrCreateDatabase', 'API_Database_android.database.sqlite.SQLiteDatabase_query', 'API_Database_android.database.sqlite.SQLiteDatabase_queryWithFactory', 'API_Database_android.database.sqlite.SQLiteDatabase_rawQuery', 'API_Database_android.database.sqlite.SQLiteDatabase_rawQueryWithFactory', 'API_Database_android.database.sqlite.SQLiteDatabase_update', 'API_Database_android.database.sqlite.SQLiteDatabase_updateWithOnConflict', 'API_Database_android.database.sqlite.SQLiteDatabase_compileStatement', 'API_Database_android.database.sqlite.SQLiteDatabase_create', 'API_IPC_android.content.ContextWrapper_sendBroadcast', 'API_IPC_android.content.ContextWrapper_sendStickyBroadcast', 'API_IPC_android.content.ContextWrapper_startActivity', 'API_IPC_android.content.ContextWrapper_startService', 'API_IPC_android.content.ContextWrapper_stopService', 'API_IPC_android.content.ContextWrapper_registerReceiver', 'API_Binder_android.app.ContextImpl_registerReceiver', 'API_Binder_android.app.ActivityThread_handleReceiver', 'API_Binder_android.app.Activity_startActivity', 'API_Crypto_javax.crypto.spec.SecretKeySpec_$init', 'API_Crypto_javax.crypto.Cipher_doFinal', 'API_Crypto-Hash_java.security.MessageDigest_digest', 'API_Crypto-Hash_java.security.MessageDigest_update', 'API_DeviceInfo_android.telephony.TelephonyManager_getDeviceId', 'API_DeviceInfo_android.telephony.TelephonyManager_getSubscriberId', 'API_DeviceInfo_android.telephony.TelephonyManager_getLine1Number', 'API_DeviceInfo_android.telephony.TelephonyManager_getNetworkOperator', 'API_DeviceInfo_android.telephony.TelephonyManager_getNetworkOperatorName', 'API_DeviceInfo_android.telephony.TelephonyManager_getSimOperatorName', 'API_DeviceInfo_android.net.wifi.WifiInfo_getMacAddress', 'API_DeviceInfo_android.net.wifi.WifiInfo_getBSSID', 'API_DeviceInfo_android.net.wifi.WifiInfo_getIpAddress', 'API_DeviceInfo_android.net.wifi.WifiInfo_getNetworkId', 'API_DeviceInfo_android.telephony.TelephonyManager_getSimCountryIso', 'API_DeviceInfo_android.telephony.TelephonyManager_getSimSerialNumber', 'API_DeviceInfo_android.telephony.TelephonyManager_getNetworkCountryIso', 'API_DeviceInfo_android.telephony.TelephonyManager_getDeviceSoftwareVersion', 'API_DeviceInfo_android.os.Debug_isDebuggerConnected', 'API_DeviceInfo_android.content.pm.PackageManager_getInstallerPackageName', 'API_DeviceInfo_android.content.pm.PackageManager_getInstalledApplications', 'API_DeviceInfo_android.content.pm.PackageManager_getInstalledModules', 'API_DeviceInfo_android.content.pm.PackageManager_getInstalledPackages', 'API_Network_java.net.URL_openConnection', 'API_Network_org.apache.http.impl.client.AbstractHttpClient_execute', 'API_Network_com.android.okhttp.internal.huc.HttpURLConnectionImpl_getInputStream', 'API_Network_com.android.okhttp.internal.http.HttpURLConnectionImpl_getInputStream', 'API_DexClassLoader_dalvik.system.BaseDexClassLoader_findResource', 'API_DexClassLoader_dalvik.system.BaseDexClassLoader_findResources', 'API_DexClassLoader_dalvik.system.BaseDexClassLoader_findLibrary', 'API_DexClassLoader_dalvik.system.DexFile_loadDex', 'API_DexClassLoader_dalvik.system.DexFile_loadClass', 'API_DexClassLoader_dalvik.system.DexClassLoader_$init', 'API_Base64_android.util.Base64_decode', 'API_Base64_android.util.Base64_encode', 'API_Base64_android.util.Base64_encodeToString', 'API_SystemManager_android.app.ApplicationPackageManager_setComponentEnabledSetting', 'API_SystemManager_android.app.NotificationManager_notify', 'API_SystemManager_android.telephony.TelephonyManager_listen', 'API_SystemManager_android.content.BroadcastReceiver_abortBroadcast', 'API_SMS_android.telephony.SmsManager_sendTextMessage', 'API_SMS_android.telephony.SmsManager_sendMultipartTextMessage', 'API_DeviceData_android.content.ContentResolver_query', 'API_DeviceData_android.content.ContentResolver_registerContentObserver', 'API_DeviceData_android.content.ContentResolver_insert', 'API_DeviceData_android.content.ContentResolver_delete', 'API_DeviceData_android.accounts.AccountManager_getAccountsByType', 'API_DeviceData_android.accounts.AccountManager_getAccounts', 'API_DeviceData_android.location.Location_getLatitude', 'API_DeviceData_android.location.Location_getLongitude', 'API_DeviceData_android.media.AudioRecord_startRecording', 'API_DeviceData_android.media.MediaRecorder_start', 'API_DeviceData_android.os.SystemProperties_get', 'API_DeviceData_android.app.ApplicationPackageManager_getInstalledPackages', 'API__sessions', 'Network_TotalReceivedBytes', 'Network_TotalReceivedPackets', 'Network_TotalTransmittedBytes', 'Network_TotalTransmittedPackets', 'Battery_wakelock', 'Battery_service', 'Logcat_info', 'Logcat_error', 'Logcat_warning', 'Logcat_debug', 'Logcat_verbose', 'Logcat_total', 'Process_total', 'Reboot_before']}, 'hyperParameters': {0: '{}'}, 'timeToFit': {0: 0.02732110023498535}, 'timeToPredict': {0: 0.0003447532653808594}, 'accuracy_val': {0: 0.30065915373166063}, 'accuracy_test': {0: -1}, 'precision_val': {0: 0.09039592672263835}, 'precision_test': {0: -1}, 'recall_val': {0: 0.30065915373166063}, 'recall_test': {0: -1}, 'f1-score_val': {0: 0.13900017766113068}, 'f1-score_test': {0: -1}, 'kappa_val': {0: 0.0}, 'kappa_test': {0: -1}}, 'residuals': {'tree_based': 53099     3
+2025-05-31 14:50:54,715 - my_logger - INFO - Pipeline runner started at 2025-05-31 14:50:54
+2025-05-31 14:50:55,958 - my_logger - INFO - 'dataset' returned: ('X_train: (37625, 142)', 'X_val: (4703, 142)', 'X_test: (4704, 142)')
+2025-05-31 14:50:56,854 - my_logger - INFO - 'data_preprocessing' returned: {}
+2025-05-31 14:50:57,364 - my_logger - INFO - 'feature_analysis' returned: {'feature_transformation_results': None, 'manual_feature_selection_results': {'MutualInformation': 'Threshold: 0.2, Delete features: True', 'LowVariances': 'Threshold: 0.01, Delete features: True', 'VIF': 'Threshold: 10, Delete features: True', 'PCA': 'Threshold: 0.95, Delete features: True'}, 'automatic_feature_selection_results': {'L1': {'predictivePowerFeatures': None, 'excludedFeatures': None, 'deletesFeatures': True}, 'Boruta': {'selected_features': None, 'excludedFeatures': None, 'deletesFeatures': True}}}
+2025-05-31 14:52:15,975 - my_logger - INFO - 'modelling' returned: {'pre_tuning_runner': {'metrics_df': {'id': {0: '4befebefd4f4f643dc75a7afad2b5e224a9bcf5a19eefab966ac17ee131036a7'}, 'timeStamp': {0: '2025-05-31 14:51:21'}, 'comments': {0: 'UPDATED KAPPA NAME IN THE CSV, ONE SECOND TIME'}, 'modelName': {0: 'Majority Class (baseline)'}, 'currentPhase': {0: 'pre'}, 'features_used': {0: ['Memory_PssTotal', 'Memory_PssClean', 'Memory_SharedDirty', 'Memory_PrivateDirty', 'Memory_SharedClean', 'Memory_PrivateClean', 'Memory_SwapPssDirty', 'Memory_HeapSize', 'Memory_HeapAlloc', 'Memory_HeapFree', 'Memory_Views', 'Memory_ViewRootImpl', 'Memory_AppContexts', 'Memory_Activities', 'Memory_Assets', 'Memory_AssetManagers', 'Memory_LocalBinders', 'Memory_ProxyBinders', 'Memory_ParcelMemory', 'Memory_ParcelCount', 'Memory_DeathRecipients', 'Memory_OpenSSLSockets', 'Memory_WebViews', 'API_Process_android.os.Process_start', 'API_Process_android.app.ActivityManager_killBackgroundProcesses', 'API_Process_android.os.Process_killProcess', 'API_Command_java.lang.Runtime_exec', 'API_Command_java.lang.ProcessBuilder_start', 'API_JavaNativeInterface_java.lang.Runtime_loadLibrary', 'API_JavaNativeInterface_java.lang.Runtime_load', 'API_WebView_android.webkit.WebView_loadUrl', 'API_WebView_android.webkit.WebView_loadData', 'API_WebView_android.webkit.WebView_loadDataWithBaseURL', 'API_WebView_android.webkit.WebView_addJavascriptInterface', 'API_WebView_android.webkit.WebView_evaluateJavascript', 'API_WebView_android.webkit.WebView_postUrl', 'API_WebView_android.webkit.WebView_postWebMessage', 'API_WebView_android.webkit.WebView_savePassword', 'API_WebView_android.webkit.WebView_setHttpAuthUsernamePassword', 'API_WebView_android.webkit.WebView_getHttpAuthUsernamePassword', 'API_WebView_android.webkit.WebView_setWebContentsDebuggingEnabled', 'API_FileIO_libcore.io.IoBridge_open', 'API_FileIO_android.content.ContextWrapper_openFileInput', 'API_FileIO_android.content.ContextWrapper_openFileOutput', 'API_FileIO_android.content.ContextWrapper_deleteFile', 'API_Database_android.content.ContextWrapper_openOrCreateDatabase', 'API_Database_android.content.ContextWrapper_databaseList', 'API_Database_android.content.ContextWrapper_deleteDatabase', 'API_Database_android.database.sqlite.SQLiteDatabase_execSQL', 'API_Database_android.database.sqlite.SQLiteDatabase_deleteDatabase', 'API_Database_android.database.sqlite.SQLiteDatabase_getPath', 'API_Database_android.database.sqlite.SQLiteDatabase_insert', 'API_Database_android.database.sqlite.SQLiteDatabase_insertOrThrow', 'API_Database_android.database.sqlite.SQLiteDatabase_insertWithOnConflict', 'API_Database_android.database.sqlite.SQLiteDatabase_openDatabase', 'API_Database_android.database.sqlite.SQLiteDatabase_openOrCreateDatabase', 'API_Database_android.database.sqlite.SQLiteDatabase_query', 'API_Database_android.database.sqlite.SQLiteDatabase_queryWithFactory', 'API_Database_android.database.sqlite.SQLiteDatabase_rawQuery', 'API_Database_android.database.sqlite.SQLiteDatabase_rawQueryWithFactory', 'API_Database_android.database.sqlite.SQLiteDatabase_update', 'API_Database_android.database.sqlite.SQLiteDatabase_updateWithOnConflict', 'API_Database_android.database.sqlite.SQLiteDatabase_compileStatement', 'API_Database_android.database.sqlite.SQLiteDatabase_create', 'API_IPC_android.content.ContextWrapper_sendBroadcast', 'API_IPC_android.content.ContextWrapper_sendStickyBroadcast', 'API_IPC_android.content.ContextWrapper_startActivity', 'API_IPC_android.content.ContextWrapper_startService', 'API_IPC_android.content.ContextWrapper_stopService', 'API_IPC_android.content.ContextWrapper_registerReceiver', 'API_Binder_android.app.ContextImpl_registerReceiver', 'API_Binder_android.app.ActivityThread_handleReceiver', 'API_Binder_android.app.Activity_startActivity', 'API_Crypto_javax.crypto.spec.SecretKeySpec_$init', 'API_Crypto_javax.crypto.Cipher_doFinal', 'API_Crypto-Hash_java.security.MessageDigest_digest', 'API_Crypto-Hash_java.security.MessageDigest_update', 'API_DeviceInfo_android.telephony.TelephonyManager_getDeviceId', 'API_DeviceInfo_android.telephony.TelephonyManager_getSubscriberId', 'API_DeviceInfo_android.telephony.TelephonyManager_getLine1Number', 'API_DeviceInfo_android.telephony.TelephonyManager_getNetworkOperator', 'API_DeviceInfo_android.telephony.TelephonyManager_getNetworkOperatorName', 'API_DeviceInfo_android.telephony.TelephonyManager_getSimOperatorName', 'API_DeviceInfo_android.net.wifi.WifiInfo_getMacAddress', 'API_DeviceInfo_android.net.wifi.WifiInfo_getBSSID', 'API_DeviceInfo_android.net.wifi.WifiInfo_getIpAddress', 'API_DeviceInfo_android.net.wifi.WifiInfo_getNetworkId', 'API_DeviceInfo_android.telephony.TelephonyManager_getSimCountryIso', 'API_DeviceInfo_android.telephony.TelephonyManager_getSimSerialNumber', 'API_DeviceInfo_android.telephony.TelephonyManager_getNetworkCountryIso', 'API_DeviceInfo_android.telephony.TelephonyManager_getDeviceSoftwareVersion', 'API_DeviceInfo_android.os.Debug_isDebuggerConnected', 'API_DeviceInfo_android.content.pm.PackageManager_getInstallerPackageName', 'API_DeviceInfo_android.content.pm.PackageManager_getInstalledApplications', 'API_DeviceInfo_android.content.pm.PackageManager_getInstalledModules', 'API_DeviceInfo_android.content.pm.PackageManager_getInstalledPackages', 'API_Network_java.net.URL_openConnection', 'API_Network_org.apache.http.impl.client.AbstractHttpClient_execute', 'API_Network_com.android.okhttp.internal.huc.HttpURLConnectionImpl_getInputStream', 'API_Network_com.android.okhttp.internal.http.HttpURLConnectionImpl_getInputStream', 'API_DexClassLoader_dalvik.system.BaseDexClassLoader_findResource', 'API_DexClassLoader_dalvik.system.BaseDexClassLoader_findResources', 'API_DexClassLoader_dalvik.system.BaseDexClassLoader_findLibrary', 'API_DexClassLoader_dalvik.system.DexFile_loadDex', 'API_DexClassLoader_dalvik.system.DexFile_loadClass', 'API_DexClassLoader_dalvik.system.DexClassLoader_$init', 'API_Base64_android.util.Base64_decode', 'API_Base64_android.util.Base64_encode', 'API_Base64_android.util.Base64_encodeToString', 'API_SystemManager_android.app.ApplicationPackageManager_setComponentEnabledSetting', 'API_SystemManager_android.app.NotificationManager_notify', 'API_SystemManager_android.telephony.TelephonyManager_listen', 'API_SystemManager_android.content.BroadcastReceiver_abortBroadcast', 'API_SMS_android.telephony.SmsManager_sendTextMessage', 'API_SMS_android.telephony.SmsManager_sendMultipartTextMessage', 'API_DeviceData_android.content.ContentResolver_query', 'API_DeviceData_android.content.ContentResolver_registerContentObserver', 'API_DeviceData_android.content.ContentResolver_insert', 'API_DeviceData_android.content.ContentResolver_delete', 'API_DeviceData_android.accounts.AccountManager_getAccountsByType', 'API_DeviceData_android.accounts.AccountManager_getAccounts', 'API_DeviceData_android.location.Location_getLatitude', 'API_DeviceData_android.location.Location_getLongitude', 'API_DeviceData_android.media.AudioRecord_startRecording', 'API_DeviceData_android.media.MediaRecorder_start', 'API_DeviceData_android.os.SystemProperties_get', 'API_DeviceData_android.app.ApplicationPackageManager_getInstalledPackages', 'API__sessions', 'Network_TotalReceivedBytes', 'Network_TotalReceivedPackets', 'Network_TotalTransmittedBytes', 'Network_TotalTransmittedPackets', 'Battery_wakelock', 'Battery_service', 'Logcat_info', 'Logcat_error', 'Logcat_warning', 'Logcat_debug', 'Logcat_verbose', 'Logcat_total', 'Process_total', 'Reboot_before']}, 'hyperParameters': {0: '{}'}, 'timeToFit': {0: 0.0021147727966308594}, 'timeToPredict': {0: 7.200241088867188e-05}, 'accuracy_val': {0: 0.30065915373166063}, 'accuracy_test': {0: -1}, 'precision_val': {0: 0.09039592672263835}, 'precision_test': {0: -1}, 'recall_val': {0: 0.30065915373166063}, 'recall_test': {0: -1}, 'f1-score_val': {0: 0.13900017766113068}, 'f1-score_test': {0: -1}, 'kappa_val': {0: 0.0}, 'kappa_test': {0: -1}}, 'residuals': {'tree_based': 53099     3
 42114    11
 46186     7
 41946    10
 12505     0
          ..
-44118     7
 2906      0
 33099     7
+52857     3
 47610     7
 36519     5
-Length: 844, dtype: int64, 'naive_bayes': 53099    3
+Length: 837, dtype: int64, 'naive_bayes': 53099    3
 30660    7
 24323    5
 11712    0
@@ -24,7 +24,18 @@ Length: 844, dtype: int64, 'naive_bayes': 53099    3
 7612     0
 46313    7
 36519    5
-Length: 3853, dtype: int64, 'feed_forward_neural_network': 53099    3
+Length: 3853, dtype: int64, 'feed_forward_neural_network': 53099     3
+30660     7
+24323     5
+52498     3
+42114    11
+         ..
+47610     7
+20081     5
+44394     7
+46313     7
+36519     5
+Length: 3638, dtype: int64, 'baselines': 53099    3
 30660    7
 11712    0
 52498    3
@@ -35,76 +46,65 @@ Length: 3853, dtype: int64, 'feed_forward_neural_network': 53099    3
 7212     0
 7612     0
 46313    7
-Length: 3291, dtype: int64, 'baselines': 53099    3
-30660    7
-11712    0
-52498    3
-5763     0
-        ..
-47610    7
-44394    7
-7212     0
-7612     0
-46313    7
-Length: 3289, dtype: int64}, 'confusion_matrices': {'Decision Tree': {'absolute': array([[ 891,   13,    3,   14,    6,   70,    6,   31,    3,    6,   16,
+Length: 3289, dtype: int64}, 'confusion_matrices': {'Decision Tree': {'absolute': array([[ 888,   12,    8,   17,    6,   77,    3,   26,    2,    4,   17,
+           3],
+       [  11,   58,    1,    2,    2,   10,    0,    2,    0,    2,    4,
+           3],
+       [   2,    1,   26,    1,    0,    5,    1,    0,    0,    0,    1,
+           0],
+       [   9,    0,    0,   95,    2,    4,    1,    5,    0,    1,    1,
            4],
-       [  12,   56,    0,    2,    1,   14,    1,    2,    0,    1,    4,
-           2],
-       [   4,    0,   25,    2,    0,    4,    1,    0,    0,    0,    1,
-           0],
-       [   9,    0,    0,   98,    1,    4,    1,    4,    0,    0,    2,
-           3],
-       [   2,    3,    0,    0,  266,    5,    1,    9,    2,   33,    4,
-          23],
-       [  78,   13,    0,    7,    5, 1225,    1,   55,    1,    8,   15,
-           6],
-       [  10,    2,    0,    5,    0,    5,   61,    0,    0,    0,    1,
-           2],
-       [  28,    4,    1,    4,    3,   55,    4,  729,    0,   12,   17,
+       [   3,    4,    0,    0,  280,    5,    1,    6,    3,   25,    4,
+          17],
+       [  87,   10,    0,    6,    3, 1227,    2,   51,    3,    6,   14,
            5],
-       [   1,    0,    0,    0,    3,    1,    0,    0,   15,    3,    1,
+       [  11,    1,    0,    4,    0,    6,   60,    0,    0,    1,    1,
+           2],
+       [  34,    4,    1,    4,    3,   47,    2,  729,    0,   11,   17,
+          10],
+       [   1,    0,    0,    0,    3,    1,    0,    1,   13,    3,    2,
            1],
-       [   4,    2,    0,    1,   31,    0,    0,    8,    1,  107,    6,
-           0],
-       [  22,    2,    1,    2,    3,   11,    0,   15,    1,    2,  147,
+       [   6,    2,    0,    0,   33,    0,    0,    6,    2,  104,    6,
+           1],
+       [  21,    3,    0,    1,    6,    9,    2,   11,    1,    1,  151,
            3],
-       [   1,    1,    0,    1,   18,    5,    1,    8,    0,    2,    6,
-         239]]), 'relative': array([[8.38193791e+01, 1.22295390e+00, 2.82220132e-01, 1.31702728e+00,
-        5.64440263e-01, 6.58513641e+00, 5.64440263e-01, 2.91627469e+00,
-        2.82220132e-01, 5.64440263e-01, 1.50517404e+00, 3.76293509e-01],
-       [1.26315789e+01, 5.89473684e+01, 0.00000000e+00, 2.10526316e+00,
-        1.05263158e+00, 1.47368421e+01, 1.05263158e+00, 2.10526316e+00,
-        0.00000000e+00, 1.05263158e+00, 4.21052632e+00, 2.10526316e+00],
-       [1.08108108e+01, 0.00000000e+00, 6.75675676e+01, 5.40540541e+00,
-        0.00000000e+00, 1.08108108e+01, 2.70270270e+00, 0.00000000e+00,
-        0.00000000e+00, 0.00000000e+00, 2.70270270e+00, 0.00000000e+00],
-       [7.37704918e+00, 0.00000000e+00, 0.00000000e+00, 8.03278689e+01,
-        8.19672131e-01, 3.27868852e+00, 8.19672131e-01, 3.27868852e+00,
-        0.00000000e+00, 0.00000000e+00, 1.63934426e+00, 2.45901639e+00],
-       [5.74712644e-01, 8.62068966e-01, 0.00000000e+00, 0.00000000e+00,
-        7.64367816e+01, 1.43678161e+00, 2.87356322e-01, 2.58620690e+00,
-        5.74712644e-01, 9.48275862e+00, 1.14942529e+00, 6.60919540e+00],
-       [5.51626591e+00, 9.19377652e-01, 0.00000000e+00, 4.95049505e-01,
-        3.53606789e-01, 8.66336634e+01, 7.07213579e-02, 3.88967468e+00,
-        7.07213579e-02, 5.65770863e-01, 1.06082037e+00, 4.24328147e-01],
-       [1.16279070e+01, 2.32558140e+00, 0.00000000e+00, 5.81395349e+00,
-        0.00000000e+00, 5.81395349e+00, 7.09302326e+01, 0.00000000e+00,
-        0.00000000e+00, 0.00000000e+00, 1.16279070e+00, 2.32558140e+00],
-       [3.24825986e+00, 4.64037123e-01, 1.16009281e-01, 4.64037123e-01,
-        3.48027842e-01, 6.38051044e+00, 4.64037123e-01, 8.45707657e+01,
-        0.00000000e+00, 1.39211137e+00, 1.97215777e+00, 5.80046404e-01],
-       [4.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-        1.20000000e+01, 4.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-        6.00000000e+01, 1.20000000e+01, 4.00000000e+00, 4.00000000e+00],
-       [2.50000000e+00, 1.25000000e+00, 0.00000000e+00, 6.25000000e-01,
-        1.93750000e+01, 0.00000000e+00, 0.00000000e+00, 5.00000000e+00,
-        6.25000000e-01, 6.68750000e+01, 3.75000000e+00, 0.00000000e+00],
-       [1.05263158e+01, 9.56937799e-01, 4.78468900e-01, 9.56937799e-01,
-        1.43540670e+00, 5.26315789e+00, 0.00000000e+00, 7.17703349e+00,
-        4.78468900e-01, 9.56937799e-01, 7.03349282e+01, 1.43540670e+00],
-       [3.54609929e-01, 3.54609929e-01, 0.00000000e+00, 3.54609929e-01,
-        6.38297872e+00, 1.77304965e+00, 3.54609929e-01, 2.83687943e+00,
-        0.00000000e+00, 7.09219858e-01, 2.12765957e+00, 8.47517730e+01]])}, 'Naive Bayes': {'absolute': array([[ 52,  21,   8,   7, 509,  39, 281,  46,  39,   4,   2,  55],
+       [   2,    2,    0,    1,   23,    6,    1,    6,    0,    2,    4,
+         235]]), 'relative': array([[83.53715898,  1.12888053,  0.75258702,  1.59924741,  0.56444026,
+         7.24365005,  0.28222013,  2.44590781,  0.18814675,  0.37629351,
+         1.59924741,  0.28222013],
+       [11.57894737, 61.05263158,  1.05263158,  2.10526316,  2.10526316,
+        10.52631579,  0.        ,  2.10526316,  0.        ,  2.10526316,
+         4.21052632,  3.15789474],
+       [ 5.40540541,  2.7027027 , 70.27027027,  2.7027027 ,  0.        ,
+        13.51351351,  2.7027027 ,  0.        ,  0.        ,  0.        ,
+         2.7027027 ,  0.        ],
+       [ 7.37704918,  0.        ,  0.        , 77.86885246,  1.63934426,
+         3.27868852,  0.81967213,  4.09836066,  0.        ,  0.81967213,
+         0.81967213,  3.27868852],
+       [ 0.86206897,  1.14942529,  0.        ,  0.        , 80.45977011,
+         1.43678161,  0.28735632,  1.72413793,  0.86206897,  7.18390805,
+         1.14942529,  4.88505747],
+       [ 6.15275813,  0.70721358,  0.        ,  0.42432815,  0.21216407,
+        86.77510608,  0.14144272,  3.60678925,  0.21216407,  0.42432815,
+         0.99009901,  0.35360679],
+       [12.79069767,  1.1627907 ,  0.        ,  4.65116279,  0.        ,
+         6.97674419, 69.76744186,  0.        ,  0.        ,  1.1627907 ,
+         1.1627907 ,  2.3255814 ],
+       [ 3.94431555,  0.46403712,  0.11600928,  0.46403712,  0.34802784,
+         5.45243619,  0.23201856, 84.57076566,  0.        ,  1.27610209,
+         1.97215777,  1.16009281],
+       [ 4.        ,  0.        ,  0.        ,  0.        , 12.        ,
+         4.        ,  0.        ,  4.        , 52.        , 12.        ,
+         8.        ,  4.        ],
+       [ 3.75      ,  1.25      ,  0.        ,  0.        , 20.625     ,
+         0.        ,  0.        ,  3.75      ,  1.25      , 65.        ,
+         3.75      ,  0.625     ],
+       [10.04784689,  1.4354067 ,  0.        ,  0.4784689 ,  2.8708134 ,
+         4.3062201 ,  0.9569378 ,  5.26315789,  0.4784689 ,  0.4784689 ,
+        72.24880383,  1.4354067 ],
+       [ 0.70921986,  0.70921986,  0.        ,  0.35460993,  8.15602837,
+         2.12765957,  0.35460993,  2.12765957,  0.        ,  0.70921986,
+         1.41843972, 83.33333333]])}, 'Naive Bayes': {'absolute': array([[ 52,  21,   8,   7, 509,  39, 281,  46,  39,   4,   2,  55],
        [  5,   4,   2,   0,  59,   3,  13,   2,   0,   0,   0,   7],
        [  2,   1,   0,   0,  19,   0,  12,   2,   0,   0,   0,   1],
        [  3,   6,   1,  32,  56,   1,   8,   0,   4,   0,   1,  10],
@@ -150,65 +150,65 @@ Length: 3289, dtype: int64}, 'confusion_matrices': {'Decision Tree': {'absolute'
         11.48325359,  1.9138756 ],
        [ 0.35460993,  1.77304965,  0.        ,  0.        , 72.34042553,
          1.41843972,  1.41843972,  0.70921986,  1.06382979,  0.35460993,
-         0.        , 20.56737589]])}, 'Feed Forward Neural Network': {'absolute': array([[   0,    0,    0,    0,    0, 1061,    0,    0,    0,    0,    0,
-           2],
-       [   0,    0,    0,    0,    0,   95,    0,    0,    0,    0,    0,
+         0.        , 20.56737589]])}, 'Feed Forward Neural Network': {'absolute': array([[1063,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
            0],
-       [   0,    0,    0,    0,    0,   37,    0,    0,    0,    0,    0,
+       [  95,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
            0],
-       [   0,    0,    0,    0,    0,  122,    0,    0,    0,    0,    0,
+       [  37,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
            0],
-       [   0,    0,    0,    0,    0,  348,    0,    0,    0,    0,    0,
+       [ 122,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
            0],
-       [   0,    0,    0,    0,    0, 1411,    0,    0,    0,    0,    1,
-           2],
-       [   0,    0,    0,    0,    0,   86,    0,    0,    0,    0,    0,
+       [ 348,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
            0],
-       [   0,    0,    0,    0,    0,  862,    0,    0,    0,    0,    0,
+       [1412,    0,    0,    0,    0,    2,    0,    0,    0,    0,    0,
            0],
-       [   0,    0,    0,    0,    0,   25,    0,    0,    0,    0,    0,
+       [  86,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
            0],
-       [   0,    0,    0,    0,    0,  159,    0,    0,    0,    0,    0,
-           1],
-       [   0,    0,    0,    0,    0,  207,    0,    0,    0,    0,    1,
-           1],
-       [   0,    0,    0,    0,    0,  282,    0,    0,    0,    0,    0,
-           0]]), 'relative': array([[0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 9.98118532e+01, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.88146754e-01],
-       [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 1.00000000e+02, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00],
-       [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 1.00000000e+02, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00],
-       [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 1.00000000e+02, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00],
-       [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 1.00000000e+02, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00],
-       [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 9.97878359e+01, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 0.00000000e+00, 7.07213579e-02, 1.41442716e-01],
-       [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 1.00000000e+02, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00],
-       [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 1.00000000e+02, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00],
-       [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 1.00000000e+02, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00],
-       [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 9.93750000e+01, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 6.25000000e-01],
-       [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 9.90430622e+01, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 0.00000000e+00, 4.78468900e-01, 4.78468900e-01],
-       [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 1.00000000e+02, 0.00000000e+00, 0.00000000e+00,
-        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00]])}, 'Majority Class (baseline)': {'absolute': array([[   0,    0,    0,    0,    0, 1063,    0,    0,    0,    0,    0,
+       [ 860,    0,    0,    0,    0,    2,    0,    0,    0,    0,    0,
+           0],
+       [  25,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+           0],
+       [ 157,    0,    0,    0,    0,    3,    0,    0,    0,    0,    0,
+           0],
+       [ 207,    0,    0,    0,    0,    2,    0,    0,    0,    0,    0,
+           0],
+       [ 282,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+           0]]), 'relative': array([[100.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ],
+       [100.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ],
+       [100.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ],
+       [100.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ],
+       [100.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ],
+       [ 99.85855728,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.14144272,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ],
+       [100.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ],
+       [ 99.76798144,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.23201856,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ],
+       [100.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ],
+       [ 98.125     ,   0.        ,   0.        ,   0.        ,
+          0.        ,   1.875     ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ],
+       [ 99.0430622 ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.9569378 ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ],
+       [100.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ,
+          0.        ,   0.        ,   0.        ,   0.        ]])}, 'Majority Class (baseline)': {'absolute': array([[   0,    0,    0,    0,    0, 1063,    0,    0,    0,    0,    0,
            0],
        [   0,    0,    0,    0,    0,   95,    0,    0,    0,    0,    0,
            0],
@@ -255,16 +255,16 @@ Length: 3289, dtype: int64}, 'confusion_matrices': {'Decision Tree': {'absolute'
           0.],
        [  0.,   0.,   0.,   0.,   0., 100.,   0.,   0.,   0.,   0.,   0.,
           0.]])}}, 'importances_dfs': {'tree_based':                                                Feature  Importance
-83   API_DeviceInfo_android.net.wifi.WifiInfo_getMa...    0.069114
-116  API_DeviceData_android.content.ContentResolver...    0.068955
-117  API_DeviceData_android.content.ContentResolver...    0.040106
-96             API_Network_java.net.URL_openConnection    0.038775
-3                                  Memory_PrivateDirty    0.034869
+116  API_DeviceData_android.content.ContentResolver...    0.069316
+83   API_DeviceInfo_android.net.wifi.WifiInfo_getMa...    0.069172
+117  API_DeviceData_android.content.ContentResolver...    0.040054
+96             API_Network_java.net.URL_openConnection    0.038992
+3                                  Memory_PrivateDirty    0.034134
 ..                                                 ...         ...
-94   API_DeviceInfo_android.content.pm.PackageManag...    0.000000
-29      API_JavaNativeInterface_java.lang.Runtime_load    0.000000
-65   API_IPC_android.content.ContextWrapper_sendSti...    0.000000
+93   API_DeviceInfo_android.content.pm.PackageManag...    0.000000
 15                                Memory_AssetManagers    0.000000
+94   API_DeviceInfo_android.content.pm.PackageManag...    0.000000
 95   API_DeviceInfo_android.content.pm.PackageManag...    0.000000
+28   API_JavaNativeInterface_java.lang.Runtime_load...    0.000000
 
 [142 rows x 2 columns]}}, 'in_tuning_runner': None, 'post_tuning_runner': None}

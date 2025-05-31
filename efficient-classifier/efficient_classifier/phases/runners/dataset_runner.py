@@ -15,17 +15,17 @@ class DatasetRunner(PhaseRunner):
             default_pipeline = pipelines[0]
 
             split_df = default_pipeline.dataset.split.asses_split_classifier(
-                        p=self.pipeline_manager.variables["dataset_runner"]["split_df"]["p"], 
-                        step=self.pipeline_manager.variables["dataset_runner"]["split_df"]["step"],
+                        p=self.pipeline_manager.variables["phase_runners"]["dataset_runner"]["split_df"]["p"], 
+                        step=self.pipeline_manager.variables["phase_runners"]["dataset_runner"]["split_df"]["step"],
                         save_plots=self.include_plots,
                         save_path=self.save_path
                         )
 
             split_shapes = default_pipeline.dataset.split.split_data(
-                        y_column=self.pipeline_manager.variables["dataset_runner"]["encoding"]["y_column"],
-                        train_size=self.pipeline_manager.variables["dataset_runner"]["encoding"]["train_size"],
-                        validation_size=self.pipeline_manager.variables["dataset_runner"]["encoding"]["validation_size"],
-                        test_size=self.pipeline_manager.variables["dataset_runner"]["encoding"]["test_size"],
+                        y_column=self.pipeline_manager.variables["phase_runners"]["dataset_runner"]["encoding"]["y_column"],
+                        train_size=self.pipeline_manager.variables["phase_runners"]["dataset_runner"]["encoding"]["train_size"],
+                        validation_size=self.pipeline_manager.variables["phase_runners"]["dataset_runner"]["encoding"]["validation_size"],
+                        test_size=self.pipeline_manager.variables["phase_runners"]["dataset_runner"]["encoding"]["test_size"],
                         save_plots=True, 
                         save_path=self.save_path
                   )

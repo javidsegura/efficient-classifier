@@ -82,7 +82,7 @@ class FeatureScaling:
         # --- Optional: plot distributions ---
         if save_plots:
             try:
-                max_plots = self.variables["PIPELINE_RUNNER"]["max_plots_per_function"]
+                max_plots = self.variables["general"]["max_plots_per_function"]
                 plot_columns = columnsToScale[:max_plots] if max_plots > 0 else columnsToScale
                 for col in plot_columns:
                     fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharey=True)

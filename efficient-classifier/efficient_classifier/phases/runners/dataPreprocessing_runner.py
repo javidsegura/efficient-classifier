@@ -12,7 +12,7 @@ class DataPreprocessingRunner(PhaseRunner):
       def _feature_encoding_helper(self) -> dict:
             encoded_maps_per_pipeline = self.pipeline_manager.all_pipelines_execute(methodName="feature_analysis.feature_transformation.get_categorical_features_encoded", 
                                                                                     verbose=True, 
-                                                                                    features=self.pipeline_manager.variables["feature_analysis_runner"]["features_to_encode"],
+                                                                                    features=self.pipeline_manager.variables["phase_runners"]["data_preprocessing_runner"]["features_to_encode"],
                                                                                     encode_y=True)
             print(f"ENCODED MAP PIPELINS IS: {encoded_maps_per_pipeline}")
             self.pipeline_manager.pipelines_analysis.encoded_map = encoded_maps_per_pipeline["not_baseline"]["ensembled"]
@@ -55,7 +55,7 @@ class DataPreprocessingRunner(PhaseRunner):
             # 1) Missing values & Duplicate analysis
             print(f"\nPreprocessing --- Missing Values & Duplicates - {pipeline_name}\n")
             missing_res = preprocessing.uncomplete_data_obj.get_missing_values(
-                  placeholders=self.variables["data_preprocessing_runner"]["placeholders"],
+                  placeholders=self.variables["phase_runners"]["data_preprocessing_runner"]["placeholders"],
                   save_plots=self.include_plots,
                   save_path=save_path
             )
@@ -72,17 +72,17 @@ class DataPreprocessingRunner(PhaseRunner):
             # 2) Outlier detection & bounding
             print(f"\nPreprocessing --- Bounds & Outliers - {pipeline_name}\n")
             out_res = preprocessing.outliers_bounds_obj.get_outliers(
-                  detection_type=self.variables["data_preprocessing_runner"]["outliers"]["detection_type"],
+                  detection_type=self.variables["phase_runners"]["data_preprocessing_runner"]["outliers"]["detection_type"],
                   save_plots=False, 
                   save_path=save_path
             )
             preprocessing.outliers_bounds_obj.bound_checking()
-            messages.append(f"Outliers detected by {self.variables['data_preprocessing_runner']['outliers']['detection_type']} : {None}")
+            messages.append(f"Outliers detected by {self.variables['phase_runners']['data_preprocessing_runner']['outliers']['detection_type']} : {None}")
             self.pipeline_manager.dag.add_procedure(pipeline_name, "data_preprocessing", "outliers_detection", out_res)
 
             # 3) Feature scaling
             print(f"\nPreprocessing --- Feature Scaling - {pipeline_name}\n")
-            scaler = self.variables["data_preprocessing_runner"]["pipeline_specific_configurations"]["scaler"][pipeline_name]
+            scaler = self.variables["phase_runners"]["data_preprocessing_runner"]["pipeline_specific_configurations"]["scaler"][pipeline_name]
             if scaler == "no_scaler":
                   scale_res = "No scaling performed"
             else:
@@ -97,7 +97,7 @@ class DataPreprocessingRunner(PhaseRunner):
 
             # 4) Class imbalance correction
             print(f"\nPreprocessing --- Class Imbalance - {pipeline_name}\n")
-            imbalancer = self.variables["data_preprocessing_runner"]["pipeline_specific_configurations"]["imbalancer"][pipeline_name]
+            imbalancer = self.variables["phase_runners"]["data_preprocessing_runner"]["pipeline_specific_configurations"]["imbalancer"][pipeline_name]
             if imbalancer == "no_imbalancer":
                   imb_res = "No imbalancer performed"
             else:
