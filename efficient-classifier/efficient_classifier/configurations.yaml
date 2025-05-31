@@ -90,7 +90,7 @@ phase_runners:
           feed_forward_neural_network: ["Feed Forward Neural Network"] 
         baseline:
           baselines: ["Logistic Regression (baseline)", "Majority Class (baseline)"]
-      models_to_exclude:
+      models_to_exclude: # useful for debugging
         not_baseline:
           ensembled: ["Gradient Boosting", "Random Forest"]
           tree_based: [] 
@@ -100,6 +100,8 @@ phase_runners:
           stacking: ["Stacking"]
         baseline:
           baselines: ["Logistic Regression (baseline)"]
+      stacking:
+        base_estimators: -1 # -1 means all models are used as base estimators (that werent excluded). Set to list with model names otherwise
       hyperparameters:
         grid_space:
           gradient_boosting:

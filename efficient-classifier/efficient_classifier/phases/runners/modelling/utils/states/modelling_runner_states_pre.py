@@ -65,6 +65,9 @@ class PreTuningRunner(ModellingRunnerStates):
             estimators = []
             for pipelineName, pipelineObject in self.pipeline_manager.pipelines["not_baseline"].items():
                   for modelName, modelObject in pipelineObject.modelling.list_of_models.items():
+                        if isinstance(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["stacking"]["base_estimators"], list):
+                              if modelName not in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["stacking"]["base_estimators"]:
+                                    continue
                         if modelName in pipelineObject.modelling.models_to_exclude:
                               continue
                         modelSklearn = modelObject.tuning_states["pre"].assesment["model_sklearn"]
