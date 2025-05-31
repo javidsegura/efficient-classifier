@@ -85,7 +85,7 @@ phase_runners:
         not_baseline:
           ensembled: ["Gradient Boosting", "Random Forest"]
           tree_based: ["Decision Tree"]
-          support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
+          support_vector_machine: ["Linear SVM", "Non-linear SVM"]
           naive_bayes: ["Naive Bayes"]
           feed_forward_neural_network: ["Feed Forward Neural Network"] 
         baseline:
@@ -94,7 +94,7 @@ phase_runners:
         not_baseline:
           ensembled: ["Gradient Boosting", "Random Forest"]
           tree_based: [] 
-          support_vector_machine: ["Linear Support Vector Machine", "Non-linear Support Vector Machine"]
+          support_vector_machine: ["Linear SVM", "Non-linear SVM"]
           naive_bayes: []
           feed_forward_neural_network: [] 
           stacking: ["Stacking"]

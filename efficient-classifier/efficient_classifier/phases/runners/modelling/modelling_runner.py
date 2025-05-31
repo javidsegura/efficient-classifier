@@ -1,4 +1,3 @@
-
 # Scikit-learn models
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import GradientBoostingClassifier
@@ -9,6 +8,13 @@ from sklearn.svm import LinearSVC
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import StackingClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
+from catboost import CatBoostClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import RidgeClassifier, ElasticNet, SGDClassifier
+
 # Self-developed models
 from efficient_classifier.utils.ownModels.majorityClassModel import MajorityClassClassifier 
 from efficient_classifier.utils.ownModels.neuralNets.feedForward import FeedForwardNeuralNetwork
@@ -38,8 +44,8 @@ class ModellingRunner(PhaseRunner):
                         "Gradient Boosting": GradientBoostingClassifier(),
                         "Random Forest": RandomForestClassifier(),
                         "Decision Tree": DecisionTreeClassifier(),
-                        "Linear Support Vector Machine": LinearSVC(),
-                        "Non-linear Support Vector Machine": SVC(),
+                        "Linear SVM": LinearSVC(),
+                        "Non-linear SVM": SVC(),
                         "Naive Bayes": GaussianNB(),
                         "Feed Forward Neural Network": FeedForwardNeuralNetwork(
                                                                                           num_features=nn_pipeline.dataset.X_train.shape[1], 
@@ -54,7 +60,14 @@ class ModellingRunner(PhaseRunner):
                                                                               ),
                         "Logistic Regression": LogisticRegression(),
                         "Majority Class": MajorityClassClassifier(),
-                  
+                        "AdaBoost": AdaBoostClassifier(),
+                        "XGBoost": XGBClassifier(),
+                        "LightGBM": LGBMClassifier(),
+                        "CatBoost": CatBoostClassifier(verbose=False),
+                        "K-Nearest Neighbors": KNeighborsClassifier(),
+                        "Ridge Classifier": RidgeClassifier(),
+                        "Elastic Net": ElasticNet(),
+                        "Stochastic Gradient Descent": SGDClassifier(),
             }
       
             for category in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]:
