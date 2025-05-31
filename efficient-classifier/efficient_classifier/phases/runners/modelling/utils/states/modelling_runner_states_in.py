@@ -172,19 +172,7 @@ class InTuningRunner(ModellingRunnerStates):
                                        modelNameToOptimizer=modelNameToOptimizerStacking
                                        )
             
-      def run(self):
-            self.pipeline_manager.pipeline_state = "in"
-            print("In tuning runner")
-            # Fitting models
-            modelNameToOptimizer, modelNameToOptimizerStacking = self._get_grid_search_params()
-            optimized_models = self.pipeline_manager.all_pipelines_execute(methodName="modelling.fit_models", 
-                                                                           exclude_pipeline_names=["stacking"],
-                                                                           current_phase=self.pipeline_manager.pipeline_state,
-                                                                           modelNameToOptimizer=modelNameToOptimizer)
-            if len(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_exclude"]["not_baseline"]["stacking"]) == 0:
-                  self._set_up_stacking_model(optimized_models, modelNameToOptimizerStacking)
-            general_analysis_results = self._general_analysis()
-
+      def _update_dag_scheme(self):
             # For each model, if not excluded, print 
             results = self.pipeline_manager.pipelines_analysis.merged_report_per_phase["in"]
 
@@ -209,5 +197,20 @@ class InTuningRunner(ModellingRunnerStates):
                                     results_comment[model][model_name] = round(df_numeric.iloc[:, model_idx]['weighted avg'], 3)
                   if not pipeline_is_empty:     
                         self.pipeline_manager.dag.add_procedure(pipeline, "modelling", f"in-tuning ({self.pipeline_manager.variables['phase_runners']['dataset_runner']['metrics_to_evaluate']['preferred_metric']})", results_comment)
+            
+
+      def run(self):
+            self.pipeline_manager.pipeline_state = "in"
+            print("In tuning runner")
+            # Fitting models
+            modelNameToOptimizer, modelNameToOptimizerStacking = self._get_grid_search_params()
+            optimized_models = self.pipeline_manager.all_pipelines_execute(methodName="modelling.fit_models", 
+                                                                           exclude_pipeline_names=["stacking"],
+                                                                           current_phase=self.pipeline_manager.pipeline_state,
+                                                                           modelNameToOptimizer=modelNameToOptimizer)
+            if len(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_exclude"]["not_baseline"]["stacking"]) == 0:
+                  self._set_up_stacking_model(optimized_models, modelNameToOptimizerStacking)
+            general_analysis_results = self._general_analysis()
+            self._update_dag_scheme()
 
             return general_analysis_results

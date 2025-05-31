@@ -92,22 +92,11 @@ class PreTuningRunner(ModellingRunnerStates):
                                        exclude_category="baseline",
                                        exclude_pipeline_names=all_pipelines_to_exclude
                                        )
-      def run(self):
-            self.pipeline_manager.pipeline_state = "pre"
-            print("Pre tuning runner about to start")
-            # Fitting models
-            pipeline_results = self.pipeline_manager.all_pipelines_execute(
-                                       methodName="modelling.fit_models",
-                                       exclude_pipeline_names=["stacking"], 
-                                       current_phase="pre")
-            if len(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_exclude"]["not_baseline"]["stacking"]) == 0:
-                  self._set_up_stacking_model()
-            general_analysis_results = self._general_analysis()
-
-            # For each model, if not excluded, print 
-            results = self.pipeline_manager.pipelines_analysis.merged_report_per_phase["pre"]
-
-            for category in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]:
+      
+      def _update_dag_scheme(self):
+             # For each model, if not excluded, print 
+             results = self.pipeline_manager.pipelines_analysis.merged_report_per_phase["pre"]
+             for category in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]:
                   for pipeline in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"][category]:
                         if pipeline == "stacking":
                               continue
@@ -129,6 +118,20 @@ class PreTuningRunner(ModellingRunnerStates):
                                           results_comment[model][model_name] = round(df_numeric.iloc[:, model_idx]['weighted avg'], 3)
                         if not pipeline_is_empty:     
                               self.pipeline_manager.dag.add_procedure(pipeline, "modelling", f"pre-tuning ({self.pipeline_manager.variables['phase_runners']['dataset_runner']['metrics_to_evaluate']['preferred_metric']})", results_comment)
+
+      def run(self):
+            self.pipeline_manager.pipeline_state = "pre"
+            print("Pre tuning runner about to start")
+            # Fitting models
+            pipeline_results = self.pipeline_manager.all_pipelines_execute(
+                                       methodName="modelling.fit_models",
+                                       exclude_pipeline_names=["stacking"], 
+                                       current_phase="pre")
+            if len(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_exclude"]["not_baseline"]["stacking"]) == 0:
+                  self._set_up_stacking_model()
+            general_analysis_results = self._general_analysis()
+            self._update_dag_scheme()
+
             return general_analysis_results
 
             

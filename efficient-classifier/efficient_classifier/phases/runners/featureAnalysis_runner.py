@@ -105,13 +105,11 @@ class FeatureAnalysisRunner(PhaseRunner):
                         }
                   }
       
-
-
-      def run(self) -> None:
-            feature_transformation_results = self._run_feature_transformation() 
-            manual_feature_selection_results = self._run_manual_feature_selection() # Comment out cause it goes too slow
-            automatic_feature_selection_results = self._run_automatic_feature_selection() # Comment out cause it goes too slow
-
+      def _update_dag_scheme(self, 
+                             feature_transformation_results,
+                             manual_feature_selection_results,
+                             automatic_feature_selection_results
+                             ):
             for category in self.pipeline_manager.pipelines:
                   for pipeline in self.pipeline_manager.pipelines[category]:
                         if pipeline == "stacking":
@@ -134,7 +132,13 @@ class FeatureAnalysisRunner(PhaseRunner):
                         self.pipeline_manager.dag.add_method(pipeline, "feature_analysis", "feature_selection", "automatic", "L1", automatic_feature_selection_results["L1"])
                         self.pipeline_manager.dag.add_method(pipeline, "feature_analysis", "feature_selection", "automatic", "Boruta", automatic_feature_selection_results["Boruta"])
 
-            
+      def run(self) -> None:
+            feature_transformation_results = self._run_feature_transformation() 
+            manual_feature_selection_results = self._run_manual_feature_selection() # Comment out cause it goes too slow
+            automatic_feature_selection_results = self._run_automatic_feature_selection() # Comment out cause it goes too slow
+
+            self._update_dag_scheme(feature_transformation_results, manual_feature_selection_results, automatic_feature_selection_results)
+
             return {
                   "feature_transformation_results": feature_transformation_results,
                   "manual_feature_selection_results": manual_feature_selection_results,

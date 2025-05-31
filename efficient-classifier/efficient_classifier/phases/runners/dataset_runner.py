@@ -8,6 +8,13 @@ class DatasetRunner(PhaseRunner):
             super().__init__(pipeline_manager, include_plots, save_path)
 
 
+      def _update_dag_scheme(self, split_shapes):
+            for category in self.pipeline_manager.pipelines:
+                  for pipeline in self.pipeline_manager.pipelines[category]:
+                        if pipeline == "stacking":
+                              continue
+                        self.pipeline_manager.dag.add_procedure(pipeline, "dataset", "split", split_shapes)
+
       def run(self) -> None:
             # Select the first pipeline.
             print(self.pipeline_manager.pipelines)
@@ -29,10 +36,7 @@ class DatasetRunner(PhaseRunner):
                         save_plots=True, 
                         save_path=self.save_path
                   )
-            for category in self.pipeline_manager.pipelines:
-                  for pipeline in self.pipeline_manager.pipelines[category]:
-                        if pipeline == "stacking":
-                              continue
-                        self.pipeline_manager.dag.add_procedure(pipeline, "dataset", "split", split_shapes)
+            
+            self._update_dag_scheme(split_shapes)
             return split_shapes
 

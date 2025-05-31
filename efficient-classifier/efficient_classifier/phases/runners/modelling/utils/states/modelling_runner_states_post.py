@@ -38,6 +38,16 @@ class PostTuningRunner(ModellingRunnerStates):
                   "confusion_matrices": confusion_matrices
                   }
       
+      def _update_dag_scheme(self, best_model, best_score):
+            flag = True 
+            for pipeline in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]["not_baseline"]:
+                 if not flag:
+                        break
+                 for model in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]["not_baseline"][pipeline]:
+                        if model == best_model:
+                              self.pipeline_manager.dag.add_procedure(pipeline, "modelling", f"post-tuning ({self.pipeline_manager.variables['phase_runners']['dataset_runner']['metrics_to_evaluate']['preferred_metric']})", best_score)
+                              flag = False 
+                              break
 
       def run(self):
            print("Post tuning runner")
@@ -47,17 +57,7 @@ class PostTuningRunner(ModellingRunnerStates):
            self.pipeline_manager.pipeline_state = "post"
 
            general_analysis_results = self._general_analysis()
-           
-           flag = True 
-           for pipeline in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]["not_baseline"]:
-                 if not flag:
-                        break
-                 for model in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]["not_baseline"][pipeline]:
-                        if model == best_model:
-                              self.pipeline_manager.dag.add_procedure(pipeline, "modelling", f"post-tuning ({self.pipeline_manager.variables['phase_runners']['dataset_runner']['metrics_to_evaluate']['preferred_metric']})", best_score)
-                              flag = False 
-                              break
-
+           self._update_dag_scheme(best_model, best_score)
 
            return best_model, best_score, general_analysis_results
       
