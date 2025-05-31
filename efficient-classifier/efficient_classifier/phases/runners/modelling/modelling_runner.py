@@ -35,7 +35,6 @@ class ModellingRunner(PhaseRunner):
             nn_pipeline = self.pipeline_manager.pipelines["not_baseline"]["feed_forward_neural_network"]
 
             model_name_to_model_object = {
-                  "not_baseline": {
                         "Gradient Boosting": GradientBoostingClassifier(),
                         "Random Forest": RandomForestClassifier(),
                         "Decision Tree": DecisionTreeClassifier(),
@@ -53,11 +52,9 @@ class ModellingRunner(PhaseRunner):
                                                                                           activations=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["activations"],
                                                                                           kernel_initializer=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["kernel_initializer"]
                                                                               ),
-                  },
-                  "baseline": {
-                        "Logistic Regression (baseline)": LogisticRegression(),
-                        "Majority Class (baseline)": MajorityClassClassifier(),
-                  }
+                        "Logistic Regression": LogisticRegression(),
+                        "Majority Class": MajorityClassClassifier(),
+                  
             }
       
             for category in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]:
@@ -65,9 +62,12 @@ class ModellingRunner(PhaseRunner):
                         if pipeline == "stacking":
                               continue
                         for model_name in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"][category][pipeline]:
+                              model_name_to_map = model_name
+                              if "baseline" in model_name:
+                                    model_name_to_map = model_name.replace(" (baseline)", "")
                               self.pipeline_manager.pipelines[category][pipeline].modelling.add_model(
                                     model_name, 
-                                    model_name_to_model_object[category][model_name], 
+                                    model_name_to_model_object[model_name_to_map], 
                                     model_type="neural_network" if model_name == "Feed Forward Neural Network" else "classical") # We handle keras-native model differently 
  
             self._exclude_models()  
@@ -113,5 +113,5 @@ class ModellingRunner(PhaseRunner):
             self.pipeline_manager.serialize_pipelines(pipelines_to_serialize=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["serialize_models"]["pipelines_to_serialize"])
 
             return {"pre_tuning_runner": pre_results,
-                    "in_tuning_runner": None,
-                    "post_tuning_runner": None}
+                    "in_tuning_runner": in_results,
+                    "post_tuning_runner": post_results}
