@@ -20,7 +20,6 @@ from sklearn.calibration import CalibratedClassifierCV
 from efficient_classifier.utils.ownModels.majorityClassModel import MajorityClassClassifier 
 from efficient_classifier.utils.ownModels.neuralNets.feedForward import FeedForwardNeuralNetwork
 
-
 from efficient_classifier.utils.phase_runner_definition.phase_runner import PhaseRunner
 from efficient_classifier.pipeline.pipeline_manager import PipelineManager
 

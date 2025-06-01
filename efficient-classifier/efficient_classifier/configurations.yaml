@@ -2,7 +2,7 @@ general:
   dataset_path: "./dataset/dynamic_dataset.csv"
   model_task: "classification"
   pipelines_names:
-    not_baseline: ["tree_based", "naive_bayes", "feed_forward_neural_network"] # removed support vector machine cause it goes too slow
+    not_baseline: ["tree_based", ] # removed support vector machine cause it goes too slow
     baseline: ["baselines"] # dont modify this 
   include_plots: True
   max_plots_per_function: 5 # For plots plotting features of the dataset you can limit the number of plots to generate. This is specially useful for high-dimensionality datasets 
@@ -76,7 +76,7 @@ phase_runners:
             delete_features: True
   modelling_runner:
       calibration:
-        calibrate_models: False
+        calibrate_models: True
         calibration_method: "sigmoid"
         not_calibrate_models: ["Majority Class (baseline)"]
       class_weights:

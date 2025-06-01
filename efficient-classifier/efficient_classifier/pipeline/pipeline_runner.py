@@ -193,7 +193,7 @@ class PipelineRunner:
 
                         run_phase()
                   print("-"*30)
-                  print("PIPELINE COMPLETED")
+                  print("PIPELINE COMPLETED SUCCESSFULLY")
                   print("-"*30)
 
                   # Store DAG

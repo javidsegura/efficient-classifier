@@ -1,12 +1,14 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import time
+import yaml
 from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 from efficient_classifier.phases.phases_implementation.modelling.shallow.model_optimization.model_optimization import Optimizer
 
 from efficient_classifier.utils.ownModels.neuralNets.feedForward import FeedForwardNeuralNetwork
 
 from efficient_classifier.utils.decorators.timer import timer
+from sklearn.calibration import CalibratedClassifierCV
 
 class ModelState(ABC):
       def __init__(self, model_sklearn: object, modelName: str, model_type: str, dataset: Dataset, results_header: list[str]):
@@ -26,6 +28,8 @@ class ModelState(ABC):
             self.dataset = dataset
             self.assesment = {column_name: None for column_name in results_header}
             self.assesment["modelName"] = modelName
+            self.variables = yaml.load(open("efficient-classifier/efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
+
       
       @abstractmethod
       def get_fit_data(self):
@@ -120,13 +124,15 @@ class InTuningState(ModelState):
                    }
       
       def fit(self, **kwargs):
-                  
                   param_grid = kwargs.get("param_grid", None)
                   max_iter = kwargs.get("max_iter", None)
                   optimizer_type = kwargs.get("optimizer_type", None)
                   model_object = kwargs.get("model_object", None)
+                  print(f"1) Model object: {model_object} for {self.modelName}")
+                  if self.variables["phase_runners"]["modelling_runner"]["calibration"]["calibrate_models"]:
+                        model_object = model_object.base_estimator_
+                  print(f"2) Model object: {model_object} for {self.modelName}")
 
-                  print(f"Model object: {model_object} for {self.modelName}")
 
                   assert self.model_type is not None, f"Model object must have a model_type. {self.modelName}. Model object: {model_object}"
 
@@ -165,7 +171,7 @@ class InTuningState(ModelState):
                   self.assesment["timeToFit"] = time_taken
                   if optimizer_type != "bayes_nn":
                               self.model_sklearn = self.optimizer.optimizer.best_estimator_
-                              self.assesment["model_sklearn"] = self.model_sklearn
+                              self.assesment["model_sklearn"] = CalibratedClassifierCV(self.model_sklearn) if self.variables["phase_runners"]["modelling_runner"]["calibration"]["calibrate_models"] else self.model_sklearn
                   else:
                         best_model = self.optimizer.optimizer.get_best_models(num_models=1)[0]
                         best_hps = self.optimizer.optimizer.get_best_hyperparameters(num_trials=1)[0]
@@ -187,7 +193,7 @@ class InTuningState(ModelState):
                                                                   activations=activations,
                                                                   learning_rate=learning_rate)
                         self.model_sklearn.model = best_model
-                        self.assesment["model_sklearn"] = self.model_sklearn
+                        self.assesment["model_sklearn"] = CalibratedClassifierCV(self.model_sklearn) if self.variables["phase_runners"]["modelling_runner"]["calibration"]["calibrate_models"] else self.model_sklearn
                         self.model_sklearn.is_fitted_ = True
       
       def predict(self):
