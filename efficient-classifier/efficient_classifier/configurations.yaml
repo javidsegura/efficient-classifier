@@ -18,7 +18,7 @@ phase_runners:
         validation_size: 0.1
         test_size: 0.1
       metrics_to_evaluate:
-        classification: ["accuracy", "precision", "recall", "f1-score", "kappa"] # defining the metrics that will be evaluated 
+        classification: ["accuracy", "precision", "recall", "f1-score", "kappa", "weightedaccuracy"] # defining the metrics that will be evaluated 
         preferred_metric: "f1-score" # Needed for DAG printing some metric in the modelling nodes
   data_preprocessing_runner:
     features_to_encode: ["Reboot"]
@@ -146,7 +146,7 @@ phase_runners:
             activations: ['relu', 'relu', 'relu', 'relu']
             kernel_initializer: 'glorot_uniform'
       model_assesment:
-        comments: "UPDATED KAPPA NAME IN THE CSV, ONE SECOND TIME"
+        comments: "A VERY GREAT COMMENT, I CAN TELL YOU THAT"
         cross_model_metrics: ["f1-score", "recall", "precision", "accuracy"]
         intra_model_metrics: ["f1-score", "recall", "precision", "accuracy"]
         results_summary:

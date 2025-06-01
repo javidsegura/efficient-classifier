@@ -38,25 +38,28 @@ class ModellingRunner(PhaseRunner):
             Finally we call the function that excludes all the models that we do not want the training to run (either because we are trying to debug and want to run as fast as possible or
             because we have observed that a certain model is not performing well and taking too long to fit/predict)
             """
+
+            contains_weight = isinstance(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"], dict)
             
             model_name_to_model_object = {
                         "Gradient Boosting": GradientBoostingClassifier(),
-                        "Random Forest": RandomForestClassifier(),
-                        "Decision Tree": DecisionTreeClassifier(),
-                        "Linear SVM": LinearSVC(),
-                        "Non-linear SVM": SVC(),
+                        "Random Forest": RandomForestClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
+                        "Decision Tree": DecisionTreeClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
+                        "Linear SVM": LinearSVC(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
+                        "Non-linear SVM": SVC(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
                         "Naive Bayes": GaussianNB(),
-                        "Logistic Regression": LogisticRegression(),
+                        "Logistic Regression": LogisticRegression(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
                         "Majority Class": MajorityClassClassifier(),
                         "AdaBoost": AdaBoostClassifier(),
                         "XGBoost": XGBClassifier(),
-                        "LightGBM": LGBMClassifier(),
-                        "CatBoost": CatBoostClassifier(verbose=False),
+                        "LightGBM": LGBMClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
+                        "CatBoost": CatBoostClassifier(verbose=False, class_weights=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
                         "K-Nearest Neighbors": KNeighborsClassifier(),
-                        "Ridge Classifier": RidgeClassifier(),
+                        "Ridge Classifier": RidgeClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
                         "Elastic Net": ElasticNet(),
-                        "Stochastic Gradient Descent": SGDClassifier(),
+                        "Stochastic Gradient Descent": SGDClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
             }
+
 
 
             for pipeline in self.pipeline_manager.variables["general"]["pipelines_names"]["not_baseline"]:
