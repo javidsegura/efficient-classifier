@@ -23,6 +23,9 @@ import seaborn as sns
 import math
 import pandas as pd
 import numpy as np
+import os 
+
+
 class PipelinesAnalysis:
       def __init__(self, pipelines: dict[str, dict[str, Pipeline]]):
             self.pipelines = pipelines
@@ -354,7 +357,6 @@ class PipelinesAnalysis:
                         model = models.list_of_models[modelName]
                         ds = self.pipelines["not_baseline"][pipeline].dataset
 
-                        # pick the right split
                         if self.phase == "in":
                               X, y = ds.X_val, ds.y_val
                         elif self.phase == "post":
@@ -368,7 +370,7 @@ class PipelinesAnalysis:
                         elif hasattr(model, "coef_"):
                               importances = np.abs(model.coef_).ravel()
                         else:
-                              # if your dataset is huge, sample by POSITION not by label
+                              # Dataset is huge, sample by POSITION not by label
                               if len(X) > 1000:
                                     # get 1 000 random *positions* 
                                     pos = np.random.RandomState(42).choice(len(X), size=1000, replace=False)
@@ -420,8 +422,8 @@ class PipelinesAnalysis:
                               save_or_store_plot(
                                     fig,
                                     save_plots,
-                                    directory_path=save_path + f"/{self.phase}/feature_importance",
-                                    filename=f"feature_importance_{self.phase}_{pipeline}_{modelName}.png"
+                                    directory_path=save_path + f"/{self.phase}/feature_importance/general/{pipeline}",
+                                    filename=f"feature_importance_{modelName}.png"
                               )
 
                               plt.close(fig)
@@ -430,22 +432,25 @@ class PipelinesAnalysis:
 
       def lime_feature_importance(self, save_plots: bool = False, save_path: str = None):
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
-            lime_importances_dfs = {}
+            lime_importances_dfs = {pipeline: {} for pipeline in self.pipelines["not_baseline"]}
             for pipeline in self.pipelines["not_baseline"]:
-                  if pipeline not in ["ensembled"]:
-                        continue
                   for modelName in self.pipelines["not_baseline"][pipeline].modelling.list_of_models:
                         if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
                                           continue
                         if modelName not in self.pipelines["not_baseline"][pipeline].modelling.models_to_exclude:
-                              model = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName]
+                              print(f"COMPUTING LIME FOR {modelName}")
+                              model = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["model_sklearn"]
                               X_train = self.pipelines["not_baseline"][pipeline].dataset.X_train
                               X_sample = X_train.iloc[0]
                               
+                              # Determine if classification or regression based on number of unique classes
+                              y_train = self.pipelines["not_baseline"][pipeline].dataset.y_train
+                              n_classes = len(np.unique(y_train))
+
                               explainer = lime.lime_tabular.LimeTabularExplainer(
                                     training_data=X_train.values,
                                     feature_names=X_train.columns.tolist(),
-                                    mode = "classification" if len(set(model.predict_default(X_train))) > 2 else "regression"
+                                    mode="classification" if n_classes > 2 else "regression"
                               )
                               explanation = explainer.explain_instance(X_sample.values, model.predict_proba)
                               explanation_list = explanation.as_list()
@@ -455,21 +460,19 @@ class PipelinesAnalysis:
                                      'Feature': list(feature_importances.keys()),
                                      'Importance': list(feature_importances.values())
                               }).sort_values(by='Importance', ascending=False)
-                              lime_importances_dfs[pipeline] = feature_importance_df
+                              lime_importances_dfs[pipeline][modelName] = feature_importance_df
 
-            for pipeline in lime_importances_dfs:
-                  fig, ax = plt.subplots(figsize=(10, 10))
-                  sns.barplot(
-                        x="Importance",
-                        y="Feature",
-                        data=lime_importances_dfs[pipeline],
-                        ax=ax
-                        )
-                  ax.set_title(f"LIME explanation for {pipeline} model")
-                  plt.tight_layout()
-                  plt.tight_layout(rect=[0, 0, 1, 0.96])
+                              fig, ax = plt.subplots(figsize=(10, 10))
+                              sns.barplot(
+                                    x="Importance",
+                                    y="Feature",
+                                    data=feature_importance_df,
+                                    ax=ax
+                                    )
+                              ax.set_title(f"LIME explanation for {pipeline} model")
+                              plt.tight_layout(rect=[0, 0, 1, 0.96])
 
-                  save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/modelName/lime_feature_importance", filename=f"lime_feature_importance_{self.phase}.png")
+                              save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/feature_importance/lime/{pipeline}", filename=f"{modelName}.png")
             return lime_importances_dfs
 
       def plot_multiclass_reliability_diagram(self, save_plots: bool = False, save_path: str = None):
@@ -526,14 +529,9 @@ class PipelinesAnalysis:
 
                         plt.tight_layout(rect=[0, 0, 1, 0.96])
 
-                        # Build output directory and filename
-                        if save_path:
-                              out_dir = os.path.join(save_path, self.phase, "model_calibration")
-                        else:
-                              out_dir = None
-                        filename = f"model_calibration_{model_name}_{self.phase}.png"
-
-                        save_or_store_plot(fig, save_plots, directory_path=out_dir, filename=filename)
+                        save_or_store_plot(fig, save_plots, 
+                                           directory_path=save_path + f"/{self.phase}/model_calibration/{pipeline_name}", 
+                                           filename=f"{model_name}.png")
                         plt.close(fig)
 
             return None
@@ -625,7 +623,7 @@ class PipelinesAnalysis:
               3) Histogram of residuals
               4) QQ-plot of residuals
 
-            Titles each figure “Residual plots for {modelName} in {phase} phase”
+            Titles each figure "Residual plots for {modelName} in {phase} phase"
             """
             assert self.phase in ["pre", "in", "post"], "Phase must be pre, in or post"
 
@@ -694,8 +692,8 @@ class PipelinesAnalysis:
                               save_or_store_plot(
                                     fig,
                                     save_plots,
-                                    directory_path=save_path + f"/{self.phase}/model_performance",
-                                    filename=f"residuals_{modelName}_{self.phase}.png"
+                                    directory_path=save_path + f"/{self.phase}/model_performance/residuals/{pipeline}",
+                                    filename=f"{modelName}.png"
                               )
                               plt.close(fig)
 
@@ -732,7 +730,6 @@ class PipelinesAnalysis:
 
             for _, row in metrics_df.iterrows():
                   plt.annotate(
-                        f"{row['modelName']}\n{row[performance_metric]:.3f}",
                         f"{row['modelName']}\n{row[performance_metric]:.2f}",                   
                         (row[training_metric], row[performance_metric]),  
                         textcoords="offset points",         

@@ -49,25 +49,10 @@ class PreTuningRunner(ModellingRunnerStates):
             residuals, confusion_matrices = self.pipeline_manager.pipelines_analysis.plot_confusion_matrix(save_plots=self.save_plots,
                                                                                                           save_path=self.save_path)
 
-            # Feature importance
-            self.pipeline_manager.pipelines_analysis.plot_feature_importance(save_plots=self.save_plots,
-                                                                                                save_path=self.save_path)
-            print("DONE")
-
-            # LIME
-            lime_importances_dfs = self.pipeline_manager.pipelines_analysis.lime_feature_importance(save_plots=self.save_plots,
-                                                                                                save_path=self.save_path) 
-            
-            # # Reliability diagram
-            print("CALIBRATION")
-            self.pipeline_manager.pipelines_analysis.plot_multiclass_reliability_diagram(save_plots=self.save_plots,
-                                                                                                save_path=self.save_path)
-
             return {
                   "metrics_df": metrics_df.to_dict(), 
                   "residuals": residuals, 
                   "confusion_matrices": confusion_matrices, 
-                  "lime_importances_dfs": lime_importances_dfs
                   }
 
       def _set_up_stacking_model(self):

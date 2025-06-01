@@ -17,7 +17,7 @@ class Classifier(Model):
       def __init__(self, modelName: str, model_sklearn: object, model_type: str, results_header: list[str], dataset: Dataset):
             super().__init__(modelName, model_sklearn, model_type, results_header, dataset)
             self.dataset = dataset
-            with open("library/configurations.yaml", "r") as yaml_file:
+            with open("efficient-classifier/efficient_classifier/configurations.yaml", "r") as yaml_file:
                   self.variables = yaml.safe_load(yaml_file)
 
       def __set_assesment(self, 
@@ -76,7 +76,7 @@ class Classifier(Model):
             kappa_val = cohen_kappa_score(y_actual, y_pred)
             kappa_train = cohen_kappa_score(y_actual_train, y_pred_train)
 
-            cw = self.variables["modelling_runner"]["class_weights"]
+            cw = self.variables["phase_runners"]["modelling_runner"]["class_weights"]
 
             try:
                   class_weight_dict = {int(k): v for k, v in cw.items()}
@@ -117,7 +117,6 @@ class Classifier(Model):
             # Storing results to assesment attribute
             self.tuning_states[current_phase].assesment["metrics"] = results
             print(f"Metrics for {modelName} in {current_phase} phase: {results}")
-
 
       def _calculate_weightedaccuracy(self, y_actual, y_pred, class_weights):
             if not class_weights or not isinstance(class_weights, dict):

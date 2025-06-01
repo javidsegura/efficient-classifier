@@ -47,6 +47,19 @@ class InTuningRunner(ModellingRunnerStates):
             # Plot residuals 
             self.pipeline_manager.pipelines_analysis.plot_residuals(save_plots=self.save_plots,
                                                                   save_path=self.save_path)
+            
+            print(f"Starting feature importance")
+            # Feature importance (tree-based, coefficeint of permutation)
+            self.pipeline_manager.pipelines_analysis.plot_feature_importance(save_plots=self.save_plots,
+                                                                                                save_path=self.save_path)
+            print(f"Going for LIME now")
+            # LIME feature importance
+            lime_importances_dfs = self.pipeline_manager.pipelines_analysis.lime_feature_importance(save_plots=self.save_plots,
+                                                                                                save_path=self.save_path) 
+            print(f"Reliability diagram")
+            # Reliability diagram
+            self.pipeline_manager.pipelines_analysis.plot_multiclass_reliability_diagram(save_plots=self.save_plots,
+                                                                                                save_path=self.save_path)
    
 
             return {

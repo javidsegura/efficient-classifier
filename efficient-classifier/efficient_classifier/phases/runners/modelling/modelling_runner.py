@@ -96,7 +96,12 @@ class ModellingRunner(PhaseRunner):
                         if pipeline == "stacking":
                               continue
                         self.pipeline_manager.pipelines[category][pipeline].modelling.models_to_exclude = self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_exclude"][category][pipeline]
-                                                                                              
+
+      def start_serialization(self):
+            if self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["serialize_models"]["serialize_best_performing_model"]:
+                        self.pipeline_manager.serialize_models(models_to_serialize=self.pipeline_manager.best_performing_model["modelName"])
+            self.pipeline_manager.serialize_models(models_to_serialize=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["serialize_models"]["models_to_serialize"])
+            self.pipeline_manager.serialize_pipelines(pipelines_to_serialize=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["serialize_models"]["pipelines_to_serialize"])
                                                                                              
       def run(self) -> None:
             self._model_initializers()
@@ -123,11 +128,8 @@ class ModellingRunner(PhaseRunner):
                                                   save_path=self.save_path)
             post_results = post_tuning_runner.run()
 
-            if self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["serialize_models"]["serialize_best_performing_model"]:
-                        self.pipeline_manager.serialize_models(models_to_serialize=self.pipeline_manager.best_performing_model["modelName"])
-            self.pipeline_manager.serialize_models(models_to_serialize=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["serialize_models"]["models_to_serialize"])
-            self.pipeline_manager.serialize_pipelines(pipelines_to_serialize=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["serialize_models"]["pipelines_to_serialize"])
+            self.start_serialization()
 
             return {"pre_tuning_runner": pre_results,
-                    "in_tuning_runner": in_results,
-                    "post_tuning_runner": post_results}
+                    "in_tuning_runner": None ,
+                    "post_tuning_runner": None }

@@ -94,9 +94,8 @@ class PipelineRunner:
 
       def _dag_set_up(self):
             dag_pipelines = {}
-            for category in self.variables["phase_runners"]["modelling_runner"]["models_to_include"]:
-                  print(f"Category name is: {category}")
-                  for pipeline in self.variables["phase_runners"]["modelling_runner"]["models_to_include"][category]:
+            for category in self.variables["general"]["pipelines_names"]:
+                  for pipeline in self.variables["general"]["pipelines_names"][category]:
                         print(f"Pipeline name is: {pipeline}")
                         dag_pipelines[pipeline] = {model for model in self.variables["phase_runners"]["modelling_runner"]["models_to_include"][category][pipeline]}
             
@@ -165,41 +164,42 @@ class PipelineRunner:
                   ----------
                   None
 
-            Returns
-            -------
-            None
-            """
-            error_occured = False
-            for phase_name, phase_runner in self.phase_runners.items():
-                  @timer(phase_name)
-                  def run_phase():
-                        try:
-                              start_time = time.time()
-                              phase_result = phase_runner.run()
-                              #self.logger.info(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}")
-                              if phase_result is not None:
-                                    self.logger.info(f"'{phase_name}' returned: {phase_result}")
+                  Returns
+                  -------
+                  None
+                  """
+                  error_occured = False
+                  for phase_name, phase_runner in self.phase_runners.items():
+                        @timer(phase_name)
+                        def run_phase():
+                              try:
+                                    start_time = time.time()
+                                    phase_result = phase_runner.run()
+                                    #self.logger.info(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+                                    if phase_result is not None:
+                                          self.logger.info(f"'{phase_name}' returned: {phase_result}")
+                                          if self.variables["bot"]["include_bot"]:
+                                                time.sleep(1) # This is to avoid sending too many messages to the slack channel at once 
+                                                self.slack_bot.send_message(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}\
+                                                                        Result: {str(phase_result)}",
+                                                                        channel=self.variables["bot"]["channel"])
+                              except Exception as e:
+                                    self.logger.error(f"Error running phase '{phase_name}': {e}")
+                                    print(f"ERROR RUNNING PHASE '{phase_name}': {e}")
                                     if self.variables["bot"]["include_bot"]:
-                                          time.sleep(1) # This is to avoid sending too many messages to the slack channel at once 
-                                          self.slack_bot.send_message(f"Phase '{phase_name}' completed in {time.time() - start_time} seconds at {time.strftime('%Y-%m-%d %H:%M:%S')}\
-                                                                  Result: {str(phase_result)}",
+                                          self.slack_bot.send_message(f"🚨 Error running phase '{phase_name}': {e}",
                                                                   channel=self.variables["bot"]["channel"])
-                        except Exception as e:
-                              self.logger.error(f"Error running phase '{phase_name}': {e}")
-                              print(f"ERROR RUNNING PHASE '{phase_name}': {e}")
-                              if self.variables["bot"]["include_bot"]:
-                                    self.slack_bot.send_message(f"🚨 Error running phase '{phase_name}': {e}",
-                                                            channel=self.variables["bot"]["channel"])
-                              raise e
+                                    raise e
 
-                  run_phase()
+                        run_phase()
+
                   # Store DAG
+                  self.pipeline_manager.dag.render()
                   if self.variables["bot"]["send_images"] and self.variables["bot"]["include_bot"]:
                         self.slack_bot_send_images()
 
       def slack_bot_send_images(self):
             try:
-                  self.pipeline_manager.dag.render()
                   #Send slack bot all the images in the results/plots folder
                   for root, dirs, files in os.walk(self.plots_path):
                         for file in files:

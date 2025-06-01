@@ -1,1 +1,4 @@
-2025-05-20 20:47:41,082 - my_logger - INFO - Pipeline runner started at 2025-05-20 20:47:41
+2025-06-01 13:12:15,007 - my_logger - INFO - Pipeline runner started at 2025-06-01 13:12:15
+2025-06-01 13:12:15,783 - my_logger - INFO - 'dataset' returned: ('X_train: (22092, 142)', 'X_val: (2761, 142)', 'X_test: (2762, 142)')
+2025-06-01 13:12:15,860 - my_logger - INFO - 'data_preprocessing' returned: {}
+2025-06-01 13:12:15,862 - my_logger - INFO - 'feature_analysis' returned: {'feature_transformation_results': None, 'manual_feature_selection_results': {'MutualInformation': 'Threshold: 0.2, Delete features: True', 'LowVariances': 'Threshold: 0.01, Delete features: True', 'VIF': 'Threshold: 10, Delete features: True', 'PCA': 'Threshold: 0.95, Delete features: True'}, 'automatic_feature_selection_results': {'L1': {'predictivePowerFeatures': None, 'excludedFeatures': None, 'deletesFeatures': True}, 'Boruta': {'selected_features': None, 'excludedFeatures': None, 'deletesFeatures': True}}}
