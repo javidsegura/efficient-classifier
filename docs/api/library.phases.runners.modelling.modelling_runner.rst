@@ -1,7 +1,0 @@
-library.phases.runners.modelling.modelling\_runner module
-=========================================================
-
-.. automodule:: library.phases.runners.modelling.modelling_runner
-   :members:
-   :show-inheritance:
-   :undoc-members:

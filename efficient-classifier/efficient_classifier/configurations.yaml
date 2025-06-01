@@ -75,6 +75,30 @@ phase_runners:
             max_iter: 10
             delete_features: True
   modelling_runner:
+      lass_weights:
+          0: 9   # Backdoor 
+          1: 6   # File Infector 
+          2: 3   # PUA 
+          3: 10   # Ransomware 
+          4: 6   # Riskware
+          5: 4   # Scareware 
+          6: 9   # Trojan Banker 
+          7: 7   # Trojan Dropper
+          8: 6  # Trojan SMS
+          9: 8  # Trojan Spy 
+
+          # 0: 3  # Adware 
+          #1: 9   # Backdoor 
+          #2: 6   # File Infector 
+          #3: 3   # PUA 
+          #4: 10   # Ransomware 
+          #5: 6   # Riskware
+          #6: 4   # Scareware 
+          #7: 6   # Trojan
+          #8: 9   # Trojan Banker 
+          #9: 7   # Trojan Dropper
+          #10: 6  # Trojan SMS
+          #11: 8  # Trojan Spy 
       models_to_include:
         not_baseline:
           ensembled: ["Gradient Boosting", "Random Forest"]

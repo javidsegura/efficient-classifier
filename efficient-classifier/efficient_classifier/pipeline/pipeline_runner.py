@@ -90,6 +90,7 @@ class PipelineRunner:
             default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "No_Category"].index, inplace=True)
             default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "Adware"].index, inplace=True)
             default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "Trojan"].index, inplace=True)
+            
 
       def _dag_set_up(self):
             dag_pipelines = {}
