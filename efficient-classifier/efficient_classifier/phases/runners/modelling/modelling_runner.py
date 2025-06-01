@@ -14,6 +14,7 @@ from lightgbm import LGBMClassifier
 from catboost import CatBoostClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import RidgeClassifier, ElasticNet, SGDClassifier
+from sklearn.calibration import CalibratedClassifierCV
 
 # Self-developed models
 from efficient_classifier.utils.ownModels.majorityClassModel import MajorityClassClassifier 
@@ -74,7 +75,8 @@ class ModellingRunner(PhaseRunner):
                                                                                           units_per_layer=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["units_per_layer"],
                                                                                           learning_rate=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["learning_rate"],
                                                                                           activations=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["activations"],
-                                                                                          kernel_initializer=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["kernel_initializer"]
+                                                                                          kernel_initializer=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["kernel_initializer"],
+                                                                                          class_weights=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None          
                                                                               )
                         break # add all NNs models only once
       
@@ -86,9 +88,16 @@ class ModellingRunner(PhaseRunner):
                               model_name_to_map = model_name
                               if "baseline" in model_name:
                                     model_name_to_map = model_name.replace(" (baseline)", "")
+                              if self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["calibration"]["calibrate_models"] and model_name not in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["calibration"]["not_calibrate_models"]:
+                                    print(f"Calibrating {model_name}")
+                                    model_sklearn = CalibratedClassifierCV(model_name_to_model_object[model_name_to_map], 
+                                                                           method=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["calibration"]["calibration_method"])
+                              else:
+                                    model_sklearn = model_name_to_model_object[model_name_to_map]
+
                               self.pipeline_manager.pipelines[category][pipeline].modelling.add_model(
                                     model_name, 
-                                    model_name_to_model_object[model_name_to_map], 
+                                    model_sklearn=model_sklearn, 
                                     model_type="neural_network" if "Neural Network" in model_name else "classical") # We handle keras-native model differently 
  
             self._exclude_models()  

@@ -192,6 +192,9 @@ class PipelineRunner:
                                     raise e
 
                         run_phase()
+                  print("-"*30)
+                  print("PIPELINE COMPLETED")
+                  print("-"*30)
 
                   # Store DAG
                   self.pipeline_manager.dag.render()
