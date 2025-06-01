@@ -8,30 +8,6 @@ from efficient_classifier.utils.ownModels.neuralNets.feedForward import FeedForw
 
 from efficient_classifier.utils.decorators.timer import timer
 
-
-"""
-
-Assesment currently has the following structure:
-- `id`: NoneType
-- `timeStamp`: NoneType
-- `comments`: NoneType
-- `modelName`: str
-- `status`: str
-- `features_used`: NoneType
-- `hyperParameters`: NoneType
-- `timeToFit`: float
-- `timeToPredict`: float
-- `accuracy`: float
-- `precision`: float
-- `recall`: float
-- `f1-score`: float
-- `predictions_val`: numpy.ndarray
-- `precictions_train`: numpy.ndarray
-- `predictions_test`: numpy.ndarray
-- `model_sklearn`: sklearn
-"""
-
-
 class ModelState(ABC):
       def __init__(self, model_sklearn: object, modelName: str, model_type: str, dataset: Dataset, results_header: list[str]):
             """

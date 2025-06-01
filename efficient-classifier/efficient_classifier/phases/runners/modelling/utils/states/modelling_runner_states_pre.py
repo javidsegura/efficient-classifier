@@ -132,7 +132,7 @@ class PreTuningRunner(ModellingRunnerStates):
                                        methodName="modelling.fit_models",
                                        exclude_pipeline_names=["stacking"], 
                                        current_phase="pre")
-            if len(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_exclude"]["not_baseline"]["stacking"]) == 0:
+            if "stacking" in self.pipeline_manager.variables["general"]["pipelines_names"]["not_baseline"] and len(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_exclude"]["not_baseline"]["stacking"]) == 0:
                   self._set_up_stacking_model()
             general_analysis_results = self._general_analysis()
             self._update_dag_scheme()

@@ -91,11 +91,11 @@ phase_runners:
           support_vector_machine: ["Linear SVM", "Non-linear SVM"]
           naive_bayes: []
           feed_forward_neural_network: [] 
-          stacking: ["Stacking"]
+          stacking: []
         baseline:
           baselines: ["Logistic Regression (baseline)"]
       stacking:
-        base_estimators: -1 # -1 means all models are used as base estimators (that werent excluded). Set to list with model names otherwise
+        base_estimators: ["Feed Forward Neural Network", ] # -1 means all models are used as base estimators (that werent excluded). Set to list with model names otherwise
       hyperparameters:
         grid_space:
           gradient_boosting:

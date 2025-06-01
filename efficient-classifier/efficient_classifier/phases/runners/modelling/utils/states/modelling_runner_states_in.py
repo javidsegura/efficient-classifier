@@ -142,10 +142,15 @@ class InTuningRunner(ModellingRunnerStates):
             """
             estimators = []
             for pipelineName, results in optimized_models["not_baseline"].items():
-                  if isinstance(results, dict): # If the model was in pre-tuning but not in in-tuning the result for its pipeline is None, not a dict
+                  if isinstance(results, dict): # If the model was in pre-tuning but not in in-tuning the result for its pipeline is None, not a dict, thus we only reference the dicts data types 
                         for modelName, modelObject in results.items():
+                              if isinstance(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["stacking"]["base_estimators"], list):
+                                    if modelName not in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["stacking"]["base_estimators"]:
+                                          continue
                               estimators.append((modelName, modelObject))
             
+            print(f"Estimator of stacking model: {estimators}")
+
             #Stacking model
             stackingModel = StackingClassifier(
                   estimators=estimators,
@@ -209,7 +214,7 @@ class InTuningRunner(ModellingRunnerStates):
                                                                            exclude_pipeline_names=["stacking"],
                                                                            current_phase=self.pipeline_manager.pipeline_state,
                                                                            modelNameToOptimizer=modelNameToOptimizer)
-            if len(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_exclude"]["not_baseline"]["stacking"]) == 0:
+            if "stacking" in self.pipeline_manager.variables["general"]["pipelines_names"]["not_baseline"] and len(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_exclude"]["not_baseline"]["stacking"]) == 0:
                   self._set_up_stacking_model(optimized_models, modelNameToOptimizerStacking)
             general_analysis_results = self._general_analysis()
             self._update_dag_scheme()

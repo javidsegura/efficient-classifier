@@ -58,8 +58,9 @@ class ModellingRunner(PhaseRunner):
                         "Stochastic Gradient Descent": SGDClassifier(),
             }
 
+
             for pipeline in self.pipeline_manager.variables["general"]["pipelines_names"]["not_baseline"]:
-                  if "(nn)" in pipeline:
+                  if "neural_network" in pipeline:
                         nn_pipeline = self.pipeline_manager.pipelines["not_baseline"][pipeline]
                         model_name_to_model_object["Feed Forward Neural Network"] = FeedForwardNeuralNetwork(
                                                                                           num_features=nn_pipeline.dataset.X_train.shape[1], 
@@ -71,8 +72,8 @@ class ModellingRunner(PhaseRunner):
                                                                                           learning_rate=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["learning_rate"],
                                                                                           activations=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["activations"],
                                                                                           kernel_initializer=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["kernel_initializer"]
-                                                                              ),
-                  break
+                                                                              )
+                        break # add all NNs models only once
       
             for category in self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["models_to_include"]:
                   for pipeline in self.pipeline_manager.pipelines[category]:
@@ -85,7 +86,7 @@ class ModellingRunner(PhaseRunner):
                               self.pipeline_manager.pipelines[category][pipeline].modelling.add_model(
                                     model_name, 
                                     model_name_to_model_object[model_name_to_map], 
-                                    model_type="neural_network" if model_name == "Feed Forward Neural Network" else "classical") # We handle keras-native model differently 
+                                    model_type="neural_network" if "Neural Network" in model_name else "classical") # We handle keras-native model differently 
  
             self._exclude_models()  
 
