@@ -191,12 +191,12 @@ class PipelineRunner:
 
                   run_phase()
                   # Store DAG
-                  self.pipeline_manager.dag.render()
                   if self.variables["bot"]["send_images"] and self.variables["bot"]["include_bot"]:
-                        self.slack_bot_send_images(error_occured)
+                        self.slack_bot_send_images()
 
       def slack_bot_send_images(self):
             try:
+                  self.pipeline_manager.dag.render()
                   #Send slack bot all the images in the results/plots folder
                   for root, dirs, files in os.walk(self.plots_path):
                         for file in files:

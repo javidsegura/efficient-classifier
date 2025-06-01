@@ -148,10 +148,6 @@ class FeatureAnalysisRunner(PhaseRunner):
                   for pipeline in self.pipeline_manager.pipelines[category]:
                         print(f"Pipeline: {pipeline}, X_train shape: {self.pipeline_manager.pipelines[category][pipeline].dataset.X_train.shape}")
             
-            import sys
-            sys.exit()
-
-
 
             self._update_dag_scheme(feature_transformation_results, manual_feature_selection_results, automatic_feature_selection_results)
 
