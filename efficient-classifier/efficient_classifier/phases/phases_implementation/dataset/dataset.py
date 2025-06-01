@@ -24,7 +24,7 @@ from efficient_classifier.phases.phases_implementation.dataset.split.strategies.
 
 
 # Global variables
-RANDOM_STATE = 99
+RANDOM_STATE = 88
 
 class Dataset:
     """ Created dataframe, provides info, splits and encodes"""

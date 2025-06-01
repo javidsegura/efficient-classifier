@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>library.phases.phases_implementation.dataset.split.strategies.noTimeSeries &#8212; Efficient Malware Classfier May 2025 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../../../../../_static/documentation_options.js?v=8d170800"></script>
+    <script src="../../../../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for library.phases.phases_implementation.dataset.split.strategies.noTimeSeries</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultipleLocator</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.dates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mdates</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">library.phases.phases_implementation.dataset.split.strategies.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">library.utils.miscellaneous.save_or_store_plot</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_or_store_plot</span>
+
+<div class="viewcode-block" id="NoTimeSeries">
+<a class="viewcode-back" href="../../../../../../../api/library.phases.phases_implementation.dataset.split.strategies.noTimeSeries.html#library.phases.phases_implementation.dataset.split.strategies.noTimeSeries.NoTimeSeries">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NoTimeSeries</span><span class="p">(</span><span class="n">Split</span><span class="p">):</span>
+      <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NoTimeSeries.split_data">
+<a class="viewcode-back" href="../../../../../../../api/library.phases.phases_implementation.dataset.split.strategies.noTimeSeries.html#library.phases.phases_implementation.dataset.split.strategies.noTimeSeries.NoTimeSeries.split_data">[docs]</a>
+      <span class="k">def</span><span class="w"> </span><span class="nf">split_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                 <span class="n">y_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                 <span class="n">otherColumnsToDrop</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span> 
+                 <span class="n">train_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span> 
+                 <span class="n">validation_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> 
+                 <span class="n">test_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+                 <span class="n">save_plots</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">save_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+                 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Splits the dataframe into training, validation and test sets</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            y_column : str</span>
+<span class="sd">                  The column name of the target variable</span>
+<span class="sd">            otherColumnsToDrop : list[str]</span>
+<span class="sd">                  The columns to drop from the dataframe (e.g: record identifiers)</span>
+<span class="sd">            train_size : float</span>
+<span class="sd">                  The size of the training set</span>
+<span class="sd">            validation_size : float</span>
+<span class="sd">                  The size of the validation set</span>
+<span class="sd">            test_size : float</span>
+<span class="sd">                  The size of the test set</span>
+<span class="sd">            plot_distribution : bool</span>
+<span class="sd">                  Whether to plot the distribution of the features</span>
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            X_train : pd.DataFrame</span>
+<span class="sd">                  The training set</span>
+<span class="sd">            X_val : pd.DataFrame</span>
+<span class="sd">                  The validation set</span>
+<span class="sd">            X_test : pd.DataFrame</span>
+<span class="sd">                  The test set</span>
+<span class="sd">            y_train : pd.Series</span>
+<span class="sd">                  The training set</span>
+<span class="sd">            y_val : pd.Series</span>
+<span class="sd">                  The validation set</span>
+<span class="sd">            y_test : pd.Series</span>
+<span class="sd">                  The test set</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_X_y__</span><span class="p">(</span><span class="n">y_column</span><span class="p">,</span> <span class="n">otherColumnsToDrop</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">train_size</span> <span class="o">+</span> <span class="n">validation_size</span> <span class="o">+</span> <span class="n">test_size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;The sum of the sizes must be 1&quot;</span>
+            <span class="n">X_train</span><span class="p">,</span> <span class="n">X_temp</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_temp</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="n">validation_size</span> <span class="o">+</span> <span class="n">test_size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span> 
+            <span class="n">X_val</span> <span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X_temp</span><span class="p">,</span> <span class="n">y_temp</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="n">test_size</span><span class="o">/</span><span class="p">(</span><span class="n">validation_size</span> <span class="o">+</span> <span class="n">test_size</span><span class="p">),</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span> 
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;X_train: </span><span class="si">{</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;X_val: </span><span class="si">{</span><span class="n">X_val</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;X_test: </span><span class="si">{</span><span class="n">X_test</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;y_train: </span><span class="si">{</span><span class="n">y_train</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;y_val: </span><span class="si">{</span><span class="n">y_val</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;y_test: </span><span class="si">{</span><span class="n">y_test</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">X_train</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">X_val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">X_test</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">y_train</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">y_val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">y_test</span> <span class="o">=</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">X_val</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">y_test</span>
+            <span class="k">if</span> <span class="n">save_plots</span><span class="p">:</span>
+                  <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">plot_per_set_distribution</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">save_plots</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">X_train</span><span class="o">.</span><span class="n">head</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="NoTimeSeries.asses_split_classifier">
+<a class="viewcode-back" href="../../../../../../../api/library.phases.phases_implementation.dataset.split.strategies.noTimeSeries.html#library.phases.phases_implementation.dataset.split.strategies.noTimeSeries.NoTimeSeries.asses_split_classifier">[docs]</a>
+      <span class="k">def</span><span class="w"> </span><span class="nf">asses_split_classifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">.50</span><span class="p">,</span> <span class="n">save_plots</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Assesses the split of the dataframe for classification tasks.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            p : float</span>
+<span class="sd">                  The percentage of the dataframe to split</span>
+<span class="sd">            step : float</span>
+<span class="sd">                  The step size for the split</span>
+<span class="sd">            upper_bound : float</span>
+<span class="sd">                  The upper bound for the split</span>
+<span class="sd">            plot : bool</span>
+<span class="sd">                  If True, the split assessment will be plotted</span>
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            df_split_assesment : pd.DataFrame</span>
+<span class="sd">                  A dataframe with the split assessment</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">modelTask</span> <span class="o">!=</span> <span class="s2">&quot;classification&quot;</span><span class="p">:</span>
+                  <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model task must be classification&quot;</span><span class="p">)</span>
+            
+
+            <span class="n">computeSE</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">p</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">p</span><span class="p">))</span><span class="o">/</span><span class="n">n</span><span class="p">)</span>
+            <span class="n">df_split_assesment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="n">hold_out_size</span> <span class="o">=</span> <span class="n">step</span>
+            <span class="n">priorSE</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="n">hold_out_size</span> <span class="o">&lt;=</span> <span class="n">upper_bound</span><span class="p">:</span>
+                  <span class="k">assert</span> <span class="n">hold_out_size</span> <span class="o">&lt;</span> <span class="mi">1</span> 
+                  <span class="n">train_size_percentage</span>  <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">hold_out_size</span>
+                  <span class="n">train_size_count</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">train_size_percentage</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+                  <span class="n">val_size_percentage</span> <span class="o">=</span> <span class="n">hold_out_size</span> <span class="o">/</span> <span class="mi">2</span>
+                  <span class="n">val_size_count</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">hold_out_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span><span class="mi">0</span><span class="p">)</span>
+
+                  <span class="n">test_size_percentage</span> <span class="o">=</span> <span class="n">hold_out_size</span> <span class="o">/</span> <span class="mi">2</span>
+                  <span class="n">test_size_count</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">hold_out_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span><span class="mi">0</span><span class="p">)</span>
+
+
+                  <span class="n">currentSE</span> <span class="o">=</span> <span class="n">computeSE</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">test_size_count</span><span class="p">)</span>
+                  <span class="n">differenceToPriorSE</span> <span class="o">=</span> <span class="n">currentSE</span> <span class="o">-</span> <span class="n">priorSE</span>
+                  <span class="n">differenceToPriorSE_percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">currentSE</span> <span class="o">-</span> <span class="n">priorSE</span><span class="p">)</span> <span class="o">/</span>  <span class="n">priorSE</span>
+                  <span class="n">priorSE</span> <span class="o">=</span> <span class="n">currentSE</span>
+
+                  <span class="n">new_row</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([{</span>
+                        <span class="s2">&quot;train_size (%)&quot;</span><span class="p">:</span> <span class="n">train_size_percentage</span><span class="p">,</span> 
+                        <span class="s2">&quot;train_size_count&quot;</span><span class="p">:</span> <span class="n">train_size_count</span><span class="p">,</span>
+                        <span class="s2">&quot;validation_size (%)&quot;</span><span class="p">:</span> <span class="n">val_size_percentage</span> <span class="p">,</span>
+                        <span class="s2">&quot;validation_size_count&quot;</span><span class="p">:</span> <span class="n">val_size_count</span><span class="p">,</span>
+                        <span class="s2">&quot;test_size (%)&quot;</span><span class="p">:</span> <span class="n">test_size_percentage</span><span class="p">,</span> 
+                        <span class="s2">&quot;test_size_coount&quot;</span><span class="p">:</span> <span class="n">test_size_count</span><span class="p">,</span>
+                        <span class="s2">&quot;currentSE&quot;</span><span class="p">:</span> <span class="n">currentSE</span> <span class="p">,</span>
+                        <span class="s2">&quot;differenceToPriorSE&quot;</span><span class="p">:</span> <span class="n">differenceToPriorSE</span><span class="p">,</span>
+                        <span class="s2">&quot;differenceToPriorSE (%)&quot;</span><span class="p">:</span> <span class="n">differenceToPriorSE_percentage</span><span class="p">,</span>
+                        <span class="p">}])</span>
+
+                  <span class="c1"># Concatenate the new row with your existing DataFrame</span>
+                  <span class="n">df_split_assesment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_split_assesment</span><span class="p">,</span> <span class="n">new_row</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                  <span class="n">hold_out_size</span> <span class="o">+=</span> <span class="n">step</span>
+            <span class="k">if</span> <span class="n">save_plots</span><span class="p">:</span>
+                  <span class="n">fig</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+                  <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;tab:blue&#39;</span>
+                  <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Training Set Percentage&#39;</span><span class="p">)</span>
+                  <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Current SE&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+                  <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df_split_assesment</span><span class="p">[</span><span class="s2">&quot;train_size (%)&quot;</span><span class="p">],</span> <span class="n">df_split_assesment</span><span class="p">[</span><span class="s2">&quot;currentSE&quot;</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+                  <span class="n">ax1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+
+                  <span class="n">ax1</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.05</span><span class="p">))</span>
+
+                  <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>  
+                  <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;tab:red&#39;</span>
+                  <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Difference to Prior SE (%)&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+                  <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df_split_assesment</span><span class="p">[</span><span class="s2">&quot;train_size (%)&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">:],</span>  <span class="n">df_split_assesment</span><span class="p">[</span><span class="s2">&quot;differenceToPriorSE (%)&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">:],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+                  <span class="n">ax2</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+
+
+                  <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Holdout Split Trade-Off: Training Set vs SE&#39;</span><span class="p">)</span>
+                  <span class="n">save_or_store_plot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">save_plots</span><span class="p">,</span> <span class="n">save_path</span> <span class="o">+</span> <span class="s2">&quot;/split/split_trade_off&quot;</span><span class="p">,</span> <span class="s2">&quot;split_trade_off.png&quot;</span><span class="p">)</span>
+                  
+            <span class="bp">self</span><span class="o">.</span><span class="n">df_split_assesment</span> <span class="o">=</span> <span class="n">df_split_assesment</span>
+            <span class="k">return</span> <span class="n">df_split_assesment</span> </div>
+</div>
+
+      
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../../../../index.html">Efficient Malware Classfier</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../api/modules.html">library</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, BCSAI 4A G1.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

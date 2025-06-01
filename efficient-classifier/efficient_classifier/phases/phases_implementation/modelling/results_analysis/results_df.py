@@ -47,7 +47,7 @@ class ResultsDF:
                         writer = csv.writer(f)
                         writer.writerow(self.header)
       
-      def check_header_consitency(self, metadata: dict):
+      def check_header_consistency(self, metadata: dict):
             metadata = metadata.copy() # Temporary copy for the check
             header_cols = set(self.header)
             metadata_cols = set(metadata.keys())
@@ -68,9 +68,9 @@ class ResultsDF:
                   # Extracting the metadata from the assesment
                   using_validation_set = current_phase == "pre" or current_phase == "in"
                   metadata = modelObject.tuning_states[current_phase].assesment
-                  
-                  self.check_header_consitency(metadata)
-            
+
+                  self.check_header_consistency(metadata)
+
                   # Extracting the model_log
                   model_sklearn = metadata["model_sklearn"]      
                   model_log = {

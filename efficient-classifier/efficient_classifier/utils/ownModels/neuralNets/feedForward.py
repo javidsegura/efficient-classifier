@@ -29,6 +29,7 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
                   activations:   list = None,
                   learning_rate: float = None,
                   kernel_initializer: str = None,
+                  class_weights: dict = None
                   ):
             """
 
@@ -51,6 +52,7 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
             self.activations = activations if activations is not None else nn_config["activations"]
             self.learning_rate = learning_rate if learning_rate is not None else nn_config["learning_rate"]
             self.kernel_initializer = kernel_initializer if kernel_initializer is not None else nn_config["kernel_initializer"]
+            self.class_weights = class_weights
 
             # Validate the parameters if they are provided
             if units_per_layer is not None and n_layers is not None:
@@ -150,7 +152,9 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
                         validation_data=(X_val, y_val),
                         batch_size=self.batch_size,
                         epochs=self.epochs,
-                        callbacks=[get_early_stopping()])
+                        callbacks=[get_early_stopping()],
+                        class_weight=self.class_weights
+                  )
 
       def fit(self, X, y, **kwargs):
             self.model = self._build_parametrized_model()
@@ -160,6 +164,14 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
                   epochs=self.epochs,
                   callbacks=[get_early_stopping()] #  We use early to stop execution when it become ineffective
             )
+            
+            if self.class_weights is not None:
+                 fit_args["class_weight"] = self.class_weights
+            
+            
+            if self.class_weights is not None:
+                 fit_args["class_weight"] = self.class_weights
+            
             if "X_val" in kwargs and "y_val" in kwargs:
                   fit_args["validation_data"] = (kwargs["X_val"], kwargs["y_val"])
             self.history = self.model.fit(**fit_args)
@@ -186,4 +198,5 @@ class FeedForwardNeuralNetwork(BaseEstimator, ClassifierMixin):
                   'activations':   self.activations,
                   'learning_rate': self.learning_rate,
                   'kernel_initializer': self.kernel_initializer,
+                  'class_weights': self.class_weights
             }

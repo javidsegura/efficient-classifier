@@ -121,3 +121,6 @@ wrapt==1.17.2
 xgboost==3.0.2
 xlrd==2.0.1
 zipp==3.21.0
+lime==0.2.0.1
+sphinx
+myst-parser

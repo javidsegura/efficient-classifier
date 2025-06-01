@@ -10,7 +10,14 @@ import yaml
 
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 from sklearn.metrics import classification_report
+from sklearn.inspection import permutation_importance
+from sklearn.calibration import CalibratedClassifierCV, calibration_curve
+from sklearn.model_selection import train_test_split
 
+import lime
+import lime.lime_tabular
+
+from scipy import stats
 import matplotlib.pyplot as plt
 import seaborn as sns
 import math
@@ -51,8 +58,15 @@ class PipelinesAnalysis:
 
 
       def _create_report_dataframe(self, report: dict, modelName: str, include_training: bool = False):
-            """
-            Adds accuracy to the report as its own column instead of as an index (as it is by default)
+            """_summary_
+
+            Args:
+                report (dict): _description_
+                modelName (str): _description_
+                include_training (bool, optional): _description_. Defaults to False.
+
+            Returns:
+                _type_: _description_
             """
             accuracy = report.pop('accuracy')
             report['modelName'] = modelName + ("_train" if include_training else "")
@@ -63,8 +77,16 @@ class PipelinesAnalysis:
             return df
       
       def _add_additional_metrics_to_report(self, df: pd.DataFrame, modelName: str, additional_metrics: dict, include_training: bool = False):
-            """
-            Adds metrics to the report as its own columns instead of as an index (as it is by default)
+            """_summary_
+
+            Args:
+                df (pd.DataFrame): _description_
+                modelName (str): _description_
+                additional_metrics (dict): _description_
+                include_training (bool, optional): _description_. Defaults to False.
+
+            Returns:
+                _type_: _description_
             """
             if not include_training:
                   for key, value in additional_metrics["not_train"].items():
@@ -317,32 +339,204 @@ class PipelinesAnalysis:
             
             assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
             importances_dfs = {}
+
             for pipeline in self.pipelines["not_baseline"]:
-                  if pipeline not in ["ensembled", "tree_based"]:
+                  models = self.pipelines["not_baseline"][pipeline].modelling
+
+                  for modelName in models.list_of_models:
+                        # only keep the best model in post-phase
+                        if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
+                              continue
+                        # skip excluded models
+                        if modelName in models.models_to_exclude:
+                              continue
+
+                        model = models.list_of_models[modelName]
+                        ds = self.pipelines["not_baseline"][pipeline].dataset
+
+                        # pick the right split
+                        if self.phase == "in":
+                              X, y = ds.X_val, ds.y_val
+                        elif self.phase == "post":
+                              X, y = ds.X_test, ds.y_test
+                        else:
+                              X, y = ds.X_train, ds.y_train
+
+                        # compute importances
+                        if hasattr(model, "feature_importances_"):
+                              importances = model.feature_importances_
+                        elif hasattr(model, "coef_"):
+                              importances = np.abs(model.coef_).ravel()
+                        else:
+                              # if your dataset is huge, sample by POSITION not by label
+                              if len(X) > 1000:
+                                    # get 1 000 random *positions* 
+                                    pos = np.random.RandomState(42).choice(len(X), size=1000, replace=False)
+                                    # .iloc will slice by position
+                                    X_sub = X.iloc[pos]
+                                    y_sub = y.iloc[pos] if hasattr(y, "iloc") else y[pos]
+                                    result = permutation_importance(
+                                          model,
+                                          X_sub, y_sub,
+                                          n_repeats=3,
+                                          random_state=42,
+                                          n_jobs=-1                # ← use all your cores
+                                    )
+                              else:
+                                    result = permutation_importance(
+                                          model, X, y,
+                                          n_repeats=3,
+                                          random_state=42,
+                                          n_jobs=-1
+                                    )
+                              importances = result.importances_mean
+
+
+                        # sort
+                        idx = np.argsort(importances)[::-1]
+                        feats_sorted = X.columns.values[idx]
+                        imps_sorted = importances[idx]
+                        importances_dfs[(pipeline, modelName)] = (feats_sorted, imps_sorted)
+
+                        # only plot top_n bars
+                        top_n = 30
+                        feats_plot = feats_sorted[:top_n]
+                        imps_plot = imps_sorted[:top_n]
+
+                        # cap the figure height
+                        height = min(12, max(4, len(feats_plot) * 0.3))
+                        fig, ax = plt.subplots(figsize=(8, height))
+
+                        y_pos = np.arange(len(feats_plot))
+                        ax.barh(y_pos, imps_plot)
+                        ax.set_yticks(y_pos)
+                        ax.set_yticklabels(feats_plot)
+                        ax.invert_yaxis()
+                        ax.set_xlabel("Importance")
+                        ax.set_title(f"Feature Importances for {modelName} ({pipeline})")
+                        plt.tight_layout()
+
+                        if save_plots:
+                              save_or_store_plot(
+                                    fig,
+                                    save_plots,
+                                    directory_path=save_path + f"/{self.phase}/feature_importance",
+                                    filename=f"feature_importance_{self.phase}_{pipeline}_{modelName}.png"
+                              )
+
+                              plt.close(fig)
+
+            return None
+
+      def lime_feature_importance(self, save_plots: bool = False, save_path: str = None):
+            assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
+            lime_importances_dfs = {}
+            for pipeline in self.pipelines["not_baseline"]:
+                  if pipeline not in ["ensembled"]:
                         continue
                   for modelName in self.pipelines["not_baseline"][pipeline].modelling.list_of_models:
                         if self.phase == "post" and modelName != self.best_performing_model["modelName"]:
                                           continue
                         if modelName not in self.pipelines["not_baseline"][pipeline].modelling.models_to_exclude:
-                              importances = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["model_sklearn"].feature_importances_
+                              model = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName]
+                              X_train = self.pipelines["not_baseline"][pipeline].dataset.X_train
+                              X_sample = X_train.iloc[0]
+                              
+                              explainer = lime.lime_tabular.LimeTabularExplainer(
+                                    training_data=X_train.values,
+                                    feature_names=X_train.columns.tolist(),
+                                    mode = "classification" if len(set(model.predict_default(X_train))) > 2 else "regression"
+                              )
+                              explanation = explainer.explain_instance(X_sample.values, model.predict_proba)
+                              explanation_list = explanation.as_list()
+                              feature_importances = {feature: weight for feature, weight in explanation_list}
+
                               feature_importance_df = pd.DataFrame({
-                                                                            'Feature': self.pipelines["not_baseline"][pipeline].dataset.X_train.columns,
-                                                                            'Importance': importances
-                                                                            }).sort_values(by='Importance', ascending=False)
-                              importances_dfs[pipeline] = feature_importance_df
-            for pipeline in importances_dfs:
+                                     'Feature': list(feature_importances.keys()),
+                                     'Importance': list(feature_importances.values())
+                              }).sort_values(by='Importance', ascending=False)
+                              lime_importances_dfs[pipeline] = feature_importance_df
+
+            for pipeline in lime_importances_dfs:
                   fig, ax = plt.subplots(figsize=(10, 10))
                   sns.barplot(
                         x="Importance",
                         y="Feature",
-                        data=importances_dfs[pipeline],
+                        data=lime_importances_dfs[pipeline],
                         ax=ax
                         )
-                  ax.set_title(f"Feature Importances for {pipeline} model")
+                  ax.set_title(f"LIME explanation for {pipeline} model")
                   plt.tight_layout()
                   plt.tight_layout(rect=[0, 0, 1, 0.96])
-                  save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/feature_importance", filename=f"feature_importance_{self.phase}.png")
-            return importances_dfs
+
+                  save_or_store_plot(fig, save_plots, directory_path=save_path + f"/{self.phase}/modelName/lime_feature_importance", filename=f"lime_feature_importance_{self.phase}.png")
+            return lime_importances_dfs
+
+      def plot_multiclass_reliability_diagram(self, save_plots: bool = False, save_path: str = None):
+            """
+            Plot reliability diagrams for each class in a multiclass setting using one-vs-rest calibration curves.
+            The plot is generated for each model in each pipeline.
+            """
+            assert self.phase in ["pre", "in", "post"], "Phase must be either pre, in or post"
+
+            # Only iterate over non-baseline pipelines
+            for pipeline_name, pipeline_obj in self.pipelines.get("not_baseline", {}).items():
+                  m = pipeline_obj.modelling
+                  ds = pipeline_obj.dataset
+
+                  for model_name, model in m.list_of_models.items():
+                        # Exclude unwanted models
+                        if model_name in m.models_to_exclude:
+                              continue
+                        if self.phase == "post" and model_name != self.best_performing_model["modelName"]:
+                              continue
+
+                        # Grab train + (optional) calib splits
+                        X_train, y_train = ds.X_train, ds.y_train
+                        X_calib = getattr(ds, "X_calib", None)
+                        y_calib = getattr(ds, "y_calib", None)
+                        if X_calib is None or y_calib is None:
+                              X_train, X_calib, y_train, y_calib = train_test_split(
+                                    X_train, y_train, test_size=0.2, random_state=42
+                              )
+
+                        # Ensure predict_proba exists
+                        if not hasattr(model, "predict_proba"):
+                              raise RuntimeError(f"Model {model_name!r} has no predict_proba—cannot plot reliability.")
+
+                        # Get raw probabilities on calibration set
+                        y_probs = model.predict_proba(X_calib)
+
+                        # Plot one curve per class
+                        n_classes = y_probs.shape[1]
+                        class_labels = getattr(ds, "class_labels", list(range(n_classes)))
+
+                        fig, ax = plt.subplots(figsize=(8, 6))
+                        for i in range(n_classes):
+                              y_true_bin = (y_calib == i).astype(int)
+                              prob_true, prob_pred = calibration_curve(y_true_bin, y_probs[:, i], n_bins=10)
+                              ax.plot(prob_pred, prob_true, marker="o", label=f"Class {class_labels[i]}")
+
+                        ax.plot([0, 1], [0, 1], linestyle="--", color="gray", label="Perfectly Calibrated")
+                        ax.set_xlabel("Mean Predicted Probability")
+                        ax.set_ylabel("True Fraction of Positives")
+                        ax.set_title(f"Reliability Diagram — {model_name} ({pipeline_name}) — {self.phase}")
+                        ax.legend(loc="best")
+                        ax.grid(True)
+
+                        plt.tight_layout(rect=[0, 0, 1, 0.96])
+
+                        # Build output directory and filename
+                        if save_path:
+                              out_dir = os.path.join(save_path, self.phase, "model_calibration")
+                        else:
+                              out_dir = None
+                        filename = f"model_calibration_{model_name}_{self.phase}.png"
+
+                        save_or_store_plot(fig, save_plots, directory_path=out_dir, filename=filename)
+                        plt.close(fig)
+
+            return None
 
       def plot_confusion_matrix(self, save_plots: bool = False, save_path: str = None):
             """
@@ -422,6 +616,92 @@ class PipelinesAnalysis:
 
             return residuals, confusion_matrices
       
+      
+      def plot_residuals(self, save_plots: bool = False, save_path: str = None):
+            """
+            For each model in this phase, produce:
+              1) Residuals vs. Predicted
+              2) Residuals vs. Observed
+              3) Histogram of residuals
+              4) QQ-plot of residuals
+
+            Titles each figure “Residual plots for {modelName} in {phase} phase”
+            """
+            assert self.phase in ["pre", "in", "post"], "Phase must be pre, in or post"
+
+            residuals = {}
+
+            for category in self.pipelines:
+                  for pipeline in self.pipelines[category]:
+                        m = self.pipelines[category][pipeline].modelling
+
+                        for modelName in m.list_of_models:
+                              # same include/exclude logic as plot_confusion_matrix
+                              if modelName in m.models_to_exclude:
+                                    continue
+                              if category == "not_baseline" and self.phase == "post" \
+                                 and modelName != self.best_performing_model["modelName"]:
+                                    continue
+                              if self.phase == "in" and category == "baseline":
+                                    continue
+
+                              # exactly like plot_confusion_matrix:
+                              model_obj = m.list_of_models[modelName]
+                              if self.phase != "post":
+                                    preds = model_obj.tuning_states[self.phase].assesment["predictions_val"]
+                                    actuals = m.dataset.y_val
+                              else:
+                                    preds = model_obj.tuning_states[self.phase].assesment["predictions_test"]
+                                    actuals = m.dataset.y_test
+
+                              assert preds is not None,   f"No predictions for {modelName}"
+                              assert actuals is not None, f"No actuals for {modelName}"
+                              assert len(preds) == len(actuals)
+
+                              res = actuals - preds
+                              residuals[modelName] = res
+
+                              # build 2×2 figure
+                              fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+                              axes = axes.flatten()
+                              fig.suptitle(f"Residual plots for {modelName} in {self.phase} phase")
+
+                              # 1) vs Predicted
+                              axes[0].scatter(preds, res, alpha=0.6)
+                              axes[0].axhline(0, linestyle="--")
+                              axes[0].set_xlabel("Predicted")
+                              axes[0].set_ylabel("Residual")
+                              axes[0].set_title("Residuals vs Predicted")
+
+                              # 2) vs Observed
+                              axes[1].scatter(actuals, res, alpha=0.6)
+                              axes[1].axhline(0, linestyle="--")
+                              axes[1].set_xlabel("Observed")
+                              axes[1].set_ylabel("Residual")
+                              axes[1].set_title("Residuals vs Observed")
+
+                              # 3) Histogram
+                              sns.histplot(res, kde=True, ax=axes[2])
+                              axes[2].set_title("Histogram of Residuals")
+
+                              # 4) QQ-Plot
+                              stats.probplot(res, dist="norm", plot=axes[3])
+                              axes[3].set_title("QQ-Plot of Residuals")
+
+                              plt.tight_layout(rect=[0,0,1,0.95])
+
+                              # save using same structure as confusion_matrix
+                              save_or_store_plot(
+                                    fig,
+                                    save_plots,
+                                    directory_path=save_path + f"/{self.phase}/model_performance",
+                                    filename=f"residuals_{modelName}_{self.phase}.png"
+                              )
+                              plt.close(fig)
+
+            return None
+
+      
       def plot_results_summary(self, training_metric: str, performance_metric: str, save_plots: bool = False, save_path: str = None):
             """
             Scatterplot: x-axis is either timeToFit or timeToPredict and y-axis is a performance metric
@@ -452,6 +732,7 @@ class PipelinesAnalysis:
 
             for _, row in metrics_df.iterrows():
                   plt.annotate(
+                        f"{row['modelName']}\n{row[performance_metric]:.3f}",
                         f"{row['modelName']}\n{row[performance_metric]:.2f}",                   
                         (row[training_metric], row[performance_metric]),  
                         textcoords="offset points",         

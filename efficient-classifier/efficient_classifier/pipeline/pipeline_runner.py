@@ -1,4 +1,4 @@
-""""
+"""
 
 This file runs the pipeline code. Its the full automation of all the pipelines' code
 
@@ -88,6 +88,8 @@ class PipelineRunner:
             default_pipeline.dataset.df.drop(columns=["Family", "Hash"], inplace=True) # We have decided to use only category as target variable; Hash is temporary while im debugging (it will be deleted in EDA)
             default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "Zero_Day"].index, inplace=True)
             default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "No_Category"].index, inplace=True)
+            default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "Adware"].index, inplace=True)
+            default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "Trojan"].index, inplace=True)
 
       def _dag_set_up(self):
             dag_pipelines = {}
@@ -154,13 +156,13 @@ class PipelineRunner:
 
 
       def run(self):
-            """
-            All the runners have a .run method. We execute them sequentially for each of the phase runners in phase_runners dictionary. 
-            We then also send a message to the slack channel with the results and write to the log file.
+                  """
+                  All the runners have a .run method. We execute them sequentially for each of the phase runners in phase_runners dictionary. 
+                  We then also send a message to the slack channel with the results and write to the log file.
 
-            Parameters
-            ----------
-            None
+                  Parameters
+                  ----------
+                  None
 
             Returns
             -------
