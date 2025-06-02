@@ -60,7 +60,7 @@ phase_runners:
         feed_forward_neural_network: ADASYN
         stacking: no_imbalancer
   feature_analysis_runner:
-        manual_feature_selection:
+        manual_feature_selection: # MAJOR IMPACT IN PERFORMANCE
           mutual_information:
             threshold: 0.2
             delete_features: True
