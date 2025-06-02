@@ -141,7 +141,7 @@ class InTuningState(ModelState):
                               epochs = kwargs.get("epochs", None)
                   else:
                               epochs = None
-                  assert optimizer_type in ["grid", "random", "bayes", "bayes_nn"], "Optimizer type must be one of the following: grid, random, bayes, bayes_nn"
+                  assert optimizer_type in ["grid", "random", "bayes", "bayes_neural_network"], "Optimizer type must be one of the following: grid, random, bayes, bayes_neural_network"
                   assert max_iter is not None, "Max iter must be provided"
                   assert model_object is not None, "Model object must be provided"
                   print(f"Model object: {model_object}")
@@ -170,7 +170,7 @@ class InTuningState(ModelState):
                   time_end = time.time()
                   time_taken = time_end - time_start
                   self.assesment["timeToFit"] = time_taken
-                  if optimizer_type != "bayes_nn":
+                  if optimizer_type != "bayes_neural_network":
                               self.model_sklearn = self.optimizer.optimizer.best_estimator_
                               if self.variables["phase_runners"]["modelling_runner"]["calibration"]["calibrate_models"]:
                                     model = CalibratedClassifierCV(self.model_sklearn)

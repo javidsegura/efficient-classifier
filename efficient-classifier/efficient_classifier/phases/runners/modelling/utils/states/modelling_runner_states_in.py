@@ -138,7 +138,7 @@ class InTuningRunner(ModellingRunnerStates):
                         "max_iter": self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
                   },
                   "Feed Forward Neural Network": {
-                        "optimizer_type": "bayes_nn",
+                        "optimizer_type": "bayes_neural_network",
                         "param_grid": None, # its hardcoded
                         "max_iter": self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"],
                         "epochs": self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["tuner_params"]["epochs"]

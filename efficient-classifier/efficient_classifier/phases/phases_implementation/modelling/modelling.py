@@ -88,7 +88,7 @@ class Modelling:
 
       def fit_models(self, current_phase: str, **kwargs):
             """
-            Note: for the in phase, we need to optimize the models in parallel except for the bayes_nn models, which we need to optimize sequentially (keras-specific reasons).
+            Note: for the in phase, we need to optimize the models in parallel except for the bayes_neural_network models, which we need to optimize sequentially (keras-specific reasons).
             
             """
             assert current_phase in ["pre", "in", "post"], "Current phase must be one of the tuning states"
@@ -108,7 +108,7 @@ class Modelling:
                         optimized_models = {}
 
                         # Separate models
-                        bayes_nn_models = []
+                        bayes_neural_network_models = []
                         other_models = []
 
                         for modelName, optimization_params in modelNameToOptimizer.items():
@@ -116,12 +116,12 @@ class Modelling:
                                           continue
                                     if modelName in self.models_to_exclude:
                                           continue
-                                    if optimization_params.get("optimizer_type") == "bayes_nn":
-                                          bayes_nn_models.append((modelName, optimization_params))
+                                    if optimization_params.get("optimizer_type") == "bayes_neural_network":
+                                          bayes_neural_network_models.append((modelName, optimization_params))
                                     else:
                                           other_models.append((modelName, optimization_params))
 
-                        # Run non-bayes_nn models in process pool
+                        # Run non-bayes_neural_network models in process pool
                         for modelName, optimization_params in other_models:
                                     print(f"Optimizing model {modelName}")
                                     modelObject = self.list_of_models[modelName]
@@ -133,9 +133,9 @@ class Modelling:
                                     self.list_of_models[modelName] = modelObject
                                     optimized_models[modelName] = modelObject.tuning_states["in"].assesment["model_sklearn"]
 
-                        # Run bayes_nn models sequentially (outside process pool)
-                        for modelName, optimization_params in bayes_nn_models:
-                                    print(f"Optimizing bayes_nn model {modelName}")
+                        # Run bayes_neural_network models sequentially (outside process pool)
+                        for modelName, optimization_params in bayes_neural_network_models:
+                                    print(f"Optimizing bayes_neural_network model {modelName}")
                                     modelObject = self.list_of_models[modelName]
                                     # Direct call, not via executor
                                     modelName, modelObject = self._optimize_model(modelName, modelObject, current_phase, optimization_params)
@@ -150,7 +150,7 @@ class Modelling:
                               future_to_model = []
 
                               if best_model_name:
-                                    if self.list_of_models[best_model_name].optimizer_type == "bayes_nn":
+                                    if self.list_of_models[best_model_name].optimizer_type == "bayes_neural_network":
                                           modelName, modelObject = self._fit_and_predict(best_model_name, self.list_of_models[best_model_name], current_phase)
                                           self.list_of_models[best_model_name] = modelObject
                                     else:
@@ -189,8 +189,8 @@ class Modelling:
                   The results of the evaluation
             """
 
-            # Separate "bayes_nn" models from others. This is because bayes_nn cant use parallel processing (for some keras-specific reasons)
-            bayes_nn_models = []
+            # Separate "bayes_neural_network" models from others. This is because bayes_neural_network cant use parallel processing (for some keras-specific reasons)
+            bayes_neural_network_models = []
             other_models = []
 
             if current_phase != "post":
@@ -198,8 +198,8 @@ class Modelling:
                   for modelName, modelObject in self.list_of_models.items():
                         if modelName in self.models_to_exclude:
                               continue
-                        if hasattr(modelObject, 'optimizer_type') and modelObject.optimizer_type == "bayes_nn":
-                              bayes_nn_models.append((modelName, modelObject))
+                        if hasattr(modelObject, 'optimizer_type') and modelObject.optimizer_type == "bayes_neural_network":
+                              bayes_neural_network_models.append((modelName, modelObject))
                         else:
                               other_models.append((modelName, modelObject))
             else:
@@ -209,22 +209,22 @@ class Modelling:
                   assert (best_model_name is not None) or (baseline_model_name is not None), \
                         "You must provide at least one of the best or baseline model"
                   
-                  # Check if best/baseline models are bayes_nn
+                  # Check if best/baseline models are bayes_neural_network
                   if best_model_name:
                         model = self.list_of_models[best_model_name]
-                        if hasattr(model, 'optimizer_type') and model.optimizer_type == "bayes_nn":
-                              bayes_nn_models.append((best_model_name, model))
+                        if hasattr(model, 'optimizer_type') and model.optimizer_type == "bayes_neural_network":
+                              bayes_neural_network_models.append((best_model_name, model))
                         else:
                               other_models.append((best_model_name, model))
                   
                   if baseline_model_name:
                         model = self.list_of_models[baseline_model_name]
-                        if hasattr(model, 'optimizer_type') and model.optimizer_type == "bayes_nn":
-                              bayes_nn_models.append((baseline_model_name, model))
+                        if hasattr(model, 'optimizer_type') and model.optimizer_type == "bayes_neural_network":
+                              bayes_neural_network_models.append((baseline_model_name, model))
                         else:
                               other_models.append((baseline_model_name, model))
 
-            # Process non-bayes_nn models in parallel
+            # Process non-bayes_neural_network models in parallel
             with concurrent.futures.ProcessPoolExecutor() as executor:
                   future_to_model = [
                         executor.submit(self._evaluate_model, modelName, modelObject, current_phase)
@@ -235,8 +235,8 @@ class Modelling:
                         modelName, modelObject = future.result()
                         self.list_of_models[modelName] = modelObject
 
-            # Process bayes_nn models sequentially
-            for modelName, modelObject in bayes_nn_models:
+            # Process bayes_neural_network models sequentially
+            for modelName, modelObject in bayes_neural_network_models:
                   modelName, modelObject = self._evaluate_model(modelName, modelObject, current_phase)
                   self.list_of_models[modelName] = modelObject
             

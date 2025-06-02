@@ -63,7 +63,7 @@ class Optimizer():
                         random_state=42,
                         n_jobs=1
                   )
-            elif type == "bayes_nn": # Neural nets optimizer needs special treatment
+            elif type == "bayes_neural_network": # Neural nets optimizer needs special treatment
                   assert self.modelObject is not None, "Model object must be provided"
                   print(f"Model object: {self.modelObject.tuning_states['in']}")
                   optimizer = self.modelObject.tuning_states["pre"].model_sklearn.get_tuned_model(max_trials=max_iter,
@@ -79,7 +79,7 @@ class Optimizer():
             Fits the optimize.
             """
             print(f" => STARTING OPTIMIZATION FOR {self.modelName}")
-            if self.optimizer_type == "bayes_nn": # Neural nets optimizer needs special treatment
+            if self.optimizer_type == "bayes_neural_network": # Neural nets optimizer needs special treatment
                   self.modelObject.tuning_states["pre"].model_sklearn.tuner_search(self.dataset.X_train, 
                                                                      self.dataset.y_train, 
                                                                      self.dataset.X_val, 

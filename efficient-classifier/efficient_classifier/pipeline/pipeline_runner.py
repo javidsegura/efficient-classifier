@@ -96,6 +96,8 @@ class PipelineRunner:
             dag_pipelines = {}
             for category in self.variables["general"]["pipelines_names"]:
                   for pipeline in self.variables["general"]["pipelines_names"][category]:
+                        if pipeline == "stacking":
+                              continue
                         print(f"Pipeline name is: {pipeline}")
                         dag_pipelines[pipeline] = {model for model in self.variables["phase_runners"]["modelling_runner"]["models_to_include"][category][pipeline]}
             
