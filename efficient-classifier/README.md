@@ -4,6 +4,7 @@
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+
 A comprehensive, dataset-agnostic machine learning framework for rapid development and deployment of classification pipelines on tabular data. Advanced DevOps tools.
 
 ## Table of Contents
@@ -73,32 +74,45 @@ The framework follows a modular, stage-based architecture:
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │   Data Loading  │ -> │  Preprocessing   │ -> │ Feature Analysis│
 └─────────────────┘    └──────────────────┘    └─────────────────┘
-                                 |
+                                                        |
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│     DevOps      │ <- │    Modeling      │ <- │   Evaluation    │
+│     DevOps      │ <- │   Optimization     <- │     Modeling    │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
 ```
 
 ### Stage-Specific Capabilities
-
-| Stage | Capability | Description |
-|-------|------------|-------------|
-| **Data Management** | Smart Splitting | Adaptive train/validation/test splits with distribution analysis |
-| | Distribution Validation | Statistical tests ensuring consistent feature distributions across splits |
-| **Preprocessing** | Advanced Encoding | One-hot encoding with automatic categorical detection |
-| | Intelligent Imputation | Multiple strategies for handling missing values |
-| | Outlier Detection | IQR and percentile-based detection with configurable treatment |
-| | Robust Scaling | StandardScaler, RobustScaler, and MinMaxScaler support |
-| | Class Balancing | SMOTE and ADASYN implementations for imbalanced datasets |
-| **Feature Engineering** | Automated Selection | Mutual information, variance filtering, and multicollinearity detection |
-| | Advanced Techniques | Boruta feature selection and L1 regularization |
-| | Custom Engineering | Dataset-specific feature creation hooks |
-| **Modeling** | Ensemble Methods | Stacked generalization with configurable base learners |
-| | Neural Networks | Feed-forward architectures with epoch-wise monitoring |
-| | Model Comparison | Cross-model evaluation with statistical significance testing |
-| **DevOps** | Real-time Monitoring | Slack integration for training progress and alerts |
-| | Experiment Tracking | Comprehensive CSV logging with metadata |
-| | Visualization | Automated DAG generation for pipeline architecture |
+ | Stage | Feature Name | Description |
+ |--------|--------------|-------------|
+ | Dataset  |  Data splitting analysis | Splits data and analyzes the SE variation by changing the split ratio |
+ | Dataset  |  Data splitting plots | After split, stores plots of the distributions of the features between sets. Meant to verify the consistency of the data distribution across sets |
+ | Data preprocessing  |  Feature encoding | Encodes (one-hot) features in a given dataset |
+ | Data preprocessing  |  Missing values   | Finds missing values based on a predefined set of missing data placeholders |
+ | Data preprocessing  |  Duplicates  | Finds and deletes duplicates observations |
+ | Data preprocessing  |  Outlier detection  | Finds outliers (based on different procedures: percentile, IQR) and curates them (based on different procedures: clipping, winsorization, elimination) |
+ | Data preprocessing  |  Bound checking  | Checks values stay within predefined range in order to detect possible measurement errors |
+ | Data preprocessing  |  Feature scaling  | Scales features (uses: robust scaler, minmax, standard) |
+ | Data preprocessing  |  Class imbalance  | Addresses class imbalances issues (uses: ADASYN or SMOTE) |
+ | Feature analysis  |  Manual feature selection  | Mutual information, low variance, multicolinearity and PCA |
+ | Feature analysis  |  Automatic feature selection  | L1, Boruta |
+ | Feature analysis  |  Feature engineering  | dataset-specific |
+ | Modelling  |  Support for diverse models  | Neural nets, linear classifiers, heuristic classifiers (e.g., majority class), ensembled, stacking, gradient boosting machine, instance-based models and more (see full model support list below) |
+ | Modelling  | Cross-model comparision  | Assess all pipelines' models against all others across several metrics (see full metrics support list below) |
+ | Modelling  | Intra-model comparision  | Assess all pipelines' models against its training predictions across several metrics (see full metrics support list below) |
+ | Modelling  | Per-epoch progress  | Allows to see a per-epoch progress graph. Only available for neural networks |
+ | Modelling  | Residual analysis  | Plots confusion matrices and stores and plots residuals from the misclassifications |
+ | Modelling  | Feature importance  | Plots feature importance based on LIME, feature permutations and tree-based feature importance |
+ | Modelling  | Reliability diagram  | Plots reliability diagrams for each model accross all classes |
+ | Modelling  | Model callibration  | Callibrates classifiers (uses: isotonic or sigmoid)
+ | Modelling  | Model weights  | Allows for objective function to consider weights per class 
+ | Modelling  | Model optimization  | Optimize models (uses: grid, random or bayesian search)
+ | Modelling  | Model serialization  | Serialize full model objects or pipelines objects (uses: joblib or pickle). Support for desarialization also present
+ | DevOps  | SlackBot  | Send in-real-time log and plots from the executions of the pipelines 
+ | DevOps  | Results CSV  | Each unique pipeline run is stored with the features used, model name, model hyperparameter, timestamp and more
+ | DevOps  | DAG visualization  | Visualizes all the pipelines' architecture and results of the system in an automatically generated DAG plot.
+ | DevOps  | Testing  | Possibility to add testing-powered development
+ | DevOps  | Code bot reviewers  | This repo uses CodeRabbit in order to summarize pull requests and integrate them at a faster pace
+ | System-wide  | Customizable  | Adjust configurations.yaml for your dataset and get started in minutes 
+ | System-wide  | Efficient  | Multithreading is present at each part of the system where sequentialism is not required 
 
 ## Installation
 
@@ -131,17 +145,15 @@ SLACK_APP_TOKEN=your_app_token
 ### Basic Usage
 
 ```python
-from efficient_classifier import PipelineManager
+from efficient_classifier.root import run_pipeline
+import yaml
 
-# Initialize with configuration
-manager = PipelineManager('configurations.yaml')
+PATH = "configurations.yaml"
 
-# Execute complete pipeline
-results = manager.run_all_pipelines()
+variables = yaml.load(open(PATH), Loader=yaml.FullLoader)
 
-# Access best model
-best_model = results.get_best_model()
-predictions = best_model.predict(X_test)
+if __name__ == "__main__":
+      run_pipeline(variables=variables)
 ```
 
 ### Custom Dataset Integration
@@ -162,6 +174,17 @@ def _run_feature_engineering_dataset_specific(self, df):
 
 3. **Update boundary conditions** in `bound_config.py` for data validation.
 
+4. If you are using this library, after you have adjusted data cleaning and feature engineering code you will most likely still need to adjust the following parameters:
+  - class weights 
+  - adjust bound checking file ```bound_config.py```
+  - modify features to encode
+  - modify data preprocessing modes
+  - adjust optimization space (see all the parameters commented as 'MAJOR IMPACT IN PERFORMANCE' in order to see the parameters that significanlty increase computational costs over the long run)
+  - If you want to create a new pipeline, you also need to adjust the following:
+    - data preprocessing
+    - models to include/exclude
+    - extend grid space (both in the ```configuration.yaml``` and in ```modelling_runner_states_in.py```)
+
 ## Configuration
 
 The framework uses a comprehensive YAML configuration system. Key configuration sections:
@@ -178,7 +201,7 @@ general:
 phase_runners:
   dataset_runners:
     split_df:
-      p: [0.7, 0.8, 0.9]  # Split ratios to evaluate
+      p: .85 # Expected accuracy
       step: 0.05          # Granularity of split analysis
     encoding:
       y_column: "target"  # Target variable name
@@ -227,8 +250,8 @@ For complete configuration options, see the [detailed documentation](documentati
 - **Precision, Recall, F1-Score** - Class-specific performance
 - **Cohen's Kappa** - Inter-rater reliability
 - **Weighted Accuracy** - Class-imbalance adjusted accuracy
-- **ROC-AUC** - Area under receiver operating characteristic
-- **Calibration Metrics** - Reliability diagrams and Brier score
+
+In order to add a new metric go to [detailed Q&A](documentation/library_detailed.md)
 
 ### Adding Custom Models
 
@@ -251,25 +274,26 @@ def _model_initializers(self):
 
 Our flagship application demonstrates the framework's capabilities in cybersecurity:
 
-**Dataset:** CCCS-CIC-AndMal-2020 (Android malware detection)
-**Performance:** 92% F1-score with Random Forest + Stacking ensemble
-**Scale:** 200,000+ samples with 464 features
-**Deployment:** Production-ready model with 15ms inference time
+- **Dataset:** CCCS-CIC-AndMal-2020 (Android malware detection)
+- **Performance:** 92% F1-score with Random Forest + Stacking ensemble
+- **Scale:** 50,000+ samples with 145 features
+- **Deployment:** Production-ready model with 15ms inference time
 
 **Key Results:**
 - Outperformed baseline approaches by 23%
-- Identified 847 critical features through automated selection
-- Achieved 99.1% precision for malware detection
+- Achieved 92% F1-score with Random Forest + Stacking ensemble
 
 ### Benchmark Datasets
 
 **Titanic Survival Prediction:** [View Results](https://drive.google.com/drive/folders/1ALECwX7EgQa3XgQLHtkjvAcKo2_XFIA7?usp=sharing)
-- 89.3% accuracy with ensemble methods
+- 81.3% accuracy with ensemble methods
 - Comprehensive feature engineering pipeline
+- 5 minute set-up
 
 **Iris Classification:** [View Results](https://drive.google.com/drive/folders/1zzUIgnC4K44kmkDQ3j3zV9qeyJgybqPr?usp=drive_link)
-- 97.8% accuracy across all pipeline configurations
+- 100%% accuracy across all pipeline configurations
 - Validation of multi-class capabilities
+- <5 minute set-up
 
 ## Performance
 
@@ -277,36 +301,21 @@ Our flagship application demonstrates the framework's capabilities in cybersecur
 
 | Dataset | Samples | Features | Best Model | F1-Score | Training Time |
 |---------|---------|----------|------------|----------|---------------|
-| CCCS-CIC-AndMal-2020 | 200K+ | 464 | Random Forest | 92.0% | 45 min |
-| Titanic | 891 | 12 | Stacking Ensemble | 89.3% | 2 min |
-| Iris | 150 | 4 | Neural Network | 97.8% | 30 sec |
+| CCCS-CIC-AndMal-2020 | 50K+ | 125 | Random Forest | 92.0% | 45 min |
+| Titanic | 891 | 12 | Stacking Ensemble | 81.3% | 2 min |
+| Iris | 150 | 4 | Neural Network | 100% | 30 sec |
 
-### Optimization Features
 
-- **Memory Management:** Efficient handling of datasets up to 1M+ rows
-- **Parallel Processing:** Multi-core utilization for independent operations
-- **Early Stopping:** Automatic convergence detection for iterative algorithms
-- **Caching:** Intelligent result caching for repeated experiments
 
 ## Model Deployment
 
 ### Serialization & Inference
 
-```python
-# Save trained pipeline
-manager.serialize_model(best_pipeline, 'production_model.pkl')
-
-# Load for inference
-loaded_model = manager.load_model('production_model.pkl')
-
-# Production predictions
-predictions = loaded_model.model_sklearn.predict(X_new)
-probabilities = loaded_model.model_sklearn.predict_proba(X_new)
-```
+Once you have the best model selected out of the assesment after tuning you can serialize your model (either with joblib or pickle). The model serialized contains the results at each stage and the model sklearn object at each stage. In production use the model_sklearn from the assesment attribute in the serialized model. Do model.predict(X) or model.predict_proba(X) if you want soft-predictions.
 
 ### Production Integration
 
-The serialized models contain:
+If you serialize a model or a pipeline you can have:
 - Trained sklearn estimator objects
 - Complete preprocessing pipelines
 - Feature engineering transformations
@@ -383,17 +392,12 @@ Please include:
 ### Comprehensive Guides
 
 - **[Library Architecture](documentation/library_detailed.md)** - Design decisions and implementation details
-- **[API Reference](documentation/api_reference.md)** - Complete function and class documentation
-- **[Configuration Guide](documentation/configuration.md)** - YAML parameter explanations
-- **[Troubleshooting](documentation/troubleshooting.md)** - Common issues and solutions
+- **[API Reference](https://mantis-lib-documentation.onrender.com/)** - Complete function and class documentation
 
-### Research Publications
-
-Access our peer-reviewed research and detailed technical reports through the links provided in the [Research & Validation](#research--validation) section.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
 
 ## Citation
 
