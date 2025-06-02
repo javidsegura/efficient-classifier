@@ -128,10 +128,11 @@ class InTuningState(ModelState):
                   max_iter = kwargs.get("max_iter", None)
                   optimizer_type = kwargs.get("optimizer_type", None)
                   model_object = kwargs.get("model_object", None)
-                  print(f"1) Model object: {model_object} for {self.modelName}")
+                  print(f"1) Model sklearn: {self.model_sklearn} for {self.modelName}")
                   if self.variables["phase_runners"]["modelling_runner"]["calibration"]["calibrate_models"]:
-                        model_object = model_object.base_estimator_
-                  print(f"2) Model object: {model_object} for {self.modelName}")
+                        print(dir(self.model_sklearn))
+                        self.model_sklearn = self.model_sklearn.estimator
+                  print(f"2) Model sklearn: {self.model_sklearn} for {self.modelName}")
 
 
                   assert self.model_type is not None, f"Model object must have a model_type. {self.modelName}. Model object: {model_object}"
@@ -171,7 +172,12 @@ class InTuningState(ModelState):
                   self.assesment["timeToFit"] = time_taken
                   if optimizer_type != "bayes_nn":
                               self.model_sklearn = self.optimizer.optimizer.best_estimator_
-                              self.assesment["model_sklearn"] = CalibratedClassifierCV(self.model_sklearn) if self.variables["phase_runners"]["modelling_runner"]["calibration"]["calibrate_models"] else self.model_sklearn
+                              if self.variables["phase_runners"]["modelling_runner"]["calibration"]["calibrate_models"]:
+                                    model = CalibratedClassifierCV(self.model_sklearn)
+                                    model.fit(self.dataset.X_train, self.dataset.y_train)
+                                    self.assesment["model_sklearn"] = model
+                              else:
+                                    self.assesment["model_sklearn"] = self.model_sklearn
                   else:
                         best_model = self.optimizer.optimizer.get_best_models(num_models=1)[0]
                         best_hps = self.optimizer.optimizer.get_best_hyperparameters(num_trials=1)[0]
@@ -193,7 +199,12 @@ class InTuningState(ModelState):
                                                                   activations=activations,
                                                                   learning_rate=learning_rate)
                         self.model_sklearn.model = best_model
-                        self.assesment["model_sklearn"] = CalibratedClassifierCV(self.model_sklearn) if self.variables["phase_runners"]["modelling_runner"]["calibration"]["calibrate_models"] else self.model_sklearn
+                        if self.variables["phase_runners"]["modelling_runner"]["calibration"]["calibrate_models"]:
+                              model = CalibratedClassifierCV(self.model_sklearn)
+                              model.fit(self.dataset.X_train, self.dataset.y_train)
+                              self.assesment["model_sklearn"] = model
+                        else:
+                              self.assesment["model_sklearn"] = self.model_sklearn
                         self.model_sklearn.is_fitted_ = True
       
       def predict(self):
@@ -223,7 +234,6 @@ class InTuningState(ModelState):
       
       def plot_convergence(self):
             self.optimizer.plot_convergence()
-
 
 
 

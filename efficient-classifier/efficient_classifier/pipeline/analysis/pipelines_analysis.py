@@ -440,6 +440,7 @@ class PipelinesAnalysis:
                         if modelName not in self.pipelines["not_baseline"][pipeline].modelling.models_to_exclude:
                               print(f"COMPUTING LIME FOR {modelName}")
                               model = self.pipelines["not_baseline"][pipeline].modelling.list_of_models[modelName].tuning_states[self.phase].assesment["model_sklearn"]
+                              print(f"MODEL: {model}")
                               X_train = self.pipelines["not_baseline"][pipeline].dataset.X_train
                               X_sample = X_train.iloc[0]
                               
