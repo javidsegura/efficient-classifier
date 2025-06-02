@@ -26,6 +26,7 @@ class NoTimeSeries(Split):
         train_size: float = 0.8,
         validation_size: float = 0.1,
         test_size: float = 0.1,
+        max_plots: int = 5,
         save_plots: bool = False,
         save_path: str = None,
     ) -> None:
@@ -92,7 +93,7 @@ class NoTimeSeries(Split):
             self.dataset.y_test,
         ) = X_train, X_val, X_test, y_train, y_val, y_test
         if save_plots:
-            super().plot_per_set_distribution(X.columns, save_plots, save_path)
+            super().plot_per_set_distribution(X.columns, max_plots, save_plots, save_path)
         return (f"X_train: {X_train.shape}", f"X_val: {X_val.shape}", f"X_test: {X_test.shape}")
 
     def asses_split_classifier(

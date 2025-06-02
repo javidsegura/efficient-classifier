@@ -27,13 +27,13 @@ import os
 
 
 class PipelinesAnalysis:
-      def __init__(self, pipelines: dict[str, dict[str, Pipeline]]):
+      def __init__(self, pipelines: dict[str, dict[str, Pipeline]], variables: dict):
             self.pipelines = pipelines
             self.encoded_map = None
             self.phase = None
             self.best_performing_model = None
             self.neural_nets_plots = None
-            self.variables = yaml.load(open("efficient-classifier/efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
+            self.variables = variables
 
             # Below you can find two attributes that are used to store the results of the analysis.
             self.merged_report_per_phase = {
@@ -183,6 +183,7 @@ class PipelinesAnalysis:
                   
                   # Compute the classification report DataFrame.
                   class_report_df = self._compute_classification_report()
+                  print(f"CLASS REPORT DF: {class_report_df}")
                   self.results_per_phase[self.phase]["classification_report"] = class_report_df
                   num_metrics = len(metrics)
                   rows = math.ceil(num_metrics / cols)
@@ -197,7 +198,7 @@ class PipelinesAnalysis:
                         ax = axes[i]
                         
                         metric_df = class_report_df[metric_key]
-
+                        print(f"METRIC DF: {metric_df}")
                         df_numeric = metric_df.iloc[:-1].astype(float)
                         model_names = metric_df.loc["modelName"]
                         # Check if df_numeric is a Series or DataFrame
@@ -208,7 +209,7 @@ class PipelinesAnalysis:
 
                         if isinstance(model_names, str): # single model
                               model_names = [model_names]
-                              ax.plot(df_numeric.index, df_numeric.iloc[:], marker='o', label=model_names[0])
+                              ax.plot(df_numeric.index.astype(str), df_numeric.iloc[:], marker='o', label=model_names[0])
                         else:
                               model_names = model_names.values
                               if isConstantMetric:
@@ -216,7 +217,7 @@ class PipelinesAnalysis:
                                     ax.bar_label(bars, fmt='%.4f')
                               else:
                                     for i, model_name in enumerate(model_names):
-                                          ax.plot(df_numeric.index, df_numeric.iloc[:, i], marker='o', label=model_name)
+                                          ax.plot(df_numeric.index.astype(str), df_numeric.iloc[:, i], marker='o', label=model_name)
                               
                         ax.set_title(f'{metric_key} by Model')
                         ax.set_xlabel('Class Index')
@@ -277,8 +278,8 @@ class PipelinesAnalysis:
                         bars = ax.bar(model_names, df_numeric.iloc[0, :])
                         ax.bar_label(bars, fmt='%.4f')
                     else:     
-                        ax.plot(df_numeric.index, df_numeric.iloc[:, 0], marker="o", label=model_names[0], color=color_train)
-                        ax.plot(df_numeric.index, df_numeric.iloc[:, 1], marker="s", label=model_names[1], color=color_no_train)
+                        ax.plot(df_numeric.index.astype(str), df_numeric.iloc[:, 0], marker="o", label=model_names[0], color=color_train)
+                        ax.plot(df_numeric.index.astype(str), df_numeric.iloc[:, 1], marker="s", label=model_names[1], color=color_no_train)
 
                     ax.set_title(f'{metric} - {model}')
                     ax.set_xlabel('Class Index')

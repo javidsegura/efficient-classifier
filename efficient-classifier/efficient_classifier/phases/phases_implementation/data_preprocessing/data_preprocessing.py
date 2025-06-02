@@ -11,8 +11,9 @@ from efficient_classifier.phases.phases_implementation.data_preprocessing.outlie
 import random
 
 class Preprocessing:
-    def __init__(self, dataset: Dataset) -> None:
+    def __init__(self, dataset: Dataset, variables: dict) -> None:
         self.dataset = dataset
+        self.variables = variables
         self.uncomplete_data_obj = UncompleteData(dataset=self.dataset)
         self.class_imbalance_obj = ClassImbalance(dataset=self.dataset)
         self.feature_scaling_obj = FeatureScaling(dataset=self.dataset)

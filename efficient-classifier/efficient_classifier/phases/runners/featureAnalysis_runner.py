@@ -343,7 +343,7 @@ class FeatureAnalysisRunner(PhaseRunner):
             feature_transformation_results = self._run_feature_transformation() 
             manual_feature_selection_results = self._run_manual_feature_selection() # Comment out cause it goes too slow
             automatic_feature_selection_results = self._run_automatic_feature_selection() # Comment out cause it goes too slow
-            dataset_specific_feature_engineering_results = self._run_feature_engineering_dataset_specific()
+            #dataset_specific_feature_engineering_results = self._run_feature_engineering_dataset_specific()
 
             # Print X_train shape for all pipelines
             for category in self.pipeline_manager.pipelines:

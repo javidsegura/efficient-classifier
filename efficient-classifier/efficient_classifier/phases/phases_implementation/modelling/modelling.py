@@ -12,10 +12,11 @@ import pandas as pd
 
 
 class Modelling:
-      def __init__(self, dataset: Dataset, model_results_path: str):
-            self.results_df = ResultsDF(model_results_path, dataset)
+      def __init__(self, dataset: Dataset, model_results_path: str, variables: dict):
+            self.results_df = ResultsDF(model_results_path, dataset, variables)
             self.list_of_models = {}
             self.dataset = dataset
+            self.variables = variables
             self._models_to_exclude = []
             self.results_analysis = {
                   "pre": PreTuningResultAnalysis(phase_results_df= pd.DataFrame()),
@@ -43,10 +44,9 @@ class Modelling:
             assert model_type in ["classical", "neural_network", "stacking"]
             new_model = None
             if self.dataset.modelTask == "classification":
-                  new_model = Classifier(model_name, model_sklearn, model_type=model_type, results_header=self.results_df.header, dataset=self.dataset)
+                  new_model = Classifier(model_name, model_sklearn, model_type=model_type, results_header=self.results_df.header, dataset=self.dataset, variables=self.variables)
             elif self.dataset.modelTask == "regression":
-                  new_model = Regressor(model_name, model_sklearn, model_type=model_type, results_header=self.results_df.header, dataset=self.dataset)
-
+                  raise NotImplementedError("Regression models are not implemented yet. Consider contributing to the project!")
             self.list_of_models[model_name] = new_model
       
       # 2) Fitting, predicting and optimizing models

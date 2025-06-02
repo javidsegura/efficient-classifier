@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import time
-import yaml
 from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 from efficient_classifier.phases.phases_implementation.modelling.shallow.model_optimization.model_optimization import Optimizer
 
@@ -11,7 +10,7 @@ from efficient_classifier.utils.decorators.timer import timer
 from sklearn.calibration import CalibratedClassifierCV
 
 class ModelState(ABC):
-      def __init__(self, model_sklearn: object, modelName: str, model_type: str, dataset: Dataset, results_header: list[str]):
+      def __init__(self, model_sklearn: object, modelName: str, model_type: str, dataset: Dataset, results_header: list[str], variables: dict):
             """
             This is the base class for all the model **states**.
 
@@ -28,7 +27,7 @@ class ModelState(ABC):
             self.dataset = dataset
             self.assesment = {column_name: None for column_name in results_header}
             self.assesment["modelName"] = modelName
-            self.variables = yaml.load(open("efficient-classifier/efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
+            self.variables = variables
 
       
       @abstractmethod
@@ -53,8 +52,8 @@ class ModelState(ABC):
       
 
 class PreTuningState(ModelState):
-      def __init__(self, model_sklearn: object, modelName: str, model_type: str, dataset: Dataset, results_header: list[str]):
-            super().__init__(model_sklearn, modelName, model_type, dataset, results_header)
+      def __init__(self, model_sklearn: object, modelName: str, model_type: str, dataset: Dataset, results_header: list[str], variables: dict):
+            super().__init__(model_sklearn, modelName, model_type, dataset, results_header, variables)
       
       def get_fit_data(self):
             if self.model_type == "neural_network":
@@ -113,8 +112,8 @@ class PreTuningState(ModelState):
       
 
 class InTuningState(ModelState):
-      def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str], model_type: str = "classical"):
-            super().__init__(model_sklearn, modelName, dataset, results_header, model_type)
+      def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str], model_type: str = "classical", variables: dict = None):
+            super().__init__(model_sklearn, modelName, dataset, results_header, model_type, variables)
       
       def get_fit_data(self):
             return self.dataset.X_train, self.dataset.y_train
@@ -237,8 +236,8 @@ class InTuningState(ModelState):
 
 
 class PostTuningState(ModelState):
-      def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str], model_type: str = "classical"):
-            super().__init__(model_sklearn, modelName, dataset, results_header, model_type)
+      def __init__(self, model_sklearn: object, modelName: str, dataset: Dataset, results_header: list[str], model_type: str, variables: dict = None):
+            super().__init__(model_sklearn, modelName, dataset, results_header, model_type, variables)
       
       def get_fit_data(self): 
             self.X_train_combined = np.vstack([self.dataset.X_train, self.dataset.X_val])

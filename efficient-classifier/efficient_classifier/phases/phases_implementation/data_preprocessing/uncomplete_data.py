@@ -51,7 +51,7 @@ class UncompleteData:
                     duplicates_by_column = self.dataset.df[duplicates].count()
                     feature_names = [f'{i+1}' for i in range(len(duplicates_by_column))]
 
-                    fig, ax = plt.figure(figsize=(15, 4))
+                    fig, ax = plt.subplots(figsize=(15, 4))
                     sns.barplot(x=feature_names, y=duplicates_by_column.values)
                     plt.title("Number of Duplicates by Column")
                     plt.xlabel("Features")

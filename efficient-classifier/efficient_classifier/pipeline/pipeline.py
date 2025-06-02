@@ -11,15 +11,17 @@ class Pipeline:
       """ 
       Initializes all the phases of the pipeline.
       """
-      def __init__(self, dataset_path: str, 
+      def __init__(self, 
+                   dataset_path: str, 
                    model_results_path: str,
                    model_task: str, 
+                   variables: dict,
                    random_state: int = RANDOM_STATE):
-            self.dataset = Dataset(dataset_path, model_task, random_state)
-            self.EDA = EDA(self.dataset)
-            self.preprocessing = Preprocessing(self.dataset)
-            self.feature_analysis = FeatureAnalysis(self.dataset)
-            self.modelling = Modelling(self.dataset, model_results_path)
+            self.dataset = Dataset(dataset_path, model_task, variables, random_state)
+            self.EDA = EDA(self.dataset, variables)
+            self.preprocessing = Preprocessing(self.dataset, variables)
+            self.feature_analysis = FeatureAnalysis(self.dataset, variables)
+            self.modelling = Modelling(self.dataset, model_results_path, variables)
       
       def speak(self, message: str) -> None:
             """

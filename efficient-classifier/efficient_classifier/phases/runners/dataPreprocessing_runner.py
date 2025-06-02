@@ -74,7 +74,8 @@ class DataPreprocessingRunner(PhaseRunner):
                   save_plots=False, 
                   save_path=save_path
             )
-            #preprocessing.outliers_bounds_obj.bound_checking()
+            if self.variables["phase_runners"]["data_preprocessing_runner"]["bound_checking"]["activated"]:
+                  preprocessing.outliers_bounds_obj.bound_checking()
             messages.append(f"Outliers detected by {self.variables['phase_runners']['data_preprocessing_runner']['outliers']['detection_type']} : {None}")
             self.pipeline_manager.dag.add_procedure(pipeline_name, "data_preprocessing", "outliers_detection", out_res)
 
@@ -87,6 +88,7 @@ class DataPreprocessingRunner(PhaseRunner):
                   scale_res = preprocessing.feature_scaling_obj.scale_features(
                         scaler=scaler,
                         columnsToScale=preprocessing.dataset.X_train.select_dtypes(include=["number"]).columns,
+                        max_plots=self.pipeline_manager.variables["general"]["max_plots_per_function"],
                         save_plots=self.include_plots,
                         save_path=save_path
                   )

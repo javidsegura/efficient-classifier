@@ -32,6 +32,7 @@ class DatasetRunner(PhaseRunner):
                         train_size=self.pipeline_manager.variables["phase_runners"]["dataset_runner"]["encoding"]["train_size"],
                         validation_size=self.pipeline_manager.variables["phase_runners"]["dataset_runner"]["encoding"]["validation_size"],
                         test_size=self.pipeline_manager.variables["phase_runners"]["dataset_runner"]["encoding"]["test_size"],
+                        max_plots=self.pipeline_manager.variables["general"]["max_plots_per_function"],
                         save_plots=True, 
                         save_path=self.save_path
                   )

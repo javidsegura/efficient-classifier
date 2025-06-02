@@ -24,7 +24,7 @@ from efficient_classifier.phases.phases_implementation.EDA.EDA import EDA
 
 
 class FeatureAnalysis:
-    def __init__(self, dataset: Dataset):
+    def __init__(self, dataset: Dataset, variables: dict):
         """
         Initializes the feature analysis class. Controls all the feature analysis methods.
 
@@ -34,6 +34,7 @@ class FeatureAnalysis:
             The dataset to analyze
         """
         self.dataset = dataset
+        self.variables = variables
         self.feature_transformation = FeatureTransformation(self.dataset)
         self.feature_engineering = FeatureEngineering(self.dataset)
         self.feature_selection = FeatureSelection(self.dataset)

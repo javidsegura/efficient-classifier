@@ -6,15 +6,11 @@ import seaborn as sns
 import os
 
 from efficient_classifier.utils.miscellaneous.save_or_store_plot import save_or_store_plot
-import yaml
-"""
 
-"""
 
 class Split(ABC):
       def __init__(self, dataset) -> None:
             self.dataset = dataset
-            self.variables = yaml.load(open("efficient-classifier/efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
       @abstractmethod
       def split_data(self,
                      y_column: str,
@@ -52,7 +48,7 @@ class Split(ABC):
             y = self.dataset.df[y_column]
             return X, y
       
-      def plot_per_set_distribution(self, features: list[str], save_plots: bool = False, save_path: str = None):
+      def plot_per_set_distribution(self, features: list[str], max_plots: int = 5, save_plots: bool = False, save_path: str = None):
             """
             Plots the distribution of the features for the training, validation and test sets. This is going to be meaningful for checking the similarity in statistical distributions between the sets.
             Note: for high-dimesionality dataset this is going to be computationally expensive.
@@ -67,7 +63,6 @@ class Split(ABC):
                   The path to save the plots
             
             """
-            max_plots = self.variables["general"]["max_plots_per_function"]
             for feature in features[:max_plots] if max_plots > 0 else features:
                   fig, axes = plt.subplots(1, 3, figsize=(15, 5))
                   # Training set plot

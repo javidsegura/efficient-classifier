@@ -85,11 +85,7 @@ class PipelineRunner:
             """
             Set ups the dataset specific set-up.
             """
-            default_pipeline.dataset.df.drop(columns=["Family", "Hash"], inplace=True) # We have decided to use only category as target variable; Hash is temporary while im debugging (it will be deleted in EDA)
-            default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "Zero_Day"].index, inplace=True)
-            default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "No_Category"].index, inplace=True)
-            default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "Adware"].index, inplace=True)
-            default_pipeline.dataset.df.drop(default_pipeline.dataset.df[default_pipeline.dataset.df["Category"] == "Trojan"].index, inplace=True)
+            default_pipeline.dataset.df.drop(columns=["Name"], inplace=True) 
             
 
       def _dag_set_up(self):
@@ -120,7 +116,7 @@ class PipelineRunner:
             """
             print(f"Setting up pipelines for {self.model_task} model task")
             combined_pipelines = {}
-            default_pipeline = Pipeline(self.dataset_path, self.model_results_path, self.model_task)            
+            default_pipeline = Pipeline(self.dataset_path, self.model_results_path, self.model_task, self.variables)            
             self._clean_dataset_set_up_dataset_specific(default_pipeline)
 
             for category_name, pipelines in pipelines_names.items():

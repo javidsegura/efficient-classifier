@@ -9,12 +9,12 @@ import yaml
 class FeatureScaling:
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
-        self.variables = yaml.load(open("efficient-classifier/efficient_classifier/configurations.yaml"), Loader=yaml.FullLoader)
 
     def scale_features(
         self,
         scaler: str,
         columnsToScale: list[str],
+        max_plots: int = 5,
         save_plots: bool = False,
         save_path: str = None
     ) -> str:
@@ -82,7 +82,6 @@ class FeatureScaling:
         # --- Optional: plot distributions ---
         if save_plots:
             try:
-                max_plots = self.variables["general"]["max_plots_per_function"]
                 plot_columns = columnsToScale[:max_plots] if max_plots > 0 else columnsToScale
                 for col in plot_columns:
                     fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharey=True)

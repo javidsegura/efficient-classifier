@@ -15,8 +15,9 @@ class EDA:
   We will be using 'composition' desing pattern to create plots from the dataframe object that is an instance of the Dataset class
   This design pattern allows for two classes to be able to share data (e.g: dataset object)
   """
-  def __init__(self, dataset: Dataset) -> None:
+  def __init__(self, dataset: Dataset, variables: dict) -> None:
     self.dataset = dataset
+    self.variables = variables
     
 
   def plot_correlation_matrix(self, size: str = "small", numerical_df: pd.DataFrame = None, title: str = "", save_plots: bool = False, save_path: str = "", **kwargs) -> None:

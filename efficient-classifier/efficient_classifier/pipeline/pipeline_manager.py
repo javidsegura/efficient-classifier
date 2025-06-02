@@ -42,7 +42,7 @@ class PipelineManager:
             self.dag = dag
 
             # Sub-objects
-            self.pipelines_analysis = PipelinesAnalysis(pipelines)
+            self.pipelines_analysis = PipelinesAnalysis(pipelines, variables)
             if serializer_type == "pickle":
                   self.serializer = SerializationPickle()
                   self.deserializer = DeserializationPickle()

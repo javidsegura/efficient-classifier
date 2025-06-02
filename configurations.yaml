@@ -1,0 +1,175 @@
+general:
+  dataset_path: "./dataset/titanic.csv"
+  model_task: "classification"
+  pipelines_names:
+    not_baseline: ["tree_based"] # removed support vector machine cause it goes too slow
+    baseline: ["baselines"] # dont modify this 
+  include_plots: True
+  max_plots_per_function: 5 # For plots plotting features of the dataset you can limit the number of plots to generate. This is specially useful for high-dimensionality datasets . Set to -1 for all features
+
+phase_runners:
+  dataset_runner:
+      split_df: 
+        p: 0.85
+        step: .05
+      encoding:
+        y_column: "Survived" # name of the column
+        train_size: 0.8
+        validation_size: 0.1
+        test_size: 0.1
+      metrics_to_evaluate:
+        classification: ["accuracy", "precision", "recall", "f1-score", "kappa", "weightedaccuracy"] # defining the metrics that will be evaluated 
+        preferred_metric: "f1-score" # Needed for DAG printing some metric in the modelling nodes
+  data_preprocessing_runner:
+    features_to_encode: ["Sex"]
+    placeholders: 
+      - null
+      - -999
+      - "N/A"
+      - "missing"
+      - ""
+      - "-inf"
+      - "NaN"
+      - "nan"
+      - "none"
+      - "None"
+      - "missing"
+    outliers:
+      detection_type: percentile
+    bound_checking:
+      activated: False
+    pipeline_specific_configurations: # Expand with your own pipelines names if interested
+      scaler:
+        baselines: robust
+        abc: robust
+        ensembled: robust
+        tree_based: no_scaler # Signalling we dont want to scale the features for tree based models
+        support_vector_machine: robust
+        naive_bayes: standard
+        feed_forward_neural_network: robust
+        stacking: robust
+      imbalancer:
+        baselines: ADASYN
+        abc: ADASYN
+        ensembled: ADASYN # We dont want to balance the classes for ensembled models
+        tree_based: ADASYN
+        support_vector_machine: ADASYN
+        naive_bayes: ADASYN
+        feed_forward_neural_network: ADASYN
+        stacking: no_imbalancer
+  feature_analysis_runner:
+        manual_feature_selection:
+          mutual_information:
+            threshold: 0.2
+            delete_features: True
+          low_variances:
+            threshold: 0.01
+            delete_features: True
+          vif:
+            threshold: 10
+            delete_features: True
+          pca:
+            threshold: 0.95
+            delete_features: True
+        automatic_feature_selection:
+          l1:
+            max_iter: 1000
+            delete_features: True
+          boruta:
+            max_iter: 10
+            delete_features: True
+  modelling_runner:
+      calibration:
+        calibrate_models: False
+        calibration_method: "sigmoid"
+        not_calibrate_models: ["Majority Class (baseline)", "Logistic Regression (baseline)"]
+      class_weights:
+        set_weights: False
+        weights:
+          0: 1
+          1: 1
+      models_to_include:
+        not_baseline: # stacking pipeline is always called Stacking
+          ensembled: ["Gradient Boosting", "Random Forest"]
+          abc: ["K-Nearest Neighbors", "AdaBoost"]
+          tree_based: ["Decision Tree"]
+          support_vector_machine: ["Linear SVM", "Non-linear SVM"]
+          naive_bayes: ["Naive Bayes"]
+          feed_forward_neural_network: ["Feed Forward Neural Network"] 
+        baseline:
+          baselines: ["Logistic Regression (baseline)", "Majority Class (baseline)"]
+      models_to_exclude: # useful for debugging
+        not_baseline:
+          abc: []
+          ensembled: []
+          tree_based: [] 
+          support_vector_machine: ["Linear SVM", "Non-linear SVM"]
+          naive_bayes: []
+          feed_forward_neural_network: [] 
+          stacking: []
+        baseline:
+          baselines: ["Logistic Regression (baseline)"]
+      stacking:
+        base_estimators: ["Feed Forward Neural Network", ] # -1 means all models are used as base estimators (that werent excluded). Set to list with model names otherwise
+      hyperparameters:
+        grid_space:
+          adaboost:
+            n_estimators: [50, 100, 150, 200]
+            learning_rate: [0.01, 0.05, 0.1, 0.2]
+          knn:
+            n_neighbors: [3, 5, 7, 9]
+            weights: ['uniform', 'distance']
+          gradient_boosting:
+            learning_rate: [0.01, 0.05, 0.1, 0.2]
+            subsample: [0.5, 0.75, 1.0]
+            n_estimators: [50, 100, 150, 200]
+            max_depth: [10, 20, 30]
+            min_samples_split: [2, 5, 10]
+            min_samples_leaf: [1, 2, 4]
+          random_forest:
+            n_estimators: [50, 100, 150, 200]
+            max_depth: [10, 20, 30]
+            min_samples_split: [2, 5, 10]
+            min_samples_leaf: [1, 2, 4]
+          decision_tree:
+            criterion: ['gini', 'entropy']
+            max_depth: [10, 20, 30]
+            min_samples_split: [2, 5, 10]
+            min_samples_leaf: [1, 2, 5]
+            max_features: ['sqrt', 'log2']
+            ccp_alpha: [0.0, 0.01, 0.1]
+          stacking:
+            final_estimator__C: [0.001, 0.01, 0.1, 1, 10]
+            final_estimator__penalty: ['l2']
+            final_estimator__solver: ['lbfgs']
+            passthrough: [True, False]
+        tuner_params:
+          max_iter: 10 # CHANGE THIS TO MAKE IT RUN FASTER 
+          epochs: 10 # CHANGE THIS TO MAKE IT RUN FASTER 
+      neural_network:
+        initial_architecture:
+            batch_size: 128
+            epochs: 1 # CHANGE THIS TO MAKE IT RUN FASTER 
+            n_layers: 4
+            units_per_layer: [512, 256, 128, 64]
+            learning_rate: 0.001
+            activations: ['relu', 'relu', 'relu', 'relu']
+            kernel_initializer: 'glorot_uniform'
+      model_assesment:
+        comments: "A VERY GREAT COMMENT, I CAN TELL YOU THAT"
+        cross_model_metrics: ["f1-score", "recall", "precision", "accuracy"]
+        intra_model_metrics: ["f1-score", "recall", "precision", "accuracy"]
+        results_summary:
+          training_metric: "timeToFit"
+          performance_metric: "f1-score"
+        results_df_metrics: ["timeToFit", "timeToPredict"]
+        per_epoch_metrics: ["accuracy", "loss"]
+      serialize_models:
+        serialize_best_performing_model: True
+        models_to_serialize: []
+        pipelines_to_serialize: []
+
+bot:
+  include_bot: False
+  channel: "#general"
+  send_images: False

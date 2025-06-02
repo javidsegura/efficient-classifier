@@ -8,7 +8,7 @@ import pandas as pd
 from efficient_classifier.phases.phases_implementation.modelling.shallow.model_definition.model_states.model_state import PreTuningState, PostTuningState, InTuningState
 
 class Model(ABC):
-      def __init__(self, modelName: str, model_sklearn: object, model_type: str, results_header: list[str], dataset: Dataset):
+      def __init__(self, modelName: str, model_sklearn: object, model_type: str, results_header: list[str], dataset: Dataset, variables: dict):
             """
             This is the base class for all the model objects. It initializes the differeent tuning states and defines the fitting and predicitng methods for those states
             """
@@ -30,9 +30,9 @@ class Model(ABC):
             self.results_header = cleaned_header + ["predictions_val", "predictions_train", "predictions_test", "model_sklearn"]
 
             self.tuning_states = {
-                  "pre": PreTuningState(model_sklearn, modelName, model_type, dataset, self.results_header),
-                  "in": InTuningState(model_sklearn, modelName, model_type, dataset, self.results_header),
-                  "post": PostTuningState(model_sklearn, modelName, model_type, dataset, self.results_header)
+                  "pre": PreTuningState(model_sklearn, modelName, model_type, dataset, self.results_header, variables),
+                  "in": InTuningState(model_sklearn, modelName, model_type, dataset, self.results_header, variables),
+                  "post": PostTuningState(model_sklearn, modelName, model_type, dataset, self.results_header, variables)
             }
             self.optimizer_type = None
 

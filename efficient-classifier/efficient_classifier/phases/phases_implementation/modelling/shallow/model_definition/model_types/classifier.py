@@ -14,11 +14,10 @@ from efficient_classifier.phases.phases_implementation.modelling.shallow.model_d
 from efficient_classifier.phases.phases_implementation.dataset.dataset import Dataset
 
 class Classifier(Model):
-      def __init__(self, modelName: str, model_sklearn: object, model_type: str, results_header: list[str], dataset: Dataset):
-            super().__init__(modelName, model_sklearn, model_type, results_header, dataset)
+      def __init__(self, modelName: str, model_sklearn: object, model_type: str, results_header: list[str], dataset: Dataset, variables: dict):
+            super().__init__(modelName, model_sklearn, model_type, results_header, dataset, variables)
             self.dataset = dataset
-            with open("efficient-classifier/efficient_classifier/configurations.yaml", "r") as yaml_file:
-                  self.variables = yaml.safe_load(yaml_file)
+            self.variables = variables
 
       def __set_assesment(self, 
                         y_actual: pd.Series,

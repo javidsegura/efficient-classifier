@@ -28,7 +28,7 @@ RANDOM_STATE = 88
 
 class Dataset:
     """ Created dataframe, provides info, splits and encodes"""
-    def __init__(self, dataset_path: str, model_task: str, random_state: int = RANDOM_STATE) -> None:
+    def __init__(self, dataset_path: str, model_task: str, variables: dict, random_state: int = RANDOM_STATE) -> None:
       """
       Creates a dataframe from a csv file
 
@@ -43,6 +43,7 @@ class Dataset:
       """ 
       assert model_task in ["classification_timeSeries", "regression_timeSeries", "classification", "regression"], "The model task must be either classification or regression"
       self.df = pd.read_csv(dataset_path)
+      self.variables = variables
       self.random_state = random_state
 
       splitted_type = model_task.split("_")
