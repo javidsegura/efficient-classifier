@@ -1,8 +1,8 @@
-2025-06-02 13:31:49,805 - my_logger - INFO - Pipeline runner started at 2025-06-02 13:31:49
-2025-06-02 13:31:50,460 - my_logger - INFO - 'dataset' returned: ('X_train: (709, 6)', 'X_val: (89, 6)', 'X_test: (89, 6)')
-2025-06-02 13:31:51,323 - my_logger - INFO - 'data_preprocessing' returned: {'not_baseline': {'tree_based': 'Handled missing values : No missing values found in the dataset; Duplicates analyzed : There are 70 duplicates in the dataset; Outliers detected by percentile : None; Features scaled with no_scaler : No scaling performed; Class imbalance: Successfully balanced classes via SMOTE. Started with a 0.60:1 ratio; now 1:1.'}, 'baseline': {'baselines': 'Handled missing values : No missing values found in the dataset; Duplicates analyzed : There are 70 duplicates in the dataset; Outliers detected by percentile : None; Features scaled with robust : Successfully scaled 6 features. Plotted distributions for the first 5 features.\nTo check the results run:\n your_pipeline.dataset.X_train.head(); Class imbalance: Successfully balanced classes via SMOTE. Started with a 0.60:1 ratio; now 1:1.'}}
-2025-06-02 13:31:51,325 - my_logger - INFO - 'feature_analysis' returned: {'feature_transformation_results': None, 'manual_feature_selection_results': {'MutualInformation': 'Threshold: 0.2, Delete features: True', 'LowVariances': 'Threshold: 0.01, Delete features: True', 'VIF': 'Threshold: 10, Delete features: True', 'PCA': 'Threshold: 0.95, Delete features: True'}, 'automatic_feature_selection_results': {'L1': {'predictivePowerFeatures': None, 'excludedFeatures': None, 'deletesFeatures': True}, 'Boruta': {'selected_features': None, 'excludedFeatures': None, 'deletesFeatures': True}}}
-2025-06-02 13:32:30,345 - my_logger - INFO - 'modelling' returned: {'pre_tuning_runner': {'metrics_df': {'id': {0: 'a4aee649dc3ce5b88d2afd99fb08a06522ec56f5dc4e9cc45a8bf088c7805ee8'}, 'timeStamp': {0: '2025-06-02 13:31:59'}, 'comments': {0: 'A VERY GREAT COMMENT, I CAN TELL YOU THAT'}, 'modelName': {0: 'Majority Class (baseline)'}, 'currentPhase': {0: 'pre'}, 'features_used': {0: ['Pclass', 'Age', 'Siblings_Spouses_Aboard', 'Parents_Children_Aboard', 'Fare', 'Sex_male']}, 'hyperParameters': {0: '{}'}, 'timeToFit': {0: 0.0011358261108398438}, 'timeToPredict': {0: 1.4066696166992188e-05}, 'accuracy_val': {0: 0.5617977528089888}, 'accuracy_test': {0: -1}, 'precision_val': {0: 0.3156167150612297}, 'precision_test': {0: -1}, 'recall_val': {0: 0.5617977528089888}, 'recall_test': {0: -1}, 'f1-score_val': {0: 0.4041710451863228}, 'f1-score_test': {0: -1}, 'kappa_val': {0: 0.0}, 'kappa_test': {0: -1}, 'weightedaccuracy_val': {0: -1}, 'weightedaccuracy_test': {0: -1}}, 'residuals': {'tree_based': 136    0
+2025-06-02 13:48:06,502 - my_logger - INFO - Pipeline runner started at 2025-06-02 13:48:06
+2025-06-02 13:48:07,172 - my_logger - INFO - 'dataset' returned: ('X_train: (709, 6)', 'X_val: (89, 6)', 'X_test: (89, 6)')
+2025-06-02 13:48:11,321 - my_logger - INFO - 'data_preprocessing' returned: {'not_baseline': {'tree_based': 'Handled missing values : No missing values found in the dataset; Duplicates analyzed : There are 70 duplicates in the dataset; Outliers detected by percentile : None; Features scaled with no_scaler : No scaling performed; Class imbalance: Successfully balanced classes via SMOTE. Started with a 0.60:1 ratio; now 1:1.', 'feed_forward_neural_network': 'Handled missing values : No missing values found in the dataset; Duplicates analyzed : There are 70 duplicates in the dataset; Outliers detected by percentile : None; Features scaled with robust : Successfully scaled 6 features. Plotted distributions for the first 5 features.\nTo check the results run:\n your_pipeline.dataset.X_train.head(); Class imbalance: Successfully balanced classes via SMOTE. Started with a 0.60:1 ratio; now 1:1.', 'naive_bayes': 'Handled missing values : No missing values found in the dataset; Duplicates analyzed : There are 70 duplicates in the dataset; Outliers detected by percentile : None; Features scaled with standard : Successfully scaled 6 features. Plotted distributions for the first 5 features.\nTo check the results run:\n your_pipeline.dataset.X_train.head(); Class imbalance: Successfully balanced classes via SMOTE. Started with a 0.60:1 ratio; now 1:1.', 'ensembled': 'Handled missing values : No missing values found in the dataset; Duplicates analyzed : There are 70 duplicates in the dataset; Outliers detected by percentile : None; Features scaled with robust : Successfully scaled 6 features. Plotted distributions for the first 5 features.\nTo check the results run:\n your_pipeline.dataset.X_train.head(); Class imbalance: Successfully balanced classes via SMOTE. Started with a 0.60:1 ratio; now 1:1.', 'abc': 'Handled missing values : No missing values found in the dataset; Duplicates analyzed : There are 70 duplicates in the dataset; Outliers detected by percentile : None; Features scaled with robust : Successfully scaled 6 features. Plotted distributions for the first 5 features.\nTo check the results run:\n your_pipeline.dataset.X_train.head(); Class imbalance: Successfully balanced classes via SMOTE. Started with a 0.60:1 ratio; now 1:1.'}, 'baseline': {'baselines': 'Handled missing values : No missing values found in the dataset; Duplicates analyzed : There are 70 duplicates in the dataset; Outliers detected by percentile : None; Features scaled with robust : Successfully scaled 6 features. Plotted distributions for the first 5 features.\nTo check the results run:\n your_pipeline.dataset.X_train.head(); Class imbalance: Successfully balanced classes via SMOTE. Started with a 0.60:1 ratio; now 1:1.'}}
+2025-06-02 13:48:11,325 - my_logger - INFO - 'feature_analysis' returned: {'feature_transformation_results': None, 'manual_feature_selection_results': {'MutualInformation': 'Threshold: 0.2, Delete features: True', 'LowVariances': 'Threshold: 0.01, Delete features: True', 'VIF': 'Threshold: 10, Delete features: True', 'PCA': 'Threshold: 0.95, Delete features: True'}, 'automatic_feature_selection_results': {'L1': {'predictivePowerFeatures': None, 'excludedFeatures': None, 'deletesFeatures': True}, 'Boruta': {'selected_features': None, 'excludedFeatures': None, 'deletesFeatures': True}}}
+2025-06-02 13:56:56,163 - my_logger - INFO - 'modelling' returned: {'pre_tuning_runner': {'metrics_df': {'id': {0: 'a4aee649dc3ce5b88d2afd99fb08a06522ec56f5dc4e9cc45a8bf088c7805ee8', 1: 'c6f1699386d0a64888ec9f6d6067529721c971c6d678625ec3eff4aef2aa067e'}, 'timeStamp': {0: '2025-06-02 13:49:12', 1: '2025-06-02 13:49:12'}, 'comments': {0: 'A VERY GREAT COMMENT, I CAN TELL YOU THAT', 1: 'A VERY GREAT COMMENT, I CAN TELL YOU THAT'}, 'modelName': {0: 'Majority Class (baseline)', 1: 'AdaBoost'}, 'currentPhase': {0: 'pre', 1: 'pre'}, 'features_used': {0: ['Pclass', 'Age', 'Siblings_Spouses_Aboard', 'Parents_Children_Aboard', 'Fare', 'Sex_male'], 1: ['Pclass', 'Age', 'Siblings_Spouses_Aboard', 'Parents_Children_Aboard', 'Fare', 'Sex_male']}, 'hyperParameters': {0: '{}', 1: "{'algorithm': 'deprecated', 'estimator': None, 'learning_rate': 1.0, 'n_estimators': 50, 'random_state': None}"}, 'timeToFit': {0: 0.006265878677368164, 1: 0.09910893440246582}, 'timeToPredict': {0: 0.00011396408081054688, 1: 0.025310993194580078}, 'accuracy_val': {0: 0.5617977528089888, 1: 0.7752808988764045}, 'accuracy_test': {0: -1, 1: -1}, 'precision_val': {0: 0.3156167150612297, 1: 0.7745684318718027}, 'precision_test': {0: -1, 1: -1}, 'recall_val': {0: 0.5617977528089888, 1: 0.7752808988764045}, 'recall_test': {0: -1, 1: -1}, 'f1-score_val': {0: 0.4041710451863228, 1: 0.7745271970408506}, 'f1-score_test': {0: -1, 1: -1}, 'kappa_val': {0: 0.0, 1: 0.5410005157297577}, 'kappa_test': {0: -1, 1: -1}, 'weightedaccuracy_val': {0: -1, 1: -1}, 'weightedaccuracy_test': {0: -1, 1: -1}}, 'residuals': {'tree_based': 136    0
 321    1
 824    1
 862    1
@@ -20,6 +20,133 @@
 219    1
 208    1
 699    0
+dtype: int64, 'feed_forward_neural_network': 371    0
+27     0
+136    0
+64     1
+853    1
+824    1
+405    1
+799    1
+575    0
+567    1
+480    1
+18     0
+15     1
+725    0
+113    0
+84     1
+848    0
+507    1
+336    1
+299    1
+219    1
+208    1
+699    0
+dtype: int64, 'naive_bayes': 371    0
+27     0
+136    0
+131    0
+64     1
+853    1
+824    1
+405    1
+799    1
+509    1
+575    0
+567    1
+18     0
+607    0
+725    0
+113    0
+84     1
+848    0
+507    1
+336    1
+299    1
+219    1
+208    1
+699    0
+dtype: int64, 'ensembled': 27     0
+824    1
+575    0
+567    1
+480    1
+18     0
+674    1
+329    0
+105    1
+725    0
+547    1
+113    0
+718    0
+50     0
+848    0
+336    1
+299    1
+219    1
+208    1
+22     1
+699    0
+dtype: int64, 'abc': 371    0
+131    0
+64     1
+853    1
+824    1
+405    1
+575    0
+567    1
+18     0
+607    0
+725    0
+113    0
+84     1
+848    0
+507    1
+336    1
+299    1
+219    1
+208    1
+699    0
+dtype: int64, 'stacking': 397    1
+604    1
+849    1
+321    1
+64     1
+853    1
+697    1
+824    1
+405    1
+799    1
+777    1
+686    1
+509    1
+308    1
+726    1
+862    1
+567    1
+480    1
+57     1
+674    1
+15     1
+236    1
+105    1
+78     1
+32     1
+666    1
+547    1
+638    1
+476    1
+84     1
+574    1
+507    1
+336    1
+299    1
+219    1
+208    1
+22     1
+609    1
+819    1
 dtype: int64, 'baselines': 397    1
 604    1
 849    1
@@ -61,16 +188,30 @@ dtype: int64, 'baselines': 397    1
 819    1
 dtype: int64}, 'confusion_matrices': {'Decision Tree': {'absolute': array([[44,  6],
        [12, 27]]), 'relative': array([[88.        , 12.        ],
-       [30.76923077, 69.23076923]])}, 'Majority Class (baseline)': {'absolute': array([[50,  0],
+       [30.76923077, 69.23076923]])}, 'Feed Forward Neural Network': {'absolute': array([[41,  9],
+       [14, 25]]), 'relative': array([[82.       , 18.       ],
+       [35.8974359, 64.1025641]])}, 'Naive Bayes': {'absolute': array([[39, 11],
+       [13, 26]]), 'relative': array([[78.        , 22.        ],
+       [33.33333333, 66.66666667]])}, 'Gradient Boosting': {'absolute': array([[41,  9],
+       [ 9, 30]]), 'relative': array([[82.        , 18.        ],
+       [23.07692308, 76.92307692]])}, 'Random Forest': {'absolute': array([[40, 10],
+       [11, 28]]), 'relative': array([[80.        , 20.        ],
+       [28.20512821, 71.79487179]])}, 'K-Nearest Neighbors': {'absolute': array([[37, 13],
+       [ 9, 30]]), 'relative': array([[74.        , 26.        ],
+       [23.07692308, 76.92307692]])}, 'AdaBoost': {'absolute': array([[41,  9],
+       [11, 28]]), 'relative': array([[82.        , 18.        ],
+       [28.20512821, 71.79487179]])}, 'Stacking': {'absolute': array([[50,  0],
        [39,  0]]), 'relative': array([[100.,   0.],
-       [100.,   0.]])}}}, 'in_tuning_runner': {'metrics_df': {'id': {0: '131860d8f6c8f84dec39e6985da34399565fc125c5af62f1a971bf801e6b5967'}, 'timeStamp': {0: '2025-06-02 13:32:08'}, 'comments': {0: 'A VERY GREAT COMMENT, I CAN TELL YOU THAT'}, 'modelName': {0: 'Decision Tree'}, 'currentPhase': {0: 'in'}, 'features_used': {0: ['Pclass', 'Age', 'Siblings_Spouses_Aboard', 'Parents_Children_Aboard', 'Fare', 'Sex_male']}, 'hyperParameters': {0: "{'ccp_alpha': 0.01, 'class_weight': None, 'criterion': 'entropy', 'max_depth': 10, 'max_features': 'sqrt', 'max_leaf_nodes': None, 'min_impurity_decrease': 0.0, 'min_samples_leaf': 1, 'min_samples_split': 5, 'min_weight_fraction_leaf': 0.0, 'monotonic_cst': None, 'random_state': None, 'splitter': 'best'}"}, 'timeToFit': {0: 0.6897780895233154}, 'timeToPredict': {0: 0.0016169548034667969}, 'accuracy_val': {0: 0.7865168539325843}, 'accuracy_test': {0: -1}, 'precision_val': {0: 0.78970776660753}, 'precision_test': {0: -1}, 'recall_val': {0: 0.7865168539325843}, 'recall_test': {0: -1}, 'f1-score_val': {0: 0.7829761304358757}, 'f1-score_test': {0: -1}, 'kappa_val': {0: 0.5576772168454094}, 'kappa_test': {0: -1}, 'weightedaccuracy_val': {0: -1}, 'weightedaccuracy_test': {0: -1}}, 'residuals': {'tree_based': 604    1
-853    1
+       [100.,   0.]])}, 'Majority Class (baseline)': {'absolute': array([[50,  0],
+       [39,  0]]), 'relative': array([[100.,   0.],
+       [100.,   0.]])}}}, 'in_tuning_runner': {'metrics_df': {'id': {0: '7ec818567becd6f3cbcdf93f6ac4e13d628ed20ba3c590045da45f7a638f23ad', 1: 'dc57e013f1b93e51bee94f2bcd8158c6f1904324d04a9cbff00f3c9d5f76feaf'}, 'timeStamp': {0: '2025-06-02 13:56:13', 1: '2025-06-02 13:56:13'}, 'comments': {0: 'A VERY GREAT COMMENT, I CAN TELL YOU THAT', 1: 'A VERY GREAT COMMENT, I CAN TELL YOU THAT'}, 'modelName': {0: 'Stacking', 1: 'AdaBoost'}, 'currentPhase': {0: 'in', 1: 'in'}, 'features_used': {0: ['Pclass', 'Age', 'Siblings_Spouses_Aboard', 'Parents_Children_Aboard', 'Fare', 'Sex_male'], 1: ['Pclass', 'Age', 'Siblings_Spouses_Aboard', 'Parents_Children_Aboard', 'Fare', 'Sex_male']}, 'hyperParameters': {0: "{'cv': 5, 'estimators': [('Feed Forward Neural Network', FeedForwardNeuralNetwork(activations=['relu', 'relu', 'selu', 'selu', 'relu'],\n                         batch_size=128, epochs=10,\n                         kernel_initializer='glorot_uniform',\n                         learning_rate=0.0005668181079162232, n_layers=5,\n                         num_classes=2, num_features=6,\n                         units_per_layer=[64, 128, 256, 64, 128]))], 'final_estimator__C': 0.1, 'final_estimator__class_weight': None, 'final_estimator__dual': False, 'final_estimator__fit_intercept': True, 'final_estimator__intercept_scaling': 1, 'final_estimator__l1_ratio': None, 'final_estimator__max_iter': 100, 'final_estimator__multi_class': 'deprecated', 'final_estimator__n_jobs': None, 'final_estimator__penalty': 'l2', 'final_estimator__random_state': None, 'final_estimator__solver': 'lbfgs', 'final_estimator__tol': 0.0001, 'final_estimator__verbose': 0, 'final_estimator__warm_start': False, 'final_estimator': LogisticRegression(C=0.1), 'n_jobs': None, 'passthrough': True, 'stack_method': 'auto', 'verbose': 3, 'Feed Forward Neural Network': FeedForwardNeuralNetwork(activations=['relu', 'relu', 'selu', 'selu', 'relu'],\n                         batch_size=128, epochs=10,\n                         kernel_initializer='glorot_uniform',\n                         learning_rate=0.0005668181079162232, n_layers=5,\n                         num_classes=2, num_features=6,\n                         units_per_layer=[64, 128, 256, 64, 128]), 'Feed Forward Neural Network__num_features': 6, 'Feed Forward Neural Network__num_classes': 2, 'Feed Forward Neural Network__batch_size': 128, 'Feed Forward Neural Network__epochs': 10, 'Feed Forward Neural Network__n_layers': 5, 'Feed Forward Neural Network__units_per_layer': [64, 128, 256, 64, 128], 'Feed Forward Neural Network__activations': ['relu', 'relu', 'selu', 'selu', 'relu'], 'Feed Forward Neural Network__learning_rate': 0.0005668181079162232, 'Feed Forward Neural Network__kernel_initializer': 'glorot_uniform', 'Feed Forward Neural Network__class_weights': None}", 1: "{'algorithm': 'deprecated', 'estimator': None, 'learning_rate': 0.05, 'n_estimators': 150, 'random_state': None}"}, 'timeToFit': {0: 338.46277689933777, 1: 14.06929087638855}, 'timeToPredict': {0: 0.14281177520751953, 1: 0.027652978897094727}, 'accuracy_val': {0: 0.7640449438202247, 1: 0.7528089887640449}, 'accuracy_test': {0: -1, 1: -1}, 'precision_val': {0: 0.7661578454563374, 1: 0.7533197139938713}, 'precision_test': {0: -1, 1: -1}, 'recall_val': {0: 0.7640449438202247, 1: 0.7528089887640449}, 'recall_test': {0: -1, 1: -1}, 'f1-score_val': {0: 0.7601315125870205, 1: 0.749505335311992}, 'f1-score_test': {0: -1, 1: -1}, 'kappa_val': {0: 0.5111169238817683, 1: 0.4893062076160668}, 'kappa_test': {0: -1, 1: -1}, 'weightedaccuracy_val': {0: -1, 1: -1}, 'weightedaccuracy_test': {0: -1, 1: -1}}, 'residuals': {'tree_based': 131    0
 824    1
-509    1
+405    1
 575    0
 567    1
-480    1
+30     0
 18     0
+329    0
 725    0
 547    1
 113    0
@@ -82,28 +223,149 @@ dtype: int64}, 'confusion_matrices': {'Decision Tree': {'absolute': array([[44, 
 219    1
 208    1
 699    0
-dtype: int64}, 'confusion_matrices': {'Decision Tree': {'absolute': array([[44,  6],
-       [13, 26]]), 'relative': array([[88.        , 12.        ],
-       [33.33333333, 66.66666667]])}}}, 'post_tuning_runner': ('Decision Tree', 0.7829761304358757, {'metrics_df': {'id': {0: '59f9a826a8ec5ebf8904b2c48824d1a04d03b516b198768b8732c168d7b0d3bf'}, 'timeStamp': {0: '2025-06-02 13:32:29'}, 'comments': {0: 'A VERY GREAT COMMENT, I CAN TELL YOU THAT'}, 'modelName': {0: 'Majority Class (baseline)'}, 'currentPhase': {0: 'post'}, 'features_used': {0: ['Pclass', 'Age', 'Siblings_Spouses_Aboard', 'Parents_Children_Aboard', 'Fare', 'Sex_male']}, 'hyperParameters': {0: '{}'}, 'timeToFit': {0: 0.0018050670623779297}, 'timeToPredict': {0: 9.298324584960938e-06}, 'accuracy_test': {0: 0.5842696629213483}, 'accuracy_val': {0: -1}, 'precision_test': {0: 0.341371039010226}, 'precision_val': {0: -1}, 'recall_test': {0: 0.5842696629213483}, 'recall_val': {0: -1}, 'f1-score_test': {0: 0.4309506733604271}, 'f1-score_val': {0: -1}, 'kappa_test': {0: 0.0}, 'kappa_val': {0: -1}, 'weightedaccuracy_test': {0: -1}, 'weightedaccuracy_val': {0: -1}}, 'residuals': {'tree_based': 48     0
+dtype: int64, 'feed_forward_neural_network': 371    0
+27     0
+136    0
+64     1
+853    1
+824    1
+405    1
+799    1
+567    1
+480    1
+18     0
+113    0
+84     1
+848    0
+507    1
+336    1
+299    1
+219    1
+609    1
+699    0
+dtype: int64, 'naive_bayes': 371    0
+27     0
+136    0
+131    0
+64     1
+853    1
+824    1
+405    1
+799    1
+509    1
+575    0
+567    1
+18     0
+607    0
+725    0
+113    0
+84     1
+848    0
+507    1
+336    1
+299    1
+219    1
+208    1
+699    0
+dtype: int64, 'ensembled': 27     0
+824    1
+575    0
+567    1
+480    1
+18     0
+674    1
+329    0
+105    1
+113    0
+718    0
+848    0
+507    1
+336    1
+299    1
+219    1
+208    1
+699    0
+dtype: int64, 'abc': 604    1
+131    0
+64     1
+853    1
+824    1
+405    1
+799    1
+509    1
+575    0
+567    1
+18     0
+607    0
+725    0
+547    1
+113    0
+848    0
+507    1
+336    1
+299    1
+219    1
+208    1
+699    0
+dtype: int64, 'stacking': 371    0
+27     0
+64     1
+853    1
+824    1
+405    1
+799    1
+509    1
+575    0
+567    1
+480    1
+18     0
+113    0
+84     1
+848    0
+507    1
+336    1
+299    1
+219    1
+208    1
+699    0
+dtype: int64}, 'confusion_matrices': {'Decision Tree': {'absolute': array([[41,  9],
+       [10, 29]]), 'relative': array([[82.        , 18.        ],
+       [25.64102564, 74.35897436]])}, 'Feed Forward Neural Network': {'absolute': array([[43,  7],
+       [13, 26]]), 'relative': array([[86.        , 14.        ],
+       [33.33333333, 66.66666667]])}, 'Naive Bayes': {'absolute': array([[39, 11],
+       [13, 26]]), 'relative': array([[78.        , 22.        ],
+       [33.33333333, 66.66666667]])}, 'Gradient Boosting': {'absolute': array([[43,  7],
+       [12, 27]]), 'relative': array([[86.        , 14.        ],
+       [30.76923077, 69.23076923]])}, 'Random Forest': {'absolute': array([[42,  8],
+       [10, 29]]), 'relative': array([[84.        , 16.        ],
+       [25.64102564, 74.35897436]])}, 'K-Nearest Neighbors': {'absolute': array([[37, 13],
+       [10, 29]]), 'relative': array([[74.        , 26.        ],
+       [25.64102564, 74.35897436]])}, 'AdaBoost': {'absolute': array([[42,  8],
+       [14, 25]]), 'relative': array([[84.       , 16.       ],
+       [35.8974359, 64.1025641]])}, 'Stacking': {'absolute': array([[43,  7],
+       [14, 25]]), 'relative': array([[86.       , 14.       ],
+       [35.8974359, 64.1025641]])}}}, 'post_tuning_runner': ('Random Forest', 0.7970744773367655, {'metrics_df': {'id': {0: '59f9a826a8ec5ebf8904b2c48824d1a04d03b516b198768b8732c168d7b0d3bf'}, 'timeStamp': {0: '2025-06-02 13:56:54'}, 'comments': {0: 'A VERY GREAT COMMENT, I CAN TELL YOU THAT'}, 'modelName': {0: 'Majority Class (baseline)'}, 'currentPhase': {0: 'post'}, 'features_used': {0: ['Pclass', 'Age', 'Siblings_Spouses_Aboard', 'Parents_Children_Aboard', 'Fare', 'Sex_male']}, 'hyperParameters': {0: '{}'}, 'timeToFit': {0: 0.0021920204162597656}, 'timeToPredict': {0: 9.059906005859375e-06}, 'accuracy_test': {0: 0.5842696629213483}, 'accuracy_val': {0: -1}, 'precision_test': {0: 0.341371039010226}, 'precision_val': {0: -1}, 'recall_test': {0: 0.5842696629213483}, 'recall_val': {0: -1}, 'f1-score_test': {0: 0.4309506733604271}, 'f1-score_val': {0: -1}, 'kappa_test': {0: 0.0}, 'kappa_val': {0: -1}, 'weightedaccuracy_test': {0: -1}, 'weightedaccuracy_val': {0: -1}}, 'residuals': {'ensembled': 48     0
+81     1
 566    1
+230    0
 17     1
+502    0
 262    0
 247    1
 619    1
 124    1
-420    0
 245    0
+191    1
 584    1
 758    1
-865    1
 670    1
 884    0
 618    1
+710    0
+100    0
 259    1
 126    1
-736    1
 269    1
-596    1
 dtype: int64, 'baselines': 81     1
 301    1
 566    1
@@ -141,8 +403,8 @@ dtype: int64, 'baselines': 81     1
 46     1
 269    1
 596    1
-dtype: int64}, 'confusion_matrices': {'Decision Tree': {'absolute': array([[47,  5],
-       [15, 22]]), 'relative': array([[90.38461538,  9.61538462],
-       [40.54054054, 59.45945946]])}, 'Majority Class (baseline)': {'absolute': array([[52,  0],
+dtype: int64}, 'confusion_matrices': {'Random Forest': {'absolute': array([[44,  8],
+       [14, 23]]), 'relative': array([[84.61538462, 15.38461538],
+       [37.83783784, 62.16216216]])}, 'Majority Class (baseline)': {'absolute': array([[52,  0],
        [37,  0]]), 'relative': array([[100.,   0.],
        [100.,   0.]])}}})}
