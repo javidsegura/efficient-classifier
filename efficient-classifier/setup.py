@@ -28,7 +28,7 @@ else:
 
 setuptools.setup(
     name="efficient-classifier",
-    version="1.0.2",
+    version="2.0.1",
     author="Javier D. Segura",
     author_email="javier.dominguez.segura@gmail.com",
     description="Dataset-agnostic ML classification library. Visualization tools, Slack integration, support for multiple-pipelines.",
