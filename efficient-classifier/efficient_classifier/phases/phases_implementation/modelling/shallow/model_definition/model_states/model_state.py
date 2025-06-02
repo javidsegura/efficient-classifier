@@ -76,7 +76,9 @@ class PreTuningState(ModelState):
                               X_data, y_data, X_val, y_val = self.get_fit_data()
                   else:
                               X_data, y_data = self.get_fit_data()
-                  print(f"Lenght of X_data: {X_data.shape[0]}")
+                  training_samples_length = X_data.shape[0]
+                  target_samples_length = y_data.shape[0]
+                  assert training_samples_length == target_samples_length, f"Training samples: {training_samples_length} and target samples: {target_samples_length}"
                   if self.model_type == "neural_network":
                               self.assesment["model_sklearn"] = self.model_sklearn.fit(X_data, y_data, X_val=X_val, y_val=y_val, isOptimizedVersion=False)
                   else:

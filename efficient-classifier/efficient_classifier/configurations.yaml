@@ -1,8 +1,8 @@
 general:
-  dataset_path: "./dataset/Iris.csv"
+  dataset_path: "./dataset/dynamic_dataset.csv"
   model_task: "classification"
   pipelines_names:
-    not_baseline: ["abc", "stacking", "feed_forward_neural_network", "tree_based", "ensembled"] # removed support vector machine cause it goes too slow
+    not_baseline: ["tree_based"] # removed support vector machine cause it goes too slow
     baseline: ["baselines"] # dont modify this 
   include_plots: True
   max_plots_per_function: 5 # For plots plotting features of the dataset you can limit the number of plots to generate. This is specially useful for high-dimensionality datasets 
@@ -13,7 +13,7 @@ phase_runners:
         p: 0.85
         step: .05
       encoding:
-        y_column: "Species" # name of the column
+        y_column: "Category" # name of the column
         train_size: 0.8
         validation_size: 0.1
         test_size: 0.1
@@ -21,7 +21,7 @@ phase_runners:
         classification: ["accuracy", "precision", "recall", "f1-score", "kappa", "weightedaccuracy"] # defining the metrics that will be evaluated 
         preferred_metric: "f1-score" # Needed for DAG printing some metric in the modelling nodes
   data_preprocessing_runner:
-    features_to_encode: []
+    features_to_encode: ["Reboot"]
     placeholders: 
       - null
       - -999
