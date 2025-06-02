@@ -1,8 +1,8 @@
 general:
-  dataset_path: "./dataset/dynamic_dataset.csv"
+  dataset_path: "./dataset/Iris.csv"
   model_task: "classification"
   pipelines_names:
-    not_baseline: ["tree_based", "naive_bayes", "feed_forward_neural_network", "stacking"] # removed support vector machine cause it goes too slow
+    not_baseline: ["abc", "stacking", "feed_forward_neural_network", "tree_based", "ensembled"] # removed support vector machine cause it goes too slow
     baseline: ["baselines"] # dont modify this 
   include_plots: True
   max_plots_per_function: 5 # For plots plotting features of the dataset you can limit the number of plots to generate. This is specially useful for high-dimensionality datasets 
@@ -13,7 +13,7 @@ phase_runners:
         p: 0.85
         step: .05
       encoding:
-        y_column: "Category" # name of the column
+        y_column: "Species" # name of the column
         train_size: 0.8
         validation_size: 0.1
         test_size: 0.1
@@ -21,7 +21,7 @@ phase_runners:
         classification: ["accuracy", "precision", "recall", "f1-score", "kappa", "weightedaccuracy"] # defining the metrics that will be evaluated 
         preferred_metric: "f1-score" # Needed for DAG printing some metric in the modelling nodes
   data_preprocessing_runner:
-    features_to_encode: ["Reboot"]
+    features_to_encode: []
     placeholders: 
       - null
       - -999
@@ -39,6 +39,7 @@ phase_runners:
     pipeline_specific_configurations: # Expand with your own pipelines names if interested
       scaler:
         baselines: robust
+        abc: robust
         ensembled: robust
         tree_based: no_scaler # Signalling we dont want to scale the features for tree based models
         support_vector_machine: robust
@@ -47,6 +48,7 @@ phase_runners:
         stacking: robust
       imbalancer:
         baselines: ADASYN
+        abc: ADASYN
         ensembled: ADASYN # We dont want to balance the classes for ensembled models
         tree_based: ADASYN
         support_vector_machine: ADASYN
@@ -78,21 +80,17 @@ phase_runners:
       calibration:
         calibrate_models: False
         calibration_method: "sigmoid"
-        not_calibrate_models: ["Majority Class (baseline)"]
+        not_calibrate_models: ["Majority Class (baseline)", "Logistic Regression (baseline)"]
       class_weights:
-          0: 9   # Backdoor 
-          1: 6   # File Infector 
-          2: 3   # PUA 
-          3: 10   # Ransomware 
-          4: 6   # Riskware
-          5: 4   # Scareware 
-          6: 9   # Trojan Banker 
-          7: 7   # Trojan Dropper
-          8: 6  # Trojan SMS
-          9: 8  # Trojan Spy 
+        set_weights: False
+        weights:
+          0: 1
+          1: 1
+          2: 1
       models_to_include:
         not_baseline: # stacking pipeline is always called Stacking
           ensembled: ["Gradient Boosting", "Random Forest"]
+          abc: ["K-Nearest Neighbors", "AdaBoost"]
           tree_based: ["Decision Tree"]
           support_vector_machine: ["Linear SVM", "Non-linear SVM"]
           naive_bayes: ["Naive Bayes"]
@@ -101,18 +99,25 @@ phase_runners:
           baselines: ["Logistic Regression (baseline)", "Majority Class (baseline)"]
       models_to_exclude: # useful for debugging
         not_baseline:
-          ensembled: ["Gradient Boosting", "Random Forest"]
+          abc: []
+          ensembled: ["Gradient Boosting",]
           tree_based: [] 
           support_vector_machine: ["Linear SVM", "Non-linear SVM"]
           naive_bayes: []
           feed_forward_neural_network: [] 
           stacking: ["Stacking"]
         baseline:
-          baselines: ["Logistic Regression (baseline)"]
+          baselines: []
       stacking:
         base_estimators: ["Feed Forward Neural Network", ] # -1 means all models are used as base estimators (that werent excluded). Set to list with model names otherwise
       hyperparameters:
         grid_space:
+          adaboost:
+            n_estimators: [50, 100, 150, 200]
+            learning_rate: [0.01, 0.05, 0.1, 0.2]
+          knn:
+            n_neighbors: [3, 5, 7, 9]
+            weights: ['uniform', 'distance']
           gradient_boosting:
             learning_rate: [0.01, 0.05, 0.1, 0.2]
             subsample: [0.5, 0.75, 1.0]
@@ -138,8 +143,8 @@ phase_runners:
             final_estimator__solver: ['lbfgs']
             passthrough: [True, False]
         tuner_params:
-          max_iter: 1 # CHANGE THIS TO MAKE IT RUN FASTER 
-          epochs: 1 # CHANGE THIS TO MAKE IT RUN FASTER 
+          max_iter: 10 # CHANGE THIS TO MAKE IT RUN FASTER 
+          epochs: 10 # CHANGE THIS TO MAKE IT RUN FASTER 
       neural_network:
         initial_architecture:
             batch_size: 128

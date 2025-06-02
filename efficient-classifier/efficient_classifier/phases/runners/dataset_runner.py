@@ -17,7 +17,6 @@ class DatasetRunner(PhaseRunner):
 
       def run(self) -> None:
             # Select the first pipeline.
-            print(self.pipeline_manager.pipelines)
             pipelines = list(self.pipeline_manager.pipelines["not_baseline"].values())
             default_pipeline = pipelines[0]
 

@@ -133,8 +133,6 @@ class InTuningState(ModelState):
                         print(dir(self.model_sklearn))
                         self.model_sklearn = self.model_sklearn.estimator
                   print(f"2) Model sklearn: {self.model_sklearn} for {self.modelName}")
-
-
                   assert self.model_type is not None, f"Model object must have a model_type. {self.modelName}. Model object: {model_object}"
 
                   if self.model_type == "neural_network":
@@ -208,7 +206,6 @@ class InTuningState(ModelState):
                         self.model_sklearn.is_fitted_ = True
       
       def predict(self):
-                  
                   if self.model_type == "stacking":
                         print(f"ESTIMTORS AT PREDICTION ARE: {self.model_sklearn.estimators}")
                   

@@ -240,12 +240,29 @@ class Modelling:
                   modelName, modelObject = self._evaluate_model(modelName, modelObject, current_phase)
                   self.list_of_models[modelName] = modelObject
             
-            # Store results and update analysis
-            model_logs = self.results_df.store_results(
-                  list_of_models=self.list_of_models,
-                  current_phase=current_phase,
-                  models_to_exclude=self.models_to_exclude
-            )
+            if current_phase == "post":
+                  print(f"List of models: {self.list_of_models}")
+                  print(f"Best model name: {kwargs.get('best_model_name')}")
+                  print(f"Baseline model name: {kwargs.get('baseline_model_name')}")
+
+                  isolated_list_of_models = {}
+                  if kwargs.get("best_model_name"):
+                        isolated_list_of_models[kwargs.get("best_model_name")] = self.list_of_models[kwargs.get("best_model_name")]
+                  if kwargs.get("baseline_model_name"):
+                        isolated_list_of_models[kwargs.get("baseline_model_name")] = self.list_of_models[kwargs.get("baseline_model_name")]
+
+                  model_logs = self.results_df.store_results(
+                        list_of_models=isolated_list_of_models,
+                        current_phase=current_phase,
+                        models_to_exclude=self.models_to_exclude
+                  )
+            else:
+                  # Store results and update analysis
+                  model_logs = self.results_df.store_results(
+                        list_of_models=self.list_of_models,
+                        current_phase=current_phase,
+                        models_to_exclude=self.models_to_exclude
+                  )
             if model_logs is not None:
                   model_logs = pd.DataFrame(model_logs)
                   self.results_analysis[current_phase].phase_results_df = model_logs

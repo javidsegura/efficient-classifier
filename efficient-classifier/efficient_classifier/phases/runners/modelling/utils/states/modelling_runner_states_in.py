@@ -69,6 +69,7 @@ class InTuningRunner(ModellingRunnerStates):
                   }
 
       def _get_grid_space(self):
+      
             # Ensembled models
             gradient_boosting_grid = {
                   'learning_rate': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["gradient_boosting"]["learning_rate"],
@@ -102,6 +103,16 @@ class InTuningRunner(ModellingRunnerStates):
                   'var_smoothing': Real(1e-12, 1e-6, prior='log-uniform')
             }
 
+            adaboost_grid = {
+                  'n_estimators': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["adaboost"]["n_estimators"],
+                  'learning_rate': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["adaboost"]["learning_rate"]
+            }
+
+            knn_grid = {
+                  'n_neighbors': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["knn"]["n_neighbors"],
+                  'weights': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["knn"]["weights"]
+            }
+
             # Feed Forward Neural Network model (hard-coded)
 
             # Stacking
@@ -112,10 +123,10 @@ class InTuningRunner(ModellingRunnerStates):
                   'passthrough': self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["grid_space"]["stacking"]["passthrough"]
             }
 
-            return gradient_boosting_grid, random_forest_grid, decision_tree_grid, naive_bayes_grid, stacking_grid
+            return gradient_boosting_grid, random_forest_grid, decision_tree_grid, naive_bayes_grid, adaboost_grid, knn_grid, stacking_grid
       
       def _get_grid_search_params(self):
-            gradient_boosting_grid, random_forest_grid, decision_tree_grid, naive_bayes_grid, stacking_grid = self._get_grid_space()
+            gradient_boosting_grid, random_forest_grid, decision_tree_grid, naive_bayes_grid, adaboost_grid, knn_grid, stacking_grid = self._get_grid_space()
             modelNameToOptimizer = {
                   "Gradient Boosting": {
                         "optimizer_type": "bayes",
@@ -135,6 +146,16 @@ class InTuningRunner(ModellingRunnerStates):
                   "Naive Bayes": {
                         "optimizer_type": "bayes",
                         "param_grid": naive_bayes_grid,
+                        "max_iter": self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
+                  },
+                  "AdaBoost": {
+                        "optimizer_type": "bayes",
+                        "param_grid": adaboost_grid,
+                        "max_iter": self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
+                  },
+                  "K-Nearest Neighbors": {
+                        "optimizer_type": "bayes",
+                        "param_grid": knn_grid,
                         "max_iter": self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["hyperparameters"]["tuner_params"]["max_iter"]
                   },
                   "Feed Forward Neural Network": {

@@ -74,7 +74,7 @@ class DataPreprocessingRunner(PhaseRunner):
                   save_plots=False, 
                   save_path=save_path
             )
-            preprocessing.outliers_bounds_obj.bound_checking()
+            #preprocessing.outliers_bounds_obj.bound_checking()
             messages.append(f"Outliers detected by {self.variables['phase_runners']['data_preprocessing_runner']['outliers']['detection_type']} : {None}")
             self.pipeline_manager.dag.add_procedure(pipeline_name, "data_preprocessing", "outliers_detection", out_res)
 
@@ -122,14 +122,14 @@ class DataPreprocessingRunner(PhaseRunner):
             
             results = {}
 
-            # for category_name, pipelines in self.pipeline_manager.pipelines.items():
-            #       results[category_name] = {}
-            #       for pipeline_name, pipeline in pipelines.items():
-            #             if pipeline_name == "stacking":
-            #                   continue
-            #             print(f"--> Running preprocessing on pipeline: {category_name} / {pipeline_name}")
-            #             print("-"*30)
-            #             summary = self._execute_preprocessing(preprocessing=pipeline.preprocessing, pipeline_name=pipeline_name)
-            #             print(summary)
-            #             results[category_name][pipeline_name] = summary
+            for category_name, pipelines in self.pipeline_manager.pipelines.items():
+                  results[category_name] = {}
+                  for pipeline_name, pipeline in pipelines.items():
+                        if pipeline_name == "stacking":
+                              continue
+                        print(f"--> Running preprocessing on pipeline: {category_name} / {pipeline_name}")
+                        print("-"*30)
+                        summary = self._execute_preprocessing(preprocessing=pipeline.preprocessing, pipeline_name=pipeline_name)
+                        print(summary)
+                        results[category_name][pipeline_name] = summary
             return results

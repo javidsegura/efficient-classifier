@@ -39,25 +39,25 @@ class ModellingRunner(PhaseRunner):
             because we have observed that a certain model is not performing well and taking too long to fit/predict)
             """
 
-            contains_weight = isinstance(self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"], dict)
+            contains_weight = self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"]["set_weights"]
             
             model_name_to_model_object = {
                         "Gradient Boosting": GradientBoostingClassifier(),
-                        "Random Forest": RandomForestClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
-                        "Decision Tree": DecisionTreeClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
-                        "Linear SVM": LinearSVC(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
-                        "Non-linear SVM": SVC(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
+                        "Random Forest": RandomForestClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"]["weights"] if contains_weight else None),
+                        "Decision Tree": DecisionTreeClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"]["weights"] if contains_weight else None),
+                        "Linear SVM": LinearSVC(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"]["weights"] if contains_weight else None),
+                        "Non-linear SVM": SVC(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"]["weights"] if contains_weight else None),
                         "Naive Bayes": GaussianNB(),
-                        "Logistic Regression": LogisticRegression(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
+                        "Logistic Regression": LogisticRegression(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"]["weights"] if contains_weight else None),
                         "Majority Class": MajorityClassClassifier(),
                         "AdaBoost": AdaBoostClassifier(),
                         "XGBoost": XGBClassifier(),
-                        "LightGBM": LGBMClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
-                        "CatBoost": CatBoostClassifier(verbose=False, class_weights=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
+                        "LightGBM": LGBMClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"]["weights"] if contains_weight else None),
+                        "CatBoost": CatBoostClassifier(verbose=False, class_weights=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"]["weights"] if contains_weight else None),
                         "K-Nearest Neighbors": KNeighborsClassifier(),
-                        "Ridge Classifier": RidgeClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
+                        "Ridge Classifier": RidgeClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"]["weights"] if contains_weight else None),
                         "Elastic Net": ElasticNet(),
-                        "Stochastic Gradient Descent": SGDClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None),
+                        "Stochastic Gradient Descent": SGDClassifier(class_weight=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"]["weights"] if contains_weight else None),
             }
 
 
@@ -75,7 +75,7 @@ class ModellingRunner(PhaseRunner):
                                                                                           learning_rate=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["learning_rate"],
                                                                                           activations=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["activations"],
                                                                                           kernel_initializer=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["neural_network"]["initial_architecture"]["kernel_initializer"],
-                                                                                          class_weights=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"] if contains_weight else None          
+                                                                                          class_weights=self.pipeline_manager.variables["phase_runners"]["modelling_runner"]["class_weights"]["weights"] if contains_weight else None          
                                                                               )
                         break # add all NNs models only once
       
@@ -142,5 +142,5 @@ class ModellingRunner(PhaseRunner):
             self.start_serialization()
 
             return {"pre_tuning_runner": pre_results,
-                    "in_tuning_runner": None ,
-                    "post_tuning_runner": None }
+                    "in_tuning_runner": in_results,
+                    "post_tuning_runner": post_results }

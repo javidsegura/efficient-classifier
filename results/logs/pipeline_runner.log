@@ -1,151 +1,94 @@
-2025-06-02 09:29:24,615 - my_logger - INFO - Pipeline runner started at 2025-06-02 09:29:24
-2025-06-02 09:29:26,116 - my_logger - INFO - 'dataset' returned: ('X_train: (22092, 142)', 'X_val: (2761, 142)', 'X_test: (2762, 142)')
-2025-06-02 09:29:26,259 - my_logger - INFO - 'data_preprocessing' returned: {}
-2025-06-02 09:29:26,288 - my_logger - INFO - 'feature_analysis' returned: {'feature_transformation_results': None, 'manual_feature_selection_results': {'MutualInformation': 'Threshold: 0.2, Delete features: True', 'LowVariances': 'Threshold: 0.01, Delete features: True', 'VIF': 'Threshold: 10, Delete features: True', 'PCA': 'Threshold: 0.95, Delete features: True'}, 'automatic_feature_selection_results': {'L1': {'predictivePowerFeatures': None, 'excludedFeatures': None, 'deletesFeatures': True}, 'Boruta': {'selected_features': None, 'excludedFeatures': None, 'deletesFeatures': True}}}
-2025-06-02 09:34:06,458 - my_logger - INFO - 'modelling' returned: {'pre_tuning_runner': {'metrics_df': {'id': {0: '6ab5017697342da71b81568b64396f7ae83f1a198db1ceef3b8123ec34cdb0d4'}, 'timeStamp': {0: '2025-06-02 09:30:02'}, 'comments': {0: 'A VERY GREAT COMMENT, I CAN TELL YOU THAT'}, 'modelName': {0: 'Majority Class (baseline)'}, 'currentPhase': {0: 'pre'}, 'features_used': {0: ['Memory_PssTotal', 'Memory_PssClean', 'Memory_SharedDirty', 'Memory_PrivateDirty', 'Memory_SharedClean', 'Memory_PrivateClean', 'Memory_SwapPssDirty', 'Memory_HeapSize', 'Memory_HeapAlloc', 'Memory_HeapFree', 'Memory_Views', 'Memory_ViewRootImpl', 'Memory_AppContexts', 'Memory_Activities', 'Memory_Assets', 'Memory_AssetManagers', 'Memory_LocalBinders', 'Memory_ProxyBinders', 'Memory_ParcelMemory', 'Memory_ParcelCount', 'Memory_DeathRecipients', 'Memory_OpenSSLSockets', 'Memory_WebViews', 'API_Process_android.os.Process_start', 'API_Process_android.app.ActivityManager_killBackgroundProcesses', 'API_Process_android.os.Process_killProcess', 'API_Command_java.lang.Runtime_exec', 'API_Command_java.lang.ProcessBuilder_start', 'API_JavaNativeInterface_java.lang.Runtime_loadLibrary', 'API_JavaNativeInterface_java.lang.Runtime_load', 'API_WebView_android.webkit.WebView_loadUrl', 'API_WebView_android.webkit.WebView_loadData', 'API_WebView_android.webkit.WebView_loadDataWithBaseURL', 'API_WebView_android.webkit.WebView_addJavascriptInterface', 'API_WebView_android.webkit.WebView_evaluateJavascript', 'API_WebView_android.webkit.WebView_postUrl', 'API_WebView_android.webkit.WebView_postWebMessage', 'API_WebView_android.webkit.WebView_savePassword', 'API_WebView_android.webkit.WebView_setHttpAuthUsernamePassword', 'API_WebView_android.webkit.WebView_getHttpAuthUsernamePassword', 'API_WebView_android.webkit.WebView_setWebContentsDebuggingEnabled', 'API_FileIO_libcore.io.IoBridge_open', 'API_FileIO_android.content.ContextWrapper_openFileInput', 'API_FileIO_android.content.ContextWrapper_openFileOutput', 'API_FileIO_android.content.ContextWrapper_deleteFile', 'API_Database_android.content.ContextWrapper_openOrCreateDatabase', 'API_Database_android.content.ContextWrapper_databaseList', 'API_Database_android.content.ContextWrapper_deleteDatabase', 'API_Database_android.database.sqlite.SQLiteDatabase_execSQL', 'API_Database_android.database.sqlite.SQLiteDatabase_deleteDatabase', 'API_Database_android.database.sqlite.SQLiteDatabase_getPath', 'API_Database_android.database.sqlite.SQLiteDatabase_insert', 'API_Database_android.database.sqlite.SQLiteDatabase_insertOrThrow', 'API_Database_android.database.sqlite.SQLiteDatabase_insertWithOnConflict', 'API_Database_android.database.sqlite.SQLiteDatabase_openDatabase', 'API_Database_android.database.sqlite.SQLiteDatabase_openOrCreateDatabase', 'API_Database_android.database.sqlite.SQLiteDatabase_query', 'API_Database_android.database.sqlite.SQLiteDatabase_queryWithFactory', 'API_Database_android.database.sqlite.SQLiteDatabase_rawQuery', 'API_Database_android.database.sqlite.SQLiteDatabase_rawQueryWithFactory', 'API_Database_android.database.sqlite.SQLiteDatabase_update', 'API_Database_android.database.sqlite.SQLiteDatabase_updateWithOnConflict', 'API_Database_android.database.sqlite.SQLiteDatabase_compileStatement', 'API_Database_android.database.sqlite.SQLiteDatabase_create', 'API_IPC_android.content.ContextWrapper_sendBroadcast', 'API_IPC_android.content.ContextWrapper_sendStickyBroadcast', 'API_IPC_android.content.ContextWrapper_startActivity', 'API_IPC_android.content.ContextWrapper_startService', 'API_IPC_android.content.ContextWrapper_stopService', 'API_IPC_android.content.ContextWrapper_registerReceiver', 'API_Binder_android.app.ContextImpl_registerReceiver', 'API_Binder_android.app.ActivityThread_handleReceiver', 'API_Binder_android.app.Activity_startActivity', 'API_Crypto_javax.crypto.spec.SecretKeySpec_$init', 'API_Crypto_javax.crypto.Cipher_doFinal', 'API_Crypto-Hash_java.security.MessageDigest_digest', 'API_Crypto-Hash_java.security.MessageDigest_update', 'API_DeviceInfo_android.telephony.TelephonyManager_getDeviceId', 'API_DeviceInfo_android.telephony.TelephonyManager_getSubscriberId', 'API_DeviceInfo_android.telephony.TelephonyManager_getLine1Number', 'API_DeviceInfo_android.telephony.TelephonyManager_getNetworkOperator', 'API_DeviceInfo_android.telephony.TelephonyManager_getNetworkOperatorName', 'API_DeviceInfo_android.telephony.TelephonyManager_getSimOperatorName', 'API_DeviceInfo_android.net.wifi.WifiInfo_getMacAddress', 'API_DeviceInfo_android.net.wifi.WifiInfo_getBSSID', 'API_DeviceInfo_android.net.wifi.WifiInfo_getIpAddress', 'API_DeviceInfo_android.net.wifi.WifiInfo_getNetworkId', 'API_DeviceInfo_android.telephony.TelephonyManager_getSimCountryIso', 'API_DeviceInfo_android.telephony.TelephonyManager_getSimSerialNumber', 'API_DeviceInfo_android.telephony.TelephonyManager_getNetworkCountryIso', 'API_DeviceInfo_android.telephony.TelephonyManager_getDeviceSoftwareVersion', 'API_DeviceInfo_android.os.Debug_isDebuggerConnected', 'API_DeviceInfo_android.content.pm.PackageManager_getInstallerPackageName', 'API_DeviceInfo_android.content.pm.PackageManager_getInstalledApplications', 'API_DeviceInfo_android.content.pm.PackageManager_getInstalledModules', 'API_DeviceInfo_android.content.pm.PackageManager_getInstalledPackages', 'API_Network_java.net.URL_openConnection', 'API_Network_org.apache.http.impl.client.AbstractHttpClient_execute', 'API_Network_com.android.okhttp.internal.huc.HttpURLConnectionImpl_getInputStream', 'API_Network_com.android.okhttp.internal.http.HttpURLConnectionImpl_getInputStream', 'API_DexClassLoader_dalvik.system.BaseDexClassLoader_findResource', 'API_DexClassLoader_dalvik.system.BaseDexClassLoader_findResources', 'API_DexClassLoader_dalvik.system.BaseDexClassLoader_findLibrary', 'API_DexClassLoader_dalvik.system.DexFile_loadDex', 'API_DexClassLoader_dalvik.system.DexFile_loadClass', 'API_DexClassLoader_dalvik.system.DexClassLoader_$init', 'API_Base64_android.util.Base64_decode', 'API_Base64_android.util.Base64_encode', 'API_Base64_android.util.Base64_encodeToString', 'API_SystemManager_android.app.ApplicationPackageManager_setComponentEnabledSetting', 'API_SystemManager_android.app.NotificationManager_notify', 'API_SystemManager_android.telephony.TelephonyManager_listen', 'API_SystemManager_android.content.BroadcastReceiver_abortBroadcast', 'API_SMS_android.telephony.SmsManager_sendTextMessage', 'API_SMS_android.telephony.SmsManager_sendMultipartTextMessage', 'API_DeviceData_android.content.ContentResolver_query', 'API_DeviceData_android.content.ContentResolver_registerContentObserver', 'API_DeviceData_android.content.ContentResolver_insert', 'API_DeviceData_android.content.ContentResolver_delete', 'API_DeviceData_android.accounts.AccountManager_getAccountsByType', 'API_DeviceData_android.accounts.AccountManager_getAccounts', 'API_DeviceData_android.location.Location_getLatitude', 'API_DeviceData_android.location.Location_getLongitude', 'API_DeviceData_android.media.AudioRecord_startRecording', 'API_DeviceData_android.media.MediaRecorder_start', 'API_DeviceData_android.os.SystemProperties_get', 'API_DeviceData_android.app.ApplicationPackageManager_getInstalledPackages', 'API__sessions', 'Network_TotalReceivedBytes', 'Network_TotalReceivedPackets', 'Network_TotalTransmittedBytes', 'Network_TotalTransmittedPackets', 'Battery_wakelock', 'Battery_service', 'Logcat_info', 'Logcat_error', 'Logcat_warning', 'Logcat_debug', 'Logcat_verbose', 'Logcat_total', 'Process_total', 'Reboot_before', 'Network_TotalTransmittedBytes_x_Network_TotalReceivedBytes', 'API_Network_java.net.URL_openConnection_x_API_Binder_android.app.Activity_startActivity', 'Memory_PssTotal_x_API_Crypto-Hash_java.security.MessageDigest_digest', 'Riskware_Adware_Ratio']}, 'hyperParameters': {0: '{}'}, 'timeToFit': {0: 0.0027451515197753906}, 'timeToPredict': {0: 9.608268737792969e-05}, 'accuracy_val': {0: 0.49909453096704093}, 'accuracy_test': {0: -1}, 'precision_val': {0: 0.2490953508412106}, 'precision_test': {0: -1}, 'recall_val': {0: 0.49909453096704093}, 'recall_test': {0: -1}, 'f1-score_val': {0: 0.33232774277486465}, 'f1-score_test': {0: -1}, 'kappa_val': {0: 0.0}, 'kappa_test': {0: -1}, 'weightedaccuracy_val': {0: 0.08823529411764706}, 'weightedaccuracy_test': {0: -1}}, 'residuals': {'tree_based': 43517    9
-52372    2
-14788    3
-22745    4
-7456     1
-        ..
-15853    7
-50599    0
-18507    4
-36364    4
-14011    3
-Length: 391, dtype: int64, 'naive_bayes': 43517    9
-23936    4
-19047    4
-611      8
-21387    4
-        ..
-38937    4
-39089    4
-51489    9
-38367    4
-42991    9
-Length: 2378, dtype: int64, 'feed_forward_neural_network': 23936    4
-19047    4
-611      8
-21387    4
-23873    4
-        ..
-23933    4
-37250    4
-38937    4
-39089    4
-51489    9
-Length: 2064, dtype: int64, 'baselines': 43517    9
-611      8
-50607    0
-52372    2
-49882    3
-        ..
-49388    3
-14011    3
-51489    9
-42991    9
-48876    3
-Length: 1383, dtype: int64}, 'confusion_matrices': {'Decision Tree': {'absolute': array([[  91,    0,    1,    6,   15,    0,    1,    2,    4,    1],
-       [   0,   19,    0,    0,    2,    2,    0,    0,    1,    0],
-       [   0,    1,  102,    2,   18,    3,    0,    3,    3,    2],
-       [   4,    0,    1,  267,   16,    0,    0,   22,    7,   22],
-       [  13,    3,   11,   14, 1288,    5,    2,    7,   20,   15],
-       [   2,    0,    0,    1,    5,   75,    1,    0,    0,    2],
-       [   0,    0,    1,    2,    2,    0,   12,    5,    0,    1],
-       [   7,    0,    1,   45,    7,    0,    3,   85,    0,    3],
-       [   5,    1,    3,    4,   16,    5,    2,    1,  165,    3],
-       [   2,    0,    0,   20,    2,    3,    0,    3,    4,  266]]), 'relative': array([[75.20661157,  0.        ,  0.82644628,  4.95867769, 12.39669421,
-         0.        ,  0.82644628,  1.65289256,  3.30578512,  0.82644628],
-       [ 0.        , 79.16666667,  0.        ,  0.        ,  8.33333333,
-         8.33333333,  0.        ,  0.        ,  4.16666667,  0.        ],
-       [ 0.        ,  0.74626866, 76.11940299,  1.49253731, 13.43283582,
-         2.23880597,  0.        ,  2.23880597,  2.23880597,  1.49253731],
-       [ 1.179941  ,  0.        ,  0.29498525, 78.76106195,  4.71976401,
-         0.        ,  0.        ,  6.48967552,  2.06489676,  6.48967552],
-       [ 0.94339623,  0.21770682,  0.79825835,  1.01596517, 93.46879536,
-         0.3628447 ,  0.14513788,  0.50798258,  1.45137881,  1.08853411],
-       [ 2.3255814 ,  0.        ,  0.        ,  1.1627907 ,  5.81395349,
-        87.20930233,  1.1627907 ,  0.        ,  0.        ,  2.3255814 ],
-       [ 0.        ,  0.        ,  4.34782609,  8.69565217,  8.69565217,
-         0.        , 52.17391304, 21.73913043,  0.        ,  4.34782609],
-       [ 4.63576159,  0.        ,  0.66225166, 29.8013245 ,  4.63576159,
-         0.        ,  1.98675497, 56.29139073,  0.        ,  1.98675497],
-       [ 2.43902439,  0.48780488,  1.46341463,  1.95121951,  7.80487805,
-         2.43902439,  0.97560976,  0.48780488, 80.48780488,  1.46341463],
-       [ 0.66666667,  0.        ,  0.        ,  6.66666667,  0.66666667,
-         1.        ,  0.        ,  1.        ,  1.33333333, 88.66666667]])}, 'Naive Bayes': {'absolute': array([[   0,    0,    0,  117,    3,    0,    0,    0,    0,    1],
-       [   0,    0,    0,   23,    1,    0,    0,    0,    0,    0],
-       [   0,    0,   32,   95,    4,    0,    0,    0,    0,    3],
-       [   0,    0,    0,  336,    2,    0,    0,    0,    0,    1],
-       [   0,    0,    0, 1352,   11,    0,    0,    0,    0,   15],
-       [   0,    0,    0,   75,    4,    0,    0,    0,    0,    7],
-       [   0,    0,    0,   22,    1,    0,    0,    0,    0,    0],
-       [   0,    0,    0,  144,    4,    0,    0,    0,    0,    3],
-       [   0,    0,    2,  199,    3,    0,    0,    0,    0,    1],
-       [   0,    0,    0,  294,    2,    0,    0,    0,    0,    4]]), 'relative': array([[ 0.        ,  0.        ,  0.        , 96.69421488,  2.47933884,
-         0.        ,  0.        ,  0.        ,  0.        ,  0.82644628],
-       [ 0.        ,  0.        ,  0.        , 95.83333333,  4.16666667,
-         0.        ,  0.        ,  0.        ,  0.        ,  0.        ],
-       [ 0.        ,  0.        , 23.88059701, 70.89552239,  2.98507463,
-         0.        ,  0.        ,  0.        ,  0.        ,  2.23880597],
-       [ 0.        ,  0.        ,  0.        , 99.11504425,  0.5899705 ,
-         0.        ,  0.        ,  0.        ,  0.        ,  0.29498525],
-       [ 0.        ,  0.        ,  0.        , 98.11320755,  0.79825835,
-         0.        ,  0.        ,  0.        ,  0.        ,  1.08853411],
-       [ 0.        ,  0.        ,  0.        , 87.20930233,  4.65116279,
-         0.        ,  0.        ,  0.        ,  0.        ,  8.13953488],
-       [ 0.        ,  0.        ,  0.        , 95.65217391,  4.34782609,
-         0.        ,  0.        ,  0.        ,  0.        ,  0.        ],
-       [ 0.        ,  0.        ,  0.        , 95.36423841,  2.64900662,
-         0.        ,  0.        ,  0.        ,  0.        ,  1.98675497],
-       [ 0.        ,  0.        ,  0.97560976, 97.07317073,  1.46341463,
-         0.        ,  0.        ,  0.        ,  0.        ,  0.48780488],
-       [ 0.        ,  0.        ,  0.        , 98.        ,  0.66666667,
-         0.        ,  0.        ,  0.        ,  0.        ,  1.33333333]])}, 'Feed Forward Neural Network': {'absolute': array([[   0,    0,   73,   22,   24,    0,    0,    0,    0,    2],
-       [   0,    0,    8,   10,    6,    0,    0,    0,    0,    0],
-       [   1,    0,   85,   17,   29,    0,    0,    0,    0,    2],
-       [   0,    0,   17,  259,   42,    0,    0,    0,    0,   21],
-       [   0,    0, 1025,  103,  230,    0,    0,   18,    0,    2],
-       [   0,    0,   18,   61,    7,    0,    0,    0,    0,    0],
-       [   0,    0,    4,   14,    3,    0,    0,    1,    0,    1],
-       [   0,    0,   35,  104,    8,    1,    0,    3,    0,    0],
-       [   0,    0,   78,   50,   72,    0,    0,    0,    3,    2],
-       [   0,    0,   93,   59,   23,    0,    0,    8,    0,  117]]), 'relative': array([[ 0.        ,  0.        , 60.33057851, 18.18181818, 19.83471074,
-         0.        ,  0.        ,  0.        ,  0.        ,  1.65289256],
-       [ 0.        ,  0.        , 33.33333333, 41.66666667, 25.        ,
-         0.        ,  0.        ,  0.        ,  0.        ,  0.        ],
-       [ 0.74626866,  0.        , 63.43283582, 12.68656716, 21.64179104,
-         0.        ,  0.        ,  0.        ,  0.        ,  1.49253731],
-       [ 0.        ,  0.        ,  5.01474926, 76.40117994, 12.38938053,
-         0.        ,  0.        ,  0.        ,  0.        ,  6.19469027],
-       [ 0.        ,  0.        , 74.38316401,  7.47460087, 16.69085631,
-         0.        ,  0.        ,  1.30624093,  0.        ,  0.14513788],
-       [ 0.        ,  0.        , 20.93023256, 70.93023256,  8.13953488,
-         0.        ,  0.        ,  0.        ,  0.        ,  0.        ],
-       [ 0.        ,  0.        , 17.39130435, 60.86956522, 13.04347826,
-         0.        ,  0.        ,  4.34782609,  0.        ,  4.34782609],
-       [ 0.        ,  0.        , 23.17880795, 68.87417219,  5.29801325,
-         0.66225166,  0.        ,  1.98675497,  0.        ,  0.        ],
-       [ 0.        ,  0.        , 38.04878049, 24.3902439 , 35.12195122,
-         0.        ,  0.        ,  0.        ,  1.46341463,  0.97560976],
-       [ 0.        ,  0.        , 31.        , 19.66666667,  7.66666667,
-         0.        ,  0.        ,  2.66666667,  0.        , 39.        ]])}, 'Majority Class (baseline)': {'absolute': array([[   0,    0,    0,    0,  121,    0,    0,    0,    0,    0],
-       [   0,    0,    0,    0,   24,    0,    0,    0,    0,    0],
-       [   0,    0,    0,    0,  134,    0,    0,    0,    0,    0],
-       [   0,    0,    0,    0,  339,    0,    0,    0,    0,    0],
-       [   0,    0,    0,    0, 1378,    0,    0,    0,    0,    0],
-       [   0,    0,    0,    0,   86,    0,    0,    0,    0,    0],
-       [   0,    0,    0,    0,   23,    0,    0,    0,    0,    0],
-       [   0,    0,    0,    0,  151,    0,    0,    0,    0,    0],
-       [   0,    0,    0,    0,  205,    0,    0,    0,    0,    0],
-       [   0,    0,    0,    0,  300,    0,    0,    0,    0,    0]]), 'relative': array([[  0.,   0.,   0.,   0., 100.,   0.,   0.,   0.,   0.,   0.],
-       [  0.,   0.,   0.,   0., 100.,   0.,   0.,   0.,   0.,   0.],
-       [  0.,   0.,   0.,   0., 100.,   0.,   0.,   0.,   0.,   0.],
-       [  0.,   0.,   0.,   0., 100.,   0.,   0.,   0.,   0.,   0.],
-       [  0.,   0.,   0.,   0., 100.,   0.,   0.,   0.,   0.,   0.],
-       [  0.,   0.,   0.,   0., 100.,   0.,   0.,   0.,   0.,   0.],
-       [  0.,   0.,   0.,   0., 100.,   0.,   0.,   0.,   0.,   0.],
-       [  0.,   0.,   0.,   0., 100.,   0.,   0.,   0.,   0.,   0.],
-       [  0.,   0.,   0.,   0., 100.,   0.,   0.,   0.,   0.,   0.],
-       [  0.,   0.,   0.,   0., 100.,   0.,   0.,   0.,   0.,   0.]])}}}, 'in_tuning_runner': None, 'post_tuning_runner': None}
+2025-06-02 10:39:20,594 - my_logger - INFO - Pipeline runner started at 2025-06-02 10:39:20
+2025-06-02 10:39:21,714 - my_logger - INFO - 'dataset' returned: ('X_train: (120, 5)', 'X_val: (15, 5)', 'X_test: (15, 5)')
+2025-06-02 10:39:25,672 - my_logger - INFO - 'data_preprocessing' returned: {'not_baseline': {'abc': 'Handled missing values : No missing values found in the dataset; Duplicates analyzed : There are 0 duplicates in the dataset; Outliers detected by percentile : None; Features scaled with robust : Successfully scaled 5 features. Plotted distributions for the first 5 features.\nTo check the results run:\n your_pipeline.dataset.X_train.head(); Class imbalance: Successfully balanced classes via SMOTE. Started with a 0.90:1 ratio; now 1:1.', 'feed_forward_neural_network': 'Handled missing values : No missing values found in the dataset; Duplicates analyzed : There are 0 duplicates in the dataset; Outliers detected by percentile : None; Features scaled with robust : Successfully scaled 5 features. Plotted distributions for the first 5 features.\nTo check the results run:\n your_pipeline.dataset.X_train.head(); Class imbalance: Successfully balanced classes via SMOTE. Started with a 0.90:1 ratio; now 1:1.', 'tree_based': 'Handled missing values : No missing values found in the dataset; Duplicates analyzed : There are 0 duplicates in the dataset; Outliers detected by percentile : None; Features scaled with no_scaler : No scaling performed; Class imbalance: Successfully balanced classes via SMOTE. Started with a 0.90:1 ratio; now 1:1.', 'ensembled': 'Handled missing values : No missing values found in the dataset; Duplicates analyzed : There are 0 duplicates in the dataset; Outliers detected by percentile : None; Features scaled with robust : Successfully scaled 5 features. Plotted distributions for the first 5 features.\nTo check the results run:\n your_pipeline.dataset.X_train.head(); Class imbalance: Successfully balanced classes via SMOTE. Started with a 0.90:1 ratio; now 1:1.'}, 'baseline': {'baselines': 'Handled missing values : No missing values found in the dataset; Duplicates analyzed : There are 0 duplicates in the dataset; Outliers detected by percentile : None; Features scaled with robust : Successfully scaled 5 features. Plotted distributions for the first 5 features.\nTo check the results run:\n your_pipeline.dataset.X_train.head(); Class imbalance: Successfully balanced classes via SMOTE. Started with a 0.90:1 ratio; now 1:1.'}}
+2025-06-02 10:39:26,393 - my_logger - INFO - 'feature_analysis' returned: {'feature_transformation_results': None, 'manual_feature_selection_results': {'MutualInformation': 'Threshold: 0.2, Delete features: True', 'LowVariances': 'Threshold: 0.01, Delete features: True', 'VIF': 'Threshold: 10, Delete features: True', 'PCA': 'Threshold: 0.95, Delete features: True'}, 'automatic_feature_selection_results': {'L1': {'predictivePowerFeatures': None, 'excludedFeatures': None, 'deletesFeatures': True}, 'Boruta': {'selected_features': {'SepalLengthCm', 'PetalLengthCm', 'Id'}, 'excludedFeatures': set(), 'deletesFeatures': True}}}
+2025-06-02 10:41:17,681 - my_logger - INFO - 'modelling' returned: {'pre_tuning_runner': {'metrics_df': {'id': {0: 'f66538a146f448787aeedb6105e0d2f6fb741068590fc39156493fbf84d07585', 1: '2be375fe77dcbba67fa61969ade6892a41218f54b30113ca70ad720bc9c9f321'}, 'timeStamp': {0: '2025-06-02 10:39:47', 1: '2025-06-02 10:39:47'}, 'comments': {0: 'A VERY GREAT COMMENT, I CAN TELL YOU THAT', 1: 'A VERY GREAT COMMENT, I CAN TELL YOU THAT'}, 'modelName': {0: 'Logistic Regression (baseline)', 1: 'Majority Class (baseline)'}, 'currentPhase': {0: 'pre', 1: 'pre'}, 'features_used': {0: ['Id', 'SepalLengthCm', 'PetalLengthCm'], 1: ['Id', 'SepalLengthCm', 'PetalLengthCm']}, 'hyperParameters': {0: "{'C': 1.0, 'class_weight': None, 'dual': False, 'fit_intercept': True, 'intercept_scaling': 1, 'l1_ratio': None, 'max_iter': 100, 'multi_class': 'deprecated', 'n_jobs': None, 'penalty': 'l2', 'random_state': None, 'solver': 'lbfgs', 'tol': 0.0001, 'verbose': 0, 'warm_start': False}", 1: '{}'}, 'timeToFit': {0: 0.01986408233642578, 1: 0.0022377967834472656}, 'timeToPredict': {0: 0.0074880123138427734, 1: 5.1021575927734375e-05}, 'accuracy_val': {0: 0.9333333333333333, 1: 0.4}, 'accuracy_test': {0: -1, 1: -1}, 'precision_val': {0: 0.9428571428571428, 1: 0.16000000000000003}, 'precision_test': {0: -1, 1: -1}, 'recall_val': {0: 0.9333333333333333, 1: 0.4}, 'recall_test': {0: -1, 1: -1}, 'f1-score_val': {0: 0.9311355311355312, 1: 0.22857142857142856}, 'f1-score_test': {0: -1, 1: -1}, 'kappa_val': {0: 0.8972602739726028, 1: 0.0}, 'kappa_test': {0: -1, 1: -1}, 'weightedaccuracy_val': {0: -1, 1: -1}, 'weightedaccuracy_test': {0: -1, 1: -1}}, 'residuals': {'abc': Series([], dtype: int64), 'feed_forward_neural_network': 71    1
+58    1
+84    1
+89    1
+70    1
+dtype: int64, 'tree_based': Series([], dtype: int64), 'ensembled': 106    2
+dtype: int64, 'baselines': 139    2
+106    2
+104    2
+4      0
+43     0
+24     0
+6      0
+120    2
+8      0
+dtype: int64}, 'confusion_matrices': {'K-Nearest Neighbors': {'absolute': array([[5, 0, 0],
+       [0, 6, 0],
+       [0, 1, 3]]), 'relative': array([[100.,   0.,   0.],
+       [  0., 100.,   0.],
+       [  0.,  25.,  75.]])}, 'AdaBoost': {'absolute': array([[5, 0, 0],
+       [0, 6, 0],
+       [0, 0, 4]]), 'relative': array([[100.,   0.,   0.],
+       [  0., 100.,   0.],
+       [  0.,   0., 100.]])}, 'Feed Forward Neural Network': {'absolute': array([[5, 0, 0],
+       [0, 1, 5],
+       [0, 0, 4]]), 'relative': array([[100.        ,   0.        ,   0.        ],
+       [  0.        ,  16.66666667,  83.33333333],
+       [  0.        ,   0.        , 100.        ]])}, 'Decision Tree': {'absolute': array([[5, 0, 0],
+       [0, 6, 0],
+       [0, 0, 4]]), 'relative': array([[100.,   0.,   0.],
+       [  0., 100.,   0.],
+       [  0.,   0., 100.]])}, 'Random Forest': {'absolute': array([[5, 0, 0],
+       [0, 6, 0],
+       [0, 1, 3]]), 'relative': array([[100.,   0.,   0.],
+       [  0., 100.,   0.],
+       [  0.,  25.,  75.]])}, 'Logistic Regression (baseline)': {'absolute': array([[5, 0, 0],
+       [0, 6, 0],
+       [0, 1, 3]]), 'relative': array([[100.,   0.,   0.],
+       [  0., 100.,   0.],
+       [  0.,  25.,  75.]])}, 'Majority Class (baseline)': {'absolute': array([[0, 5, 0],
+       [0, 6, 0],
+       [0, 4, 0]]), 'relative': array([[  0., 100.,   0.],
+       [  0., 100.,   0.],
+       [  0., 100.,   0.]])}}}, 'in_tuning_runner': {'metrics_df': {'id': {0: '45b3bfa0b92ddd61a36d6a67cb35881822764e2eb589bf12702bccc592d1d6cb', 1: 'c56014914deb14b92d5094cb9f1ca1b0d85aba1513632404b9bdb73cf19f3a0d'}, 'timeStamp': {0: '2025-06-02 10:40:18', 1: '2025-06-02 10:40:18'}, 'comments': {0: 'A VERY GREAT COMMENT, I CAN TELL YOU THAT', 1: 'A VERY GREAT COMMENT, I CAN TELL YOU THAT'}, 'modelName': {0: 'Random Forest', 1: 'AdaBoost'}, 'currentPhase': {0: 'in', 1: 'in'}, 'features_used': {0: ['Id', 'SepalLengthCm', 'PetalLengthCm'], 1: ['Id', 'SepalLengthCm', 'PetalLengthCm']}, 'hyperParameters': {0: "{'bootstrap': True, 'ccp_alpha': 0.0, 'class_weight': None, 'criterion': 'gini', 'max_depth': 20, 'max_features': 'sqrt', 'max_leaf_nodes': None, 'max_samples': None, 'min_impurity_decrease': 0.0, 'min_samples_leaf': 4, 'min_samples_split': 10, 'min_weight_fraction_leaf': 0.0, 'monotonic_cst': None, 'n_estimators': 100, 'n_jobs': None, 'oob_score': False, 'random_state': None, 'verbose': 0, 'warm_start': False}", 1: "{'algorithm': 'deprecated', 'estimator': None, 'learning_rate': 0.2, 'n_estimators': 200, 'random_state': None}"}, 'timeToFit': {0: 8.028805017471313, 1: 10.726368188858032}, 'timeToPredict': {0: 0.014238119125366211, 1: 0.03886294364929199}, 'accuracy_val': {0: 0.9333333333333333, 1: 1.0}, 'accuracy_test': {0: -1, 1: -1}, 'precision_val': {0: 0.9428571428571428, 1: 1.0}, 'precision_test': {0: -1, 1: -1}, 'recall_val': {0: 0.9333333333333333, 1: 1.0}, 'recall_test': {0: -1, 1: -1}, 'f1-score_val': {0: 0.9311355311355312, 1: 1.0}, 'f1-score_test': {0: -1, 1: -1}, 'kappa_val': {0: 0.8972602739726028, 1: 1.0}, 'kappa_test': {0: -1, 1: -1}, 'weightedaccuracy_val': {0: -1, 1: -1}, 'weightedaccuracy_test': {0: -1, 1: -1}}, 'residuals': {'abc': Series([], dtype: int64), 'feed_forward_neural_network': 106    2
+58     1
+70     1
+dtype: int64, 'tree_based': 106    2
+dtype: int64, 'ensembled': 106    2
+dtype: int64}, 'confusion_matrices': {'K-Nearest Neighbors': {'absolute': array([[5, 0, 0],
+       [0, 6, 0],
+       [0, 1, 3]]), 'relative': array([[100.,   0.,   0.],
+       [  0., 100.,   0.],
+       [  0.,  25.,  75.]])}, 'AdaBoost': {'absolute': array([[5, 0, 0],
+       [0, 6, 0],
+       [0, 0, 4]]), 'relative': array([[100.,   0.,   0.],
+       [  0., 100.,   0.],
+       [  0.,   0., 100.]])}, 'Feed Forward Neural Network': {'absolute': array([[5, 0, 0],
+       [2, 4, 0],
+       [0, 1, 3]]), 'relative': array([[100.        ,   0.        ,   0.        ],
+       [ 33.33333333,  66.66666667,   0.        ],
+       [  0.        ,  25.        ,  75.        ]])}, 'Decision Tree': {'absolute': array([[5, 0, 0],
+       [0, 6, 0],
+       [0, 1, 3]]), 'relative': array([[100.,   0.,   0.],
+       [  0., 100.,   0.],
+       [  0.,  25.,  75.]])}, 'Random Forest': {'absolute': array([[5, 0, 0],
+       [0, 6, 0],
+       [0, 1, 3]]), 'relative': array([[100.,   0.,   0.],
+       [  0., 100.,   0.],
+       [  0.,  25.,  75.]])}}}, 'post_tuning_runner': ('AdaBoost', 1.0, {'metrics_df': {'id': {0: '52c35074843cef310c42707c00fbfc8bf9174434352d1d6426e94038af4b2d14'}, 'timeStamp': {0: '2025-06-02 10:41:14'}, 'comments': {0: 'A VERY GREAT COMMENT, I CAN TELL YOU THAT'}, 'modelName': {0: 'Majority Class (baseline)'}, 'currentPhase': {0: 'post'}, 'features_used': {0: ['Id', 'SepalLengthCm', 'PetalLengthCm']}, 'hyperParameters': {0: '{}'}, 'timeToFit': {0: 0.0022270679473876953}, 'timeToPredict': {0: 8.821487426757812e-06}, 'accuracy_test': {0: 0.4}, 'accuracy_val': {0: -1}, 'precision_test': {0: 0.16000000000000003}, 'precision_val': {0: -1}, 'recall_test': {0: 0.4}, 'recall_val': {0: -1}, 'f1-score_test': {0: 0.22857142857142856}, 'f1-score_val': {0: -1}, 'kappa_test': {0: 0.0}, 'kappa_val': {0: -1}, 'weightedaccuracy_test': {0: -1}, 'weightedaccuracy_val': {0: -1}}, 'residuals': {'abc': Series([], dtype: int64), 'baselines': 117    2
+9      0
+127    2
+147    2
+122    2
+16     0
+108    2
+46     0
+124    2
+dtype: int64}, 'confusion_matrices': {'AdaBoost': {'absolute': array([[3, 0, 0],
+       [0, 6, 0],
+       [0, 0, 6]]), 'relative': array([[100.,   0.,   0.],
+       [  0., 100.,   0.],
+       [  0.,   0., 100.]])}, 'Logistic Regression (baseline)': {'absolute': array([[3, 0, 0],
+       [0, 6, 0],
+       [0, 0, 6]]), 'relative': array([[100.,   0.,   0.],
+       [  0., 100.,   0.],
+       [  0.,   0., 100.]])}, 'Majority Class (baseline)': {'absolute': array([[0, 3, 0],
+       [0, 6, 0],
+       [0, 6, 0]]), 'relative': array([[  0., 100.,   0.],
+       [  0., 100.,   0.],
+       [  0., 100.,   0.]])}}})}

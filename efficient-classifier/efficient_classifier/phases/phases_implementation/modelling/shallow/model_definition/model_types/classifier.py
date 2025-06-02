@@ -76,19 +76,23 @@ class Classifier(Model):
             kappa_val = cohen_kappa_score(y_actual, y_pred)
             kappa_train = cohen_kappa_score(y_actual_train, y_pred_train)
 
-            cw = self.variables["phase_runners"]["modelling_runner"]["class_weights"]
+            contains_weight = self.variables["phase_runners"]["modelling_runner"]["class_weights"]["set_weights"]
+            cw = self.variables["phase_runners"]["modelling_runner"]["class_weights"]["weights"] if contains_weight else None
+            if contains_weight:
+                  try:
+                        class_weight_dict = {int(k): v for k, v in cw.items()}
+                  except Exception:
+                        class_weight_dict = {}
+            
+                  if not class_weight_dict:
+                        unique_classes = np.unique(np.concatenate([y_actual, y_actual_train]))
+                        class_weight_dict = {int(cls): 1.0 for cls in unique_classes}
 
-            try:
-                  class_weight_dict = {int(k): v for k, v in cw.items()}
-            except Exception:
-                  class_weight_dict = {}
-           
-            if not class_weight_dict:
-                  unique_classes = np.unique(np.concatenate([y_actual, y_actual_train]))
-                  class_weight_dict = {int(cls): 1.0 for cls in unique_classes}
-
-            weightedaccuracy_val, _, _ = self._calculate_weightedaccuracy(y_actual, y_pred, class_weight_dict)
-            weightedaccuracy_train, _ , _ = self._calculate_weightedaccuracy(y_actual_train, y_pred_train, class_weight_dict)
+                  weightedaccuracy_val, _, _ = self._calculate_weightedaccuracy(y_actual, y_pred, class_weight_dict)
+                  weightedaccuracy_train, _ , _ = self._calculate_weightedaccuracy(y_actual_train, y_pred_train, class_weight_dict)
+            else:
+                  weightedaccuracy_val = -1
+                  weightedaccuracy_train = -1
 
             results = {
                   "base_metrics": {
@@ -117,6 +121,7 @@ class Classifier(Model):
             # Storing results to assesment attribute
             self.tuning_states[current_phase].assesment["metrics"] = results
             print(f"Metrics for {modelName} in {current_phase} phase: {results}")
+            print(f"Asesement for {modelName} in {current_phase} phase: {self.tuning_states[current_phase].assesment}")
 
       def _calculate_weightedaccuracy(self, y_actual, y_pred, class_weights):
             if not class_weights or not isinstance(class_weights, dict):
